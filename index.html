@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soares App</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#111827;
+    color:white;
+    height:100vh;
+}
+
+button{
+    border:0;
+    cursor:pointer;
+}
+
+.app{
+    display:flex;
+    height:100vh;
+}
+
+/* SERVIDORES */
+
+.servers{
+    width:65px;
+    background:#111318;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:10px;
+    gap:10px;
+}
+
+.server{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:#292c33;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:20px;
+}
+
+.server.main{
+    background:#5865f2;
+    font-weight:bold;
+}
+
+.server.add{
+    color:#23a559;
+    font-size:27px;
+}
+
+/* LISTA */
+
+.sidebar{
+    width:260px;
+    background:#20232a;
+    display:flex;
+    flex-direction:column;
+}
+
+.header{
+    padding:18px;
+    font-size:20px;
+    font-weight:bold;
+    border-bottom:1px solid #333;
+}
+
+.menu{
+    display:flex;
+    gap:5px;
+    padding:10px;
+}
+
+.menu button{
+    flex:1;
+    padding:10px 5px;
+    border-radius:7px;
+    background:#2f333b;
+    color:white;
+}
+
+.menu button:hover{
+    background:#5865f2;
+}
+
+.search{
+    margin:5px 10px 10px;
+    padding:11px;
+    background:#111318;
+    border:0;
+    outline:0;
+    border-radius:7px;
+    color:white;
+    width:calc(100% - 20px);
+}
+
+.section{
+    color:#949ba4;
+    font-size:11px;
+    font-weight:bold;
+    padding:15px 12px 7px;
+}
+
+.item{
+    margin:2px 8px;
+    padding:10px;
+    border-radius:6px;
+    cursor:pointer;
+    color:#b5bac1;
+}
+
+.item:hover{
+    background:#353941;
+    color:white;
+}
+
+.item.active{
+    background:#40444b;
+    color:white;
+}
+
+/* CHAT */
+
+.chat{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+}
+
+.chat-header{
+    height:60px;
+    padding:0 20px;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    border-bottom:1px solid #333;
+}
+
+.chat-header span{
+    color:#949ba4;
+    font-size:23px;
+}
+
+.messages{
+    flex:1;
+    overflow-y:auto;
+    padding:20px;
+}
+
+.message{
+    display:flex;
+    gap:10px;
+    margin-bottom:18px;
+}
+
+.avatar{
+    width:40px;
+    height:40px;
+    min-width:40px;
+
+    border-radius:50%;
+    background:#5865f2;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:bold;
+}
+
+.message-text{
+    margin-top:4px;
+    color:#dbdee1;
+    word-break:break-word;
+}
+
+.message-time{
+    color:#777;
+    font-size:11px;
+    margin-left:5px;
+}
+
+.input-area{
+    display:flex;
+    padding:12px;
+    gap:8px;
+}
+
+.input-area input{
+    flex:1;
+    background:#383a40;
+    color:white;
+    border:0;
+    outline:0;
+    border-radius:8px;
+    padding:14px;
+}
+
+.send{
+    width:50px;
+    border-radius:8px;
+    background:#5865f2;
+    color:white;
+    font-size:20px;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,.7);
+
+    align-items:center;
+    justify-content:center;
+
+    z-index:100;
+}
+
+.modal-box{
+    width:90%;
+    max-width:400px;
+
+    background:#2b2d31;
+
+    padding:25px;
+    border-radius:12px;
+}
+
+.modal-box h2{
+    margin-top:0;
+}
+
+.modal-box input{
+    width:100%;
+    padding:12px;
+    margin:7px 0;
+
+    background:#111318;
+    border:0;
+    outline:0;
+
+    border-radius:7px;
+    color:white;
+}
+
+.modal-buttons{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+.modal-buttons button{
+    flex:1;
+    padding:12px;
+    border-radius:7px;
+}
+
+.confirm{
+    background:#5865f2;
+    color:white;
+}
+
+.cancel{
+    background:#444;
+    color:white;
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+    .servers{
+        width:55px;
+    }
+
+    .server{
+        width:40px;
+        height:40px;
+    }
+
+    .sidebar{
+        width:210px;
+    }
+
+    .members{
+        display:none;
+    }
+
+}
+
+@media(max-width:500px){
+
+    .servers{
+        display:none;
+    }
+
+    .sidebar{
+        width:100%;
+    }
+
+    .chat{
+        display:none;
+    }
+
+    .sidebar.mobile-hidden{
+        display:none;
+    }
+
+    .chat.mobile-show{
+        display:flex;
+        width:100%;
+    }
+
+    .back{
+        display:block !important;
+    }
+
+}
+
+.back{
+    display:none;
+    background:none;
+    color:white;
+    font-size:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SERVIDORES -->
+
+<div class="servers">
+
+    <div class="server main">
+        S
+    </div>
+
+    <div class="server">
+        👥
+    </div>
+
+    <div class="server">
+        🎮
+    </div>
+
+    <div class="server">
+        ⚽
+    </div>
+
+    <div class="server add">
+        +
+    </div>
+
+</div>
+
+
+<!-- SIDEBAR -->
+
+<div class="sidebar" id="sidebar">
+
+    <div class="header">
+        Soares App
+    </div>
+
+    <div class="menu">
+
+        <button onclick="mostrarAmigos()">
+            👥 Amigos
+        </button>
+
+        <button onclick="abrirGrupo()">
+            +
+        </button>
+
+    </div>
+
+    <input
+        class="search"
+        id="pesquisa"
+        placeholder="🔎 Procurar"
+        oninput="pesquisar()"
+    >
+
+    <div class="section">
+        AMIGOS
+    </div>
+
+    <div id="listaAmigos">
+
+        <div class="item" onclick="abrirChat('João')">
+            🟢 João
+        </div>
+
+        <div class="item" onclick="abrirChat('Pedro')">
+            🟢 Pedro
+        </div>
+
+    </div>
+
+
+    <div class="section">
+        GRUPOS
+    </div>
+
+    <div id="listaGrupos">
+
+        <div class="item" onclick="abrirChat('🎮 Amigos')">
+            🎮 Amigos
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- CHAT -->
+
+<div class="chat" id="chat">
+
+    <div class="chat-header">
+
+        <button class="back" onclick="voltar()">
+            ←
+        </button>
+
+        <span>💬</span>
+
+        <strong id="chatNome">
+            Selecione uma conversa
+        </strong>
+
+    </div>
+
+
+    <div class="messages" id="messages">
+
+        <p style="color:#949ba4">
+            Escolha um amigo ou grupo para começar.
+        </p>
+
+    </div>
+
+
+    <div class="input-area">
+
+        <input
+            id="messageInput"
+            placeholder="Digite uma mensagem..."
+            onkeydown="tecla(event)"
+        >
+
+        <button class="send" onclick="enviar()">
+            ➤
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<!-- MODAL ADICIONAR AMIGO -->
+
+<div class="modal" id="modalAmigo">
+
+<div class="modal-box">
+
+<h2>Adicionar amigo</h2>
+
+<p style="color:#aaa">
+Digite o nome do seu amigo.
+</p>
+
+<input
+    id="nomeAmigo"
+    placeholder="Nome do amigo"
+>
+
+<div class="modal-buttons">
+
+<button class="cancel" onclick="fecharModal()">
+Cancelar
+</button>
+
+<button class="confirm" onclick="adicionarAmigo()">
+Adicionar
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- MODAL GRUPO -->
+
+<div class="modal" id="modalGrupo">
+
+<div class="modal-box">
+
+<h2>Criar grupo</h2>
+
+<input
+    id="nomeGrupo"
+    placeholder="Nome do grupo"
+>
+
+<div class="modal-buttons">
+
+<button class="cancel" onclick="fecharGrupo()">
+Cancelar
+</button>
+
+<button class="confirm" onclick="criarGrupo()">
+Criar
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+let conversaAtual = "";
+
+let amigos = ["João","Pedro"];
+
+let grupos = ["🎮 Amigos"];
+
+
+/* ABRIR CHAT */
+
+function abrirChat(nome){
+
+    conversaAtual = nome;
+
+    document.getElementById("chatNome").innerText = nome;
+
+    document.getElementById("messages").innerHTML = "";
+
+    document.getElementById("sidebar")
+        .classList.add("mobile-hidden");
+
+    document.getElementById("chat")
+        .classList.add("mobile-show");
+
+}
+
+
+/* ENVIAR */
+
+function enviar(){
+
+    const input =
+        document.getElementById("messageInput");
+
+    const texto = input.value.trim();
+
+    if(!texto || !conversaAtual){
+        return;
+    }
+
+    const hora = new Date().toLocaleTimeString(
+        "pt-BR",
+        {
+            hour:"2-digit",
+            minute:"2-digit"
+        }
+    );
+
+    const div =
+        document.createElement("div");
+
+    div.className = "message";
+
+    div.innerHTML = `
+
+        <div class="avatar">
+            S
+        </div>
+
+        <div>
+
+            <strong>
+                Soares
+            </strong>
+
+            <span class="message-time">
+                ${hora}
+            </span>
+
+            <div class="message-text">
+                ${texto}
+            </div>
+
+        </div>
+
+    `;
+
+    document
+        .getElementById("messages")
+        .appendChild(div);
+
+    input.value = "";
+
+    const messages =
+        document.getElementById("messages");
+
+    messages.scrollTop =
+        messages.scrollHeight;
+
+}
+
+
+/* ENTER */
+
+function tecla(event){
+
+    if(event.key === "Enter"){
+        enviar();
+    }
+
+}
+
+
+/* ADICIONAR AMIGO */
+
+function mostrarAmigos(){
+
+    document
+        .getElementById("modalAmigo")
+        .style.display = "flex";
+
+}
+
+
+function adicionarAmigo(){
+
+    const input =
+        document.getElementById("nomeAmigo");
+
+    const nome = input.value.trim();
+
+    if(!nome){
+        return;
+    }
+
+    amigos.push(nome);
+
+    atualizarAmigos();
+
+    input.value = "";
+
+    fecharModal();
+
+}
+
+
+function atualizarAmigos(){
+
+    const lista =
+        document.getElementById("listaAmigos");
+
+    lista.innerHTML = "";
+
+    amigos.forEach(nome => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "item";
+
+        div.innerText = "🟢 " + nome;
+
+        div.onclick = function(){
+            abrirChat(nome);
+        };
+
+        lista.appendChild(div);
+
+    });
+
+}
+
+
+/* CRIAR GRUPO */
+
+function abrirGrupo(){
+
+    document
+        .getElementById("modalGrupo")
+        .style.display = "flex";
+
+}
+
+
+function criarGrupo(){
+
+    const input =
+        document.getElementById("nomeGrupo");
+
+    const nome = input.value.trim();
+
+    if(!nome){
+        return;
+    }
+
+    grupos.push("👥 " + nome);
+
+    atualizarGrupos();
+
+    input.value = "";
+
+    fecharGrupo();
+
+}
+
+
+function atualizarGrupos(){
+
+    const lista =
+        document.getElementById("listaGrupos");
+
+    lista.innerHTML = "";
+
+    grupos.forEach(nome => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "item";
+
+        div.innerText = nome;
+
+        div.onclick = function(){
+            abrirChat(nome);
+        };
+
+        lista.appendChild(div);
+
+    });
+
+}
+
+
+/* PESQUISA */
+
+function pesquisar(){
+
+    const texto =
+        document
+        .getElementById("pesquisa")
+        .value
+        .toLowerCase();
+
+    document
+        .querySelectorAll(".item")
+        .forEach(item => {
+
+            item.style.display =
+                item.innerText
+                .toLowerCase()
+                .includes(texto)
+                ? "block"
+                : "none";
+
+        });
+
+}
+
+
+/* FECHAR MODAIS */
+
+function fecharModal(){
+
+    document
+        .getElementById("modalAmigo")
+        .style.display = "none";
+
+}
+
+function fecharGrupo(){
+
+    document
+        .getElementById("modalGrupo")
+        .style.display = "none";
+
+}
+
+
+/* VOLTAR NO CELULAR */
+
+function voltar(){
+
+    document
+        .getElementById("chat")
+        .classList.remove("mobile-show");
+
+    document
+        .getElementById("sidebar")
+        .classList.remove("mobile-hidden");
+
+}
+
+</script>
+
+</body>
+</html>
