@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Soares Zap - Conexão Global</title>
+  <title>Soares Zap - Conexão em Tempo Real</title>
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,7 +26,11 @@
       background: #313338; width: 420px; max-width: 90%; padding: 32px; border-radius: 12px;
       box-shadow: 0 12px 32px rgba(0,0,0,0.7); text-align: center; border: 1px solid #3f4147;
     }
-    .auth-logo { font-size: 32px; color: #5865f2; margin-bottom: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; text-shadow: 0 0 12px rgba(88,101,242,0.4); }
+    .auth-logo { 
+      font-size: 32px; color: #f2a900; margin-bottom: 8px; font-weight: 800; 
+      display: flex; align-items: center; justify-content: center; gap: 12px; 
+      text-shadow: 0 0 15px rgba(242, 169, 0, 0.6); 
+    }
     .auth-box h2 { color: #f2f3f5; font-size: 20px; margin-bottom: 20px; }
     .input-group { margin-bottom: 16px; text-align: left; }
     .input-group label { display: block; color: #b5bac1; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
@@ -71,25 +75,25 @@
     .chat-area { flex: 1; background: #313338; display: flex; flex-direction: column; position: relative; }
     .chat-header { height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2b2d31; font-weight: bold; color: #f2f3f5; background: #313338; }
 
-    /* PAPEL DE PAREDE DO CHAT (WALLPAPER DOODLE) */
+    /* PAPEL DE PAREDE DO CHAT (DOODLE PATTERN) */
     .messages-container {
       flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
-      background-color: #313338;
-      background-image: radial-gradient(#3f4147 1px, transparent 1px);
-      background-size: 20px 20px;
+      background-color: #0b141a;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 0);
+      background-size: 24px 24px;
     }
     .message { display: flex; gap: 12px; animation: fadeIn 0.15s ease-in; }
     .message-content { flex: 1; }
     .message-content h4 { color: #f2f3f5; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
     .message-content h4 span { font-size: 11px; color: #949ba4; font-weight: normal; }
-    .message-content p { color: #dbdee1; font-size: 14px; line-height: 1.4; word-break: break-word; background: rgba(43, 45, 49, 0.6); padding: 8px 12px; border-radius: 0 8px 8px 8px; display: inline-block; max-width: 85%; }
+    .message-content p { color: #dbdee1; font-size: 14px; line-height: 1.4; word-break: break-word; background: #111b21; padding: 8px 12px; border-radius: 0 8px 8px 8px; display: inline-block; max-width: 85%; border: 1px solid #202c33; }
     .message-img { max-width: 300px; max-height: 220px; border-radius: 8px; margin-top: 6px; display: block; border: 1px solid #3f4147; }
 
     /* BARRA DE ENTRADA DO CHAT */
-    .chat-input-area { padding: 0 16px 20px 16px; background: #313338; }
-    .input-wrapper { background: #383a40; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
+    .chat-input-area { padding: 0 16px 20px 16px; background: #111b21; }
+    .input-wrapper { background: #202c33; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
     .input-wrapper input { flex: 1; background: transparent; border: none; outline: none; color: #f2f3f5; font-size: 15px; }
-    .input-btn { color: #b5bac1; cursor: pointer; font-size: 18px; transition: color 0.2s; }
+    .input-btn { color: #8696a0; cursor: pointer; font-size: 18px; transition: color 0.2s; }
     .input-btn:hover { color: #f2f3f5; }
 
     /* TELAS ALTERNATIVAS (AMIGOS / SERVIDORES) */
@@ -225,9 +229,9 @@
   </div>
 
   <script>
-    // Suas credenciais do projeto soares-zap com databaseURL oficial
+    // Configurações do Firebase com a nova apiKey fornecida
     const firebaseConfig = {
-      apiKey: "AIzaSyCgrMIPnbgz0sEBX3JhJ3sXVOCYMiM-3EI",
+      apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
       authDomain: "soares-zap.firebaseapp.com",
       databaseURL: "https://soares-zap-default-rtdb.firebaseio.com",
       projectId: "soares-zap",
@@ -257,7 +261,6 @@
       setTimeout(() => { toast.style.display = 'none'; }, 3000);
     }
 
-    // Monitoramento de Autenticação em Tempo Real
     auth.onAuthStateChanged(user => {
       if (user) {
         db.ref('users/' + user.uid).once('value', snapshot => {
@@ -312,12 +315,10 @@
 
     function logout() { auth.signOut(); location.reload(); }
 
-    // GERAÇÃO DE ID DE DM EXCLUSIVA (GERA CONEXÃO PERFEITA ENTRE DUAS PESSOAS)
     function getDmChannelId(uid1, uid2) {
       return uid1 < uid2 ? `dm_${uid1}_${uid2}` : `dm_${uid2}_${uid1}`;
     }
 
-    // ABRIR ABA DE MENSAGENS DIRETAS
     function openDirectMessages() {
       currentServerId = null;
       currentTargetDmUid = null;
@@ -328,9 +329,8 @@
       loadFriends();
     }
 
-    // ADICIONAR AMIGO POR E-MAIL
     function addFriendPrompt() {
-      const targetEmail = prompt("Digite o e-mail completo do seu amigo:");
+      const targetEmail = prompt("Digite o e-mail do seu amigo:");
       if (!targetEmail) return;
 
       const cleanEmail = targetEmail.trim().toLowerCase();
@@ -350,7 +350,6 @@
         if (foundUid) {
           if (foundUid === currentUser.uid) return alert("Você não pode adicionar a si mesmo!");
 
-          // Sincronização bidirecional no Firebase
           db.ref(`friends/${currentUser.uid}/${foundUid}`).set(true);
           db.ref(`friends/${foundUid}/${currentUser.uid}`).set(true);
 
@@ -362,14 +361,13 @@
       });
     }
 
-    // CARREGAR LISTA DE AMIGOS
     function loadFriends() {
       db.ref(`friends/${currentUser.uid}`).on('value', snapshot => {
         const list = document.getElementById('friends-list');
         list.innerHTML = '';
 
         if (!snapshot.exists()) {
-          list.innerHTML = '<p style="color:#949ba4;">Você ainda não possui amigos. Clique no botão verde acima para adicionar por e-mail.</p>';
+          list.innerHTML = '<p style="color:#949ba4;">Você ainda não possui amigos. Adicione alguém digitando o e-mail no botão acima.</p>';
           return;
         }
 
@@ -399,7 +397,6 @@
       });
     }
 
-    // ABRIR SALA DE CONVERSA PRIVADA
     function startPrivateChat(friendUid, friendUsername) {
       currentServerId = 'DIRECT_MESSAGES';
       currentTargetDmUid = friendUid;
@@ -412,7 +409,6 @@
       listenMessages();
     }
 
-    // ESCUTAR MENSAGENS EM TEMPO REAL
     function listenMessages() {
       if (!currentServerId || !currentChannelId) return;
 
@@ -421,7 +417,7 @@
         : `messages/${currentServerId}/${currentChannelId}`;
 
       const msgRef = db.ref(path);
-      msgRef.off(); // Limpa escutas anteriores
+      msgRef.off();
 
       msgRef.on('value', snapshot => {
         const container = document.getElementById('messages-container');
@@ -450,7 +446,6 @@
       });
     }
 
-    // ENVIAR MENSAGEM
     function sendMessage(extraData = {}) {
       const input = document.getElementById('chat-message-input');
       const text = input.value.trim();
@@ -472,7 +467,6 @@
       input.value = '';
     }
 
-    // ENVIAR FOTOS
     function handleImageUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -483,7 +477,6 @@
       reader.readAsDataURL(file);
     }
 
-    // GRAVAR ÁUDIO / NOTA DE VOZ
     async function toggleAudioRecord() {
       const micBtn = document.getElementById('mic-btn');
       if (!isRecording) {
@@ -503,16 +496,15 @@
           micBtn.style.color = '#f23f43';
           showToast("Gravando áudio...");
         } catch(err) {
-          alert("Permissão do microfone é necessária para enviar áudio!");
+          alert("Permissão do microfone é necessária para gravar áudio.");
         }
       } else {
         mediaRecorder.stop();
         isRecording = false;
-        micBtn.style.color = '#b5bac1';
+        micBtn.style.color = '#8696a0';
       }
     }
 
-    // GESTÃO DE SERVIDORES
     function createServerPrompt() {
       const name = prompt("Nome do novo Servidor:");
       if (!name) return;
