@@ -1,1811 +1,964 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full select-none">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Soares Zap - Chat, Voz & Tela</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            500: '#5865f2',
-                            600: '#4752c4',
-                            green: '#23a55a',
-                            danger: '#da373c'
-                        },
-                        discord: {
-                            darker: '#1e1f22',
-                            dark: '#2b2d31',
-                            panel: '#313338',
-                            hover: '#35373c',
-                            chat: '#313338',
-                            muted: '#949ba4'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1e1f22;
-            color: #dbdee1;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Soares App - Conexão em Tempo Real</title>
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #2b2d31;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1a1b1e;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #5865f2;
-        }
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        .glass-panel {
-            background: rgba(43, 45, 49, 0.95);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
+  <!-- Firebase SDKs Compatíveis -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-        /* Voice Wave Visualizer */
-        .wave-bar {
-            width: 4px;
-            height: 12px;
-            background-color: #23a55a;
-            border-radius: 2px;
-            animation: wave 1s infinite ease-in-out alternate;
-        }
-        .wave-bar:nth-child(2) { animation-delay: 0.2s; }
-        .wave-bar:nth-child(3) { animation-delay: 0.4s; }
-        .wave-bar:nth-child(4) { animation-delay: 0.6s; }
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: #111214; color: #dbdee1; height: 100vh; height: 100dvh; display: flex; overflow: hidden; }
 
-        @keyframes wave {
-            0% { height: 4px; }
-            100% { height: 22px; }
-        }
+    /* TELAS DE AUTENTICAÇÃO E DEVS */
+    .overlay-screen {
+      position: fixed; inset: 0; background: radial-gradient(circle at center, #2b2d31 0%, #111214 100%);
+      display: flex; justify-content: center; align-items: center; z-index: 10000; flex-direction: column; padding: 16px;
+    }
+    .auth-box {
+      background: #313338; width: 420px; max-width: 100%; padding: 24px; border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.7); text-align: center; border: 1px solid #3f4147;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .auth-logo { 
+      font-size: 28px; color: #f2a900; margin-bottom: 8px; font-weight: 800; 
+      display: flex; align-items: center; justify-content: center; gap: 12px; 
+      text-shadow: 0 0 15px rgba(242, 169, 0, 0.6); 
+    }
+    .auth-box h2 { color: #f2f3f5; font-size: 18px; margin-bottom: 16px; }
+    .input-group { margin-bottom: 14px; text-align: left; }
+    .input-group label { display: block; color: #b5bac1; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+    .input-group input, .input-group select {
+      width: 100%; padding: 12px; background: #1e1f22; border: 1px solid #111214; border-radius: 6px;
+      color: #f2f3f5; font-size: 15px; outline: none; transition: border 0.2s;
+    }
+    .input-group input:focus { border-color: #5865f2; }
+    .btn-auth {
+      width: 100%; padding: 12px; background: #5865f2; color: white; border: none; border-radius: 6px;
+      font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 8px; transition: all 0.2s;
+    }
+    .btn-auth:hover { background: #4752c4; }
+    .auth-switch { margin-top: 16px; font-size: 13px; color: #949ba4; }
+    .auth-switch span { color: #00a8fc; cursor: pointer; text-decoration: underline; }
 
-        /* Wallpaper Patterns */
-        .wp-pattern-dots {
-            background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-            background-size: 16px 16px;
-        }
-        .wp-pattern-grid {
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-        .wp-pattern-zap {
-            background-image: linear-gradient(135deg, #2b2d31 25%, transparent 25%), linear-gradient(225deg, #2b2d31 25%, transparent 25%), linear-gradient(45deg, #2b2d31 25%, transparent 25%), linear-gradient(315deg, #2b2d31 25%, #1e1f22 25%);
-            background-position: 10px 0, 10px 0, 0 0, 0 0;
-            background-size: 20px 20px;
-        }
-    </style>
+    /* SELEÇÃO DE FOTO DE PERFIL */
+    .avatar-picker {
+      display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 16px;
+    }
+    .avatar-preview {
+      width: 76px; height: 76px; border-radius: 50%; background: #1e1f22; border: 2px dashed #5865f2;
+      display: flex; align-items: center; justify-content: center; color: #b5bac1; font-size: 24px;
+      cursor: pointer; overflow: hidden; background-size: cover; background-position: center;
+    }
+
+    /* TELA INSTAGRAM DOS DEVS */
+    .devs-container {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 16px 0;
+    }
+    .dev-card {
+      background: #2b2d31; border: 1px solid #3f4147; border-radius: 12px; padding: 16px;
+      width: 100%; max-width: 200px; text-align: center; display: flex; flex-direction: column; align-items: center;
+    }
+    .dev-card img { width: 64px; height: 64px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #e1306c; }
+    .dev-card h3 { font-size: 15px; color: #f2f3f5; margin-bottom: 2px; }
+    .dev-card p { font-size: 12px; color: #949ba4; margin-bottom: 10px; }
+    .btn-insta {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      color: white; padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 12px; font-weight: bold;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* LAYOUT DA APLICAÇÃO */
+    #app-container { display: flex; width: 100vw; height: 100vh; height: 100dvh; position: relative; overflow: hidden; }
+
+    /* MASCARA E CONTAINER DA SIDEBAR PARA CELULAR */
+    .sidebar-wrapper {
+      display: flex; z-index: 100; height: 100%; transition: transform 0.3s ease-in-out;
+    }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90;
+    }
+
+    /* BARRA DE SERVIDORES */
+    .servers-bar { width: 72px; background: #1e1f22; display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 8px; flex-shrink: 0; }
+    .server-icon {
+      width: 48px; height: 48px; border-radius: 50%; background: #313338; display: flex; align-items: center;
+      justify-content: center; cursor: pointer; color: #dbdee1; transition: all 0.2s; font-weight: bold; font-size: 18px;
+      background-size: cover; background-position: center;
+    }
+    .server-icon:hover, .server-icon.active { border-radius: 16px; background-color: #5865f2; color: white; }
+    .server-divider { width: 32px; height: 2px; background: #35363c; margin: 4px 0; }
+
+    /* SUB-BARRA LATERAL */
+    .sub-sidebar { width: 220px; background: #2b2d31; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar-header { height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1f2023; font-weight: bold; color: #f2f3f5; }
+    .channels-list { flex: 1; padding: 12px; overflow-y: auto; }
+    .channel-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: #949ba4; margin-bottom: 2px; font-size: 14px; }
+    .channel-item:hover, .channel-item.active { background: #35373c; color: #f2f3f5; }
+
+    /* PAINEL DO USUÁRIO */
+    .user-panel { height: 54px; background: #232428; padding: 0 10px; display: flex; align-items: center; justify-content: space-between; }
+    .user-info { display: flex; align-items: center; gap: 8px; overflow: hidden; cursor: pointer; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; flex-shrink: 0; background-size: cover; background-position: center; overflow: hidden; }
+
+    /* ÁREA PRINCIPAL DO CHAT */
+    .chat-area { flex: 1; background: #313338; display: flex; flex-direction: column; position: relative; height: 100%; width: 100%; }
+    .chat-header { height: 48px; padding: 0 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2b2d31; font-weight: bold; color: #f2f3f5; background: #313338; }
+    .chat-header-left { display: flex; align-items: center; gap: 12px; }
+    .chat-header-actions { display: flex; align-items: center; gap: 14px; }
+    .menu-toggle-btn { display: none; font-size: 20px; color: #b5bac1; cursor: pointer; padding: 4px; }
+
+    /* PAPEL DE PAREDE DO CHAT (Customizável) */
+    .messages-container {
+      flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+      background-color: #0b141a;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 0);
+      background-size: 24px 24px;
+      background-repeat: repeat;
+    }
+    .message { display: flex; gap: 10px; }
+    .message-content { flex: 1; }
+    .message-content h4 { color: #f2f3f5; font-size: 13px; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+    .message-content h4 span { font-size: 10px; color: #949ba4; font-weight: normal; }
+    .message-content p { color: #dbdee1; font-size: 14px; line-height: 1.4; word-break: break-word; background: #111b21; padding: 8px 12px; border-radius: 0 8px 8px 8px; display: inline-block; max-width: 90%; border: 1px solid #202c33; }
+    .message-img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 6px; display: block; }
+
+    /* BARRA DE DIGITAÇÃO */
+    .chat-input-area { padding: 8px 12px 12px 12px; background: #111b21; }
+    .input-wrapper { background: #202c33; border-radius: 20px; padding: 6px 12px; display: flex; align-items: center; gap: 10px; }
+    .input-wrapper input { flex: 1; background: transparent; border: none; outline: none; color: #f2f3f5; font-size: 15px; height: 36px; }
+    .input-btn { color: #8696a0; cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
+    .input-btn:hover { color: #f2f3f5; }
+
+    /* TELAS ALTERNATIVAS */
+    .view-container { flex: 1; padding: 16px; overflow-y: auto; display: none; background: #313338; height: 100%; }
+    .friends-header { display: flex; gap: 8px; border-bottom: 1px solid #3f4147; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .friend-tab { padding: 8px 12px; border-radius: 4px; cursor: pointer; color: #b5bac1; font-weight: bold; font-size: 13px; }
+    .friend-tab.active { background: #3f4147; color: white; }
+    .card-item { background: #2b2d31; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid #3f4147; gap: 8px; }
+
+    /* MODAL DE VÍDEO / CHAMADA / COMPARTILHAMENTO DE TELA */
+    #call-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 30000; display: none;
+      flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+    }
+    .video-grid { display: flex; gap: 16px; width: 100%; max-width: 900px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .video-box { width: 400px; height: 300px; background: #1e1f22; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #3f4147; display: flex; align-items: center; justify-content: center; }
+    .video-box video { width: 100%; height: 100%; object-fit: cover; }
+    .call-controls { display: flex; gap: 16px; }
+    .btn-call-action { width: 50px; height: 50px; border-radius: 50%; border: none; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; }
+    .btn-hangup { background: #ed4245; }
+    .btn-video-toggle { background: #5865f2; }
+
+    /* TOAST */
+    #toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #5865f2; color: white; padding: 10px 20px;
+      border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: none; z-index: 20000; font-weight: bold; font-size: 13px; text-align: center; white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar-wrapper { position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); }
+      .sidebar-wrapper.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+      .menu-toggle-btn { display: block; }
+      .sub-sidebar { width: 200px; }
+      .servers-bar { width: 64px; }
+      .video-box { width: 100%; height: 200px; }
+    }
+  </style>
 </head>
-<body class="h-full flex flex-col overflow-hidden text-sm bg-[#1e1f22]">
+<body>
 
-    <!-- AUDIO NOTIFICATIONS -->
-    <audio id="audio-message" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
-    <audio id="audio-call" src="https://assets.mixkit.co/active_storage/sfx/1350/1350-preview.mp3" preload="auto"></audio>
+  <div id="toast">Notificação</div>
 
-    <!-- TOAST NOTIFICATIONS CONTAINER -->
-    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col space-y-2 pointer-events-none"></div>
+  <!-- TELA DE AUTENTICAÇÃO -->
+  <div id="auth-screen" class="overlay-screen">
+    <div class="auth-box">
+      <div class="auth-logo"><i class="fa-solid fa-bolt"></i> Soares App</div>
+      <h2 id="auth-title">Entrar na sua conta</h2>
 
-    <!-- AUTHENTICATION SCREEN -->
-    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1e1f22] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#5865f2]/20 via-[#1e1f22] to-[#111214]">
-        <div class="w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border border-white/10 text-white relative overflow-hidden">
-            <div class="absolute -top-12 -right-12 w-32 h-32 bg-[#5865f2]/30 rounded-full blur-2xl pointer-events-none"></div>
-            
-            <div class="text-center mb-6">
-                <div class="inline-flex p-4 bg-[#5865f2] rounded-2xl mb-3 shadow-lg shadow-[#5865f2]/40">
-                    <i class="fa-solid fa-bolt text-3xl text-white"></i>
-                </div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-white">Soares Zap</h1>
-                <p class="text-xs text-discord-muted mt-1.5 font-medium">Sua comunidade Realtime Discord / WhatsApp!</p>
-            </div>
-
-            <div class="flex border-b border-white/10 mb-6">
-                <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 pb-3 font-bold text-center border-b-2 border-[#5865f2] text-white transition-all">Entrar</button>
-                <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 pb-3 font-bold text-center border-b-2 border-transparent text-discord-muted hover:text-white transition-all">Criar Conta</button>
-            </div>
-
-            <div id="auth-error" class="hidden mb-4 p-3.5 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-medium flex items-start space-x-2">
-                <i class="fa-solid fa-circle-exclamation mt-0.5 text-red-400"></i>
-                <span id="auth-error-text" class="flex-1"></span>
-            </div>
-
-            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
-                <div id="field-username" class="hidden">
-                    <label class="block text-xs font-bold text-discord-muted uppercase tracking-wider mb-1.5">Nome de Usuário <span class="text-red-400">*</span></label>
-                    <input id="auth-username-input" type="text" placeholder="Como quer ser chamado?" class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm text-white focus:outline-none focus:border-[#5865f2] transition-all">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-discord-muted uppercase tracking-wider mb-1.5">E-mail <span class="text-red-400">*</span></label>
-                    <input id="auth-email-input" type="email" required placeholder="seu@email.com" class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm text-white focus:outline-none focus:border-[#5865f2] transition-all">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-discord-muted uppercase tracking-wider mb-1.5">Senha <span class="text-red-400">*</span></label>
-                    <input id="auth-password-input" type="password" required placeholder="••••••••" class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm text-white focus:outline-none focus:border-[#5865f2] transition-all">
-                </div>
-
-                <button id="auth-submit-btn" type="submit" class="w-full bg-[#5865f2] hover:bg-[#4752c4] active:bg-[#3c45a5] text-white font-bold p-3.5 rounded-xl transition-all shadow-lg shadow-[#5865f2]/25 mt-2 flex items-center justify-center space-x-2">
-                    <span id="auth-btn-text">Entrar</span>
-                    <i id="auth-spinner" class="fa-solid fa-circle-notch fa-spin hidden"></i>
-                </button>
-            </form>
-
-            <div class="mt-6 text-center">
-                <button onclick="guestLogin()" class="text-xs text-discord-muted hover:text-white transition-all underline">Entrar como Convidado Demo</button>
-            </div>
+      <div class="avatar-picker" id="group-avatar" style="display: none;">
+        <label style="color: #b5bac1; font-size: 11px; font-weight: 700; text-transform: uppercase;">Foto de Perfil</label>
+        <div class="avatar-preview" id="avatar-preview" onclick="document.getElementById('avatar-input').click()">
+          <i class="fa-solid fa-camera" id="avatar-icon"></i>
         </div>
+        <input type="file" id="avatar-input" accept="image/*" style="display: none;" onchange="handleAvatarSelect(event)">
+      </div>
+
+      <div class="input-group" id="group-username" style="display: none;">
+        <label>Nome de Usuário (Username)</label>
+        <input type="text" id="auth-username" placeholder="Ex: soares_dev">
+      </div>
+      <div class="input-group">
+        <label>E-mail</label>
+        <input type="email" id="auth-email" placeholder="seu@email.com">
+      </div>
+      <div class="input-group">
+        <label>Senha</label>
+        <input type="password" id="auth-password" placeholder="******">
+      </div>
+      <button class="btn-auth" id="btn-auth-submit" onclick="handleAuth()">Entrar</button>
+
+      <div class="auth-switch">
+        <span id="auth-toggle-text">Não tem uma conta?</span>
+        <span onclick="toggleAuthMode()" id="auth-toggle-btn">Registre-se</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA INSTAGRAM DOS DEVS (APÓS O LOGIN) -->
+  <div id="devs-screen" class="overlay-screen" style="display: none;">
+    <div class="auth-box" style="width: 520px;">
+      <div class="auth-logo"><i class="fa-solid fa-code"></i> Desenvolvedores</div>
+      <p style="color: #b5bac1; font-size: 13px; margin-bottom: 12px;">Conheça a equipe por trás do Soares App!</p>
+
+      <div class="devs-container">
+        <div class="dev-card">
+          <img src="https://ui-avatars.com/api/?name=Soares&background=5865f2&color=fff" alt="Dev 1">
+          <h3>7soaresvgh</h3>
+          <p>Lead Developer</p>
+          <a href="https://instagram.com/7soaresvgh" target="_blank" class="btn-insta"><i class="fa-brands fa-instagram"></i> Instagram</a>
+        </div>
+        <div class="dev-card">
+          <img src="https://ui-avatars.com/api/?name=Murilo&background=23a55a&color=fff" alt="Dev 2">
+          <h3>murilo__xyz</h3>
+          <p>UI/UX & Database</p>
+          <a href="https://instagram.com/murilo__xyz" target="_blank" class="btn-insta"><i class="fa-brands fa-instagram"></i> Instagram</a>
+        </div>
+      </div>
+
+      <button class="btn-auth" onclick="enterApp()">Continuar para o App <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- APLICAÇÃO PRINCIPAL -->
+  <div id="app-container">
+
+    <!-- OVERLAY ESCURO PARA CELULAR -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- WRAPPER DAS BARRAS LATERAIS -->
+    <div class="sidebar-wrapper" id="sidebar-wrapper">
+      <!-- BARRA LATERAL DE SERVIDORES -->
+      <div class="servers-bar">
+        <div class="server-icon active" id="btn-dm" onclick="openDirectMessages()" title="Mensagens Diretas">
+          <i class="fa-solid fa-comments"></i>
+        </div>
+        <div class="server-divider"></div>
+
+        <div id="servers-list"></div>
+
+        <div class="server-icon" onclick="openSearchServers()" title="Explorar Servidores" style="color: #23a55a;">
+          <i class="fa-solid fa-compass"></i>
+        </div>
+        <div class="server-icon" onclick="createServerPrompt()" title="Criar Servidor" style="color: #23a55a;">
+          <i class="fa-solid fa-plus"></i>
+        </div>
+      </div>
+
+      <!-- SUB-BARRA LATERAL (AMIGOS / CANAIS) -->
+      <div class="sub-sidebar">
+        <div class="sidebar-header" id="sidebar-header-title">
+          <span>Soares App</span>
+        </div>
+
+        <div class="channels-list" id="channels-list"></div>
+
+        <!-- PAINEL DO USUÁRIO -->
+        <div class="user-panel">
+          <div class="user-info" onclick="openSettingsView()" title="Abrir Configurações">
+            <div class="avatar" id="current-user-avatar">?</div>
+            <div style="overflow: hidden;">
+              <div style="font-size: 13px; font-weight: bold; color: white; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;" id="current-user-name">Carregando...</div>
+              <div style="font-size: 10px; color: #23a55a;">● Configurações</div>
+            </div>
+          </div>
+          <div>
+            <i class="fa-solid fa-gear input-btn" onclick="openSettingsView()" title="Configurações"></i>
+            <i class="fa-solid fa-arrow-right-from-bracket input-btn" onclick="logout()" title="Sair"></i>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- INSTAGRAM FOLLOW POPUP MODAL -->
-    <div id="insta-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
-        <div class="w-full max-w-sm glass-panel p-6 rounded-2xl shadow-2xl border border-white/20 text-center relative">
-            <button onclick="closeInstaModal()" class="absolute top-4 right-4 p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-all">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-
-            <div class="inline-flex p-3 bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 rounded-2xl mb-4 shadow-lg shadow-pink-500/30">
-                <i class="fa-brands fa-instagram text-3xl text-white"></i>
-            </div>
-
-            <h2 class="text-xl font-extrabold text-white mb-1">Me siga no Instagram!</h2>
-            <p class="text-xs text-discord-muted mb-6">Conecte-se com os desenvolvedores do Soares Zap!</p>
-
-            <div class="space-y-3 mb-6">
-                <a href="https://instagram.com/7soaresvgh" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-pink-500/10 to-purple-500/10 hover:from-pink-500/20 hover:to-purple-500/20 border border-pink-500/30 transition-all text-white font-semibold">
-                    <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-at text-pink-400"></i>
-                        <span>7soaresvgh</span>
-                    </div>
-                    <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-400"></i>
-                </a>
-
-                <a href="https://instagram.com/murilo__xyz" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-indigo-500/10 hover:from-purple-500/20 hover:to-indigo-500/20 border border-purple-500/30 transition-all text-white font-semibold">
-                    <div class="flex items-center space-x-3">
-                        <i class="fa-solid fa-at text-purple-400"></i>
-                        <span>murilo__xyz</span>
-                    </div>
-                    <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-400"></i>
-                </a>
-            </div>
-
-            <button onclick="closeInstaModal()" class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white font-bold py-2.5 rounded-xl transition-all">
-                Continuar para o Soares Zap
-            </button>
+    <!-- TELA PRINCIPAL DE CHAT -->
+    <div class="chat-area" id="main-chat-area">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
+          <span id="chat-title"># geral</span>
         </div>
+        <div class="chat-header-actions">
+          <i class="fa-solid fa-phone input-btn" onclick="startVoiceCall()" title="Chamada de Voz"></i>
+          <i class="fa-solid fa-desktop input-btn" onclick="startScreenShare()" title="Compartilhar Tela"></i>
+        </div>
+      </div>
+
+      <div class="messages-container" id="messages-container"></div>
+
+      <!-- BARRA DE DIGITAÇÃO -->
+      <div class="chat-input-area">
+        <div class="input-wrapper">
+          <label for="img-upload" class="input-btn" title="Enviar Imagem">
+            <i class="fa-solid fa-circle-plus"></i>
+          </label>
+          <input type="file" id="img-upload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+
+          <input type="text" id="chat-message-input" placeholder="Digite sua mensagem..." onkeypress="if(event.key==='Enter') sendMessage()">
+
+          <i class="fa-solid fa-microphone input-btn" id="mic-btn" onclick="toggleAudioRecord()" title="Gravar Voz"></i>
+          <i class="fa-solid fa-paper-plane input-btn" onclick="sendMessage()" style="color: #5865f2;"></i>
+        </div>
+      </div>
     </div>
 
-    <!-- MAIN APPLICATION UI -->
-    <div id="app" class="hidden flex flex-1 h-full w-full overflow-hidden relative">
-
-        <!-- MOBILE DRAWER BACKDROP -->
-        <div id="mobile-drawer-overlay" onclick="closeMobileDrawer()" class="fixed inset-0 bg-black/60 z-30 lg:hidden hidden backdrop-blur-sm"></div>
-
-        <!-- 1. SERVERS SIDEBAR -->
-        <div id="servers-sidebar" class="w-[72px] bg-discord-darker flex flex-col items-center py-3 space-y-2.5 z-40 shrink-0 border-r border-black/20">
-            <button onclick="switchView('dms')" id="btn-dm" class="relative group flex items-center justify-center w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-discord-dark hover:bg-[#5865f2] transition-all duration-200 text-white">
-                <div id="indicator-dm" class="absolute left-0 w-1 bg-white rounded-r-full transition-all duration-200 h-10 -ml-3"></div>
-                <i class="fa-solid fa-bolt text-xl text-[#5865f2] group-hover:text-white transition-colors"></i>
-                <span class="absolute left-[80px] bg-discord-darker text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap hidden group-hover:block z-50 font-semibold border border-white/10">Mensagens Diretas</span>
-            </button>
-
-            <div class="w-8 h-[2px] bg-white/10 rounded my-1"></div>
-
-            <div id="server-list" class="flex flex-col space-y-2.5 w-full items-center overflow-y-auto overflow-x-hidden flex-1">
-                <!-- Dynamic Servers List -->
-            </div>
-
-            <button onclick="openModal('search-server-modal')" class="group flex items-center justify-center w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-discord-dark hover:bg-brand-green transition-all duration-200 text-brand-green hover:text-white" title="Explorar Servidores">
-                <i class="fa-solid fa-compass text-lg"></i>
-                <span class="absolute left-[80px] bg-discord-darker text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap hidden group-hover:block z-50 font-semibold border border-white/10">Buscar Servidores</span>
-            </button>
-
-            <button onclick="openModal('create-server-modal')" class="group flex items-center justify-center w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-discord-dark hover:bg-brand-green transition-all duration-200 text-brand-green hover:text-white" title="Criar Servidor">
-                <i class="fa-solid fa-plus text-lg"></i>
-                <span class="absolute left-[80px] bg-discord-darker text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap hidden group-hover:block z-50 font-semibold border border-white/10">Criar Servidor</span>
-            </button>
-        </div>
-
-        <!-- 2. SUB-SIDEBAR (Channels / DM List) -->
-        <div id="sub-sidebar" class="w-60 bg-discord-dark flex flex-col shrink-0 border-r border-black/20 absolute lg:relative inset-y-0 left-[72px] lg:left-0 z-40 -translate-x-full lg:translate-x-0 transition-transform duration-300">
-            <div id="sidebar-header" class="h-12 border-b border-black/20 px-4 flex items-center justify-between font-bold text-white shadow-sm shrink-0">
-                <span id="header-title" class="truncate text-sm tracking-wide">Soares Zap</span>
-                <i id="header-icon" class="fa-solid fa-comments text-discord-muted"></i>
-            </div>
-
-            <div id="sidebar-content" class="flex-1 overflow-y-auto p-2 space-y-1">
-                <!-- Dynamically populated Channels or Friends DM List -->
-            </div>
-
-            <!-- USER FOOTER -->
-            <div class="h-14 bg-[#232428] px-2.5 flex items-center justify-between shrink-0 border-t border-black/20">
-                <div class="flex items-center space-x-2 p-1 rounded-md hover:bg-white/5 cursor-pointer flex-1 min-w-0 transition-all" onclick="openModal('settings-modal')">
-                    <div class="relative shrink-0">
-                        <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover">
-                        <div id="user-status-dot" class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-green border-2 border-[#232428]"></div>
-                    </div>
-                    <div class="flex flex-col min-w-0 flex-1">
-                        <span id="user-name" class="text-xs font-bold text-white truncate">Carregando...</span>
-                        <span id="user-status-text" class="text-[10px] text-discord-muted truncate font-medium">Online</span>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-1 text-discord-muted">
-                    <button id="btn-mic" onclick="toggleMic()" class="p-1.5 hover:bg-white/10 hover:text-white rounded transition-all" title="Mutar Microfone">
-                        <i id="icon-mic" class="fa-solid fa-microphone text-xs"></i>
-                    </button>
-                    <button onclick="openModal('settings-modal')" class="p-1.5 hover:bg-white/10 hover:text-white rounded transition-all" title="Configurações">
-                        <i class="fa-solid fa-gear text-xs"></i>
-                    </button>
-                    <button onclick="handleLogout()" class="p-1.5 hover:bg-red-500/20 hover:text-red-400 rounded transition-all" title="Sair da Conta">
-                        <i class="fa-solid fa-right-from-bracket text-xs"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. MAIN CHAT & CALL AREA -->
-        <div class="flex-1 bg-discord-chat flex flex-col min-w-0 relative">
-            <div class="h-12 border-b border-black/20 px-3 md:px-4 flex items-center justify-between shadow-sm shrink-0 bg-discord-chat z-10">
-                <div class="flex items-center space-x-2 font-bold text-white min-w-0">
-                    <button onclick="toggleMobileDrawer()" class="lg:hidden p-1.5 text-discord-muted hover:text-white mr-1">
-                        <i class="fa-solid fa-bars text-lg"></i>
-                    </button>
-                    <i id="main-header-icon" class="fa-solid fa-hashtag text-discord-muted"></i>
-                    <span id="main-header-title" class="truncate text-sm">geral</span>
-                    <span id="main-header-desc" class="text-xs font-normal text-discord-muted border-l border-white/10 pl-3 ml-1 truncate hidden md:inline">Canal oficial</span>
-                </div>
-                <div class="flex items-center space-x-2 text-discord-muted">
-                    <!-- SERVER MEMBER INVITE BUTTON -->
-                    <button id="btn-server-invite" onclick="openModal('invite-member-modal')" class="hidden flex items-center space-x-1.5 bg-[#5865f2] hover:bg-[#4752c4] text-white px-2.5 py-1 rounded-md font-semibold text-xs transition-all shadow">
-                        <i class="fa-solid fa-user-plus text-xs"></i>
-                        <span class="hidden sm:inline">Convidar</span>
-                    </button>
-
-                    <!-- DM WEBRTC CALL BUTTON -->
-                    <button id="btn-dm-call" onclick="startWebRTCCall()" class="hidden flex items-center space-x-1.5 bg-brand-green hover:bg-emerald-600 text-white px-2.5 py-1 rounded-md font-semibold text-xs transition-all shadow">
-                        <i class="fa-solid fa-phone text-xs"></i>
-                        <span>Iniciar Chamada</span>
-                    </button>
-
-                    <div class="relative hidden sm:block">
-                        <input id="search-input" onkeyup="filterMessages()" type="text" placeholder="Buscar..." class="bg-[#1e1f22] text-xs px-2.5 py-1 rounded-md w-32 focus:w-44 transition-all focus:outline-none text-white border border-transparent focus:border-[#5865f2]">
-                        <i class="fa-solid fa-magnifying-glass text-xs absolute right-2.5 top-2 text-discord-muted"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- WEBRTC VOICE & SCREEN SHARE ACTIVE CALL OVERLAY -->
-            <div id="voice-bar" class="hidden bg-[#2b2d31] border-b border-black/20 px-4 py-2.5 flex flex-col md:flex-row items-center justify-between text-xs text-brand-green space-y-2 md:space-y-0">
-                <div class="flex items-center space-x-3">
-                    <div class="flex items-center space-x-1">
-                        <div class="wave-bar"></div>
-                        <div class="wave-bar"></div>
-                        <div class="wave-bar"></div>
-                        <div class="wave-bar"></div>
-                    </div>
-                    <div>
-                        <div class="font-bold text-white flex items-center space-x-2">
-                            <span>Chamada de Voz / <span id="voice-channel-name">Canal de Voz</span></span>
-                            <span id="call-status-badge" class="bg-brand-green/20 text-brand-green border border-brand-green/30 text-[10px] px-2 py-0.5 rounded-full font-bold">Ao Vivo</span>
-                        </div>
-                        <div class="text-[10px] text-discord-muted">Conexão WebRTC Ativa com Áudio/Vídeo Realtime</div>
-                    </div>
-                </div>
-
-                <!-- Video / Screen Share Display Preview -->
-                <div id="screen-share-preview-container" class="hidden w-full max-w-sm h-36 bg-black rounded-xl overflow-hidden relative my-2 border border-white/20">
-                    <video id="remote-screen-video" autoplay playsinline class="w-full h-full object-contain"></video>
-                    <span class="absolute bottom-1.5 left-2 bg-black/60 px-2 py-0.5 rounded text-[10px] text-white font-mono">Transmissão de Tela</span>
-                </div>
-
-                <div class="flex items-center space-x-2 shrink-0">
-                    <button id="btn-call-mic" onclick="toggleMic()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg font-bold transition-all flex items-center space-x-1">
-                        <i id="call-mic-icon" class="fa-solid fa-microphone"></i>
-                    </button>
-                    <button id="btn-screen-share" onclick="toggleScreenShare()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-bold transition-all flex items-center space-x-1">
-                        <i class="fa-solid fa-desktop"></i>
-                        <span class="hidden sm:inline">Compartilhar Tela</span>
-                    </button>
-                    <button onclick="leaveVoiceChannel()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold transition-all flex items-center space-x-1 shadow">
-                        <i class="fa-solid fa-phone-slash"></i>
-                        <span>Desconectar</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- CHAT MESSAGES CONTAINER WITH CUSTOM WALLPAPER -->
-            <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-cover bg-center transition-all">
-                <!-- Dynamic Messages -->
-            </div>
-
-            <!-- INPUT BAR -->
-            <div class="px-4 pb-4 pt-1 shrink-0 bg-discord-chat">
-                <div id="recording-bar" class="hidden bg-[#2b2d31] p-3 rounded-lg mb-2 flex items-center justify-between border border-red-500/50 animate-pulse">
-                    <div class="flex items-center space-x-3 text-red-400">
-                        <div class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></div>
-                        <span class="font-bold text-xs">Gravando Áudio...</span>
-                        <span id="recording-timer" class="text-white text-xs font-mono ml-2">00:00</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="cancelAudioRecord()" class="px-3 py-1 text-xs bg-white/10 text-white hover:bg-white/20 rounded transition-all">Cancelar</button>
-                        <button onclick="stopAudioRecordAndSend()" class="px-3 py-1 text-xs bg-[#5865f2] text-white hover:bg-[#4752c4] rounded font-bold transition-all">Enviar Áudio</button>
-                    </div>
-                </div>
-
-                <div class="bg-[#383a40] rounded-lg p-2.5 flex items-center space-x-2 relative shadow-md">
-                    <label class="cursor-pointer text-discord-muted hover:text-white p-1.5 rounded hover:bg-white/5 transition-all" title="Enviar Foto">
-                        <i class="fa-solid fa-circle-plus text-lg"></i>
-                        <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                    </label>
-
-                    <input id="chat-input" onkeydown="handleKeyPress(event)" type="text" placeholder="Conversar no Soares Zap..." class="bg-transparent text-white placeholder-discord-muted focus:outline-none flex-1 text-sm">
-
-                    <button id="mic-record-btn" onclick="toggleAudioRecord()" class="text-discord-muted hover:text-brand-green p-1.5 rounded hover:bg-white/5 transition-all" title="Gravar Áudio">
-                        <i class="fa-solid fa-microphone text-lg"></i>
-                    </button>
-
-                    <button onclick="toggleEmojiPicker()" class="text-discord-muted hover:text-yellow-400 p-1.5 rounded hover:bg-white/5 transition-all relative" title="Emojis">
-                        <i class="fa-solid fa-face-smile text-lg"></i>
-                    </button>
-
-                    <button onclick="sendTextMessage()" class="bg-[#5865f2] hover:bg-[#4752c4] text-white p-2 rounded-md transition-all shadow">
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                    </button>
-                </div>
-
-                <!-- Emoji Picker Popover -->
-                <div id="emoji-picker" class="hidden absolute bottom-20 right-8 bg-[#2b2d31] border border-black/30 p-3 rounded-xl shadow-2xl grid grid-cols-5 gap-2 z-50">
-                    <button onclick="addEmoji('👍')" class="text-xl hover:bg-white/10 p-1.5 rounded">👍</button>
-                    <button onclick="addEmoji('❤️')" class="text-xl hover:bg-white/10 p-1.5 rounded">❤️</button>
-                    <button onclick="addEmoji('🔥')" class="text-xl hover:bg-white/10 p-1.5 rounded">🔥</button>
-                    <button onclick="addEmoji('😂')" class="text-xl hover:bg-white/10 p-1.5 rounded">😂</button>
-                    <button onclick="addEmoji('🎉')" class="text-xl hover:bg-white/10 p-1.5 rounded">🎉</button>
-                    <button onclick="addEmoji('🚀')" class="text-xl hover:bg-white/10 p-1.5 rounded">🚀</button>
-                    <button onclick="addEmoji('😎')" class="text-xl hover:bg-white/10 p-1.5 rounded">😎</button>
-                    <button onclick="addEmoji('⚡')" class="text-xl hover:bg-white/10 p-1.5 rounded">⚡</button>
-                    <button onclick="addEmoji('👀')" class="text-xl hover:bg-white/10 p-1.5 rounded">👀</button>
-                    <button onclick="addEmoji('💯')" class="text-xl hover:bg-white/10 p-1.5 rounded">💯</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. RIGHT SIDEBAR (Server Members) -->
-        <div id="member-sidebar" class="w-60 bg-discord-dark flex flex-col hidden xl:flex shrink-0 border-l border-black/20">
-            <div class="p-4 text-xs font-bold text-discord-muted uppercase tracking-wider flex items-center justify-between">
-                <span>Membros — <span id="member-count">0</span></span>
-                <button onclick="openModal('invite-member-modal')" class="text-[#5865f2] hover:underline text-[11px] font-semibold">+ Convidar</button>
-            </div>
-            <div id="members-list" class="flex-1 overflow-y-auto px-2 space-y-1">
-                <!-- Dynamically populated -->
-            </div>
-        </div>
+    <!-- TELA DE AMIGOS E DMs -->
+    <div class="view-container" id="friends-view">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
+        <h2 style="color: white; font-size: 18px;">Mensagens Diretas</h2>
+      </div>
+      <div class="friends-header">
+        <div class="friend-tab active">Seus Amigos</div>
+        <div class="friend-tab" onclick="addFriendPrompt()" style="background: #23a55a; color: white;">+ Adicionar Amigo</div>
+      </div>
+      <h3 style="color: #f2f3f5; margin-bottom: 12px; font-size: 15px;">Amigos Adicionados</h3>
+      <div id="friends-list"></div>
     </div>
 
-    <!-- MODAL: CREATE CHANNEL (+ BUTTON INSIDE SERVER) -->
-    <div id="create-channel-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel text-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-white/10">
-            <div class="p-6">
-                <h2 class="text-xl font-bold mb-1 flex items-center space-x-2">
-                    <i class="fa-solid fa-plus-circle text-[#5865f2]"></i>
-                    <span>Criar Canal no Servidor</span>
-                </h2>
-                <p class="text-xs text-discord-muted mb-4">Adicione novos canais para organizar sua comunidade.</p>
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-discord-muted uppercase tracking-wider block mb-1.5">Nome do Canal</label>
-                        <input id="new-channel-name" type="text" placeholder="ex: bate-papo" class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-[#5865f2]">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-discord-muted uppercase tracking-wider block mb-1.5">Tipo de Canal</label>
-                        <select id="new-channel-type" class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-[#5865f2]">
-                            <option value="text"># Texto</option>
-                            <option value="voice">🔊 Voz & Chamada</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-[#1e1f22] px-6 py-4 flex justify-between items-center border-t border-white/5">
-                <button onclick="closeModal('create-channel-modal')" class="text-sm text-discord-muted hover:text-white">Cancelar</button>
-                <button onclick="createNewChannel()" class="bg-[#5865f2] hover:bg-[#4752c4] text-white font-bold px-5 py-2 rounded-xl transition-all">Criar Canal</button>
-            </div>
+    <!-- TELA DE CONFIGURAÇÕES -->
+    <div class="view-container" id="settings-view">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+        <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
+        <h2 style="color: white; font-size: 20px;"><i class="fa-solid fa-gear"></i> Configurações da Conta</h2>
+      </div>
+
+      <div class="auth-box" style="width: 100%; max-width: 500px; text-align: left; margin: 0 auto;">
+        <div class="avatar-picker">
+          <label>Alterar Foto de Perfil</label>
+          <div class="avatar-preview" id="settings-avatar-preview" onclick="document.getElementById('settings-avatar-input').click()">
+            <i class="fa-solid fa-camera"></i>
+          </div>
+          <input type="file" id="settings-avatar-input" accept="image/*" style="display: none;" onchange="handleSettingsAvatar(event)">
         </div>
-    </div>
 
-    <!-- MODAL: INVITE / ADD FRIEND TO SERVER -->
-    <div id="invite-member-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel text-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-white/10">
-            <div class="p-6">
-                <h2 class="text-xl font-bold mb-1 flex items-center space-x-2">
-                    <i class="fa-solid fa-user-plus text-[#5865f2]"></i>
-                    <span>Convidar Membro para o Servidor</span>
-                </h2>
-                <p class="text-xs text-discord-muted mb-4">Selecione um de seus amigos para adicionar a este servidor.</p>
-                
-                <div id="friends-invite-list" class="max-h-60 overflow-y-auto space-y-2 pr-1">
-                    <!-- Populated dynamically -->
-                </div>
-            </div>
-            <div class="bg-[#1e1f22] px-6 py-4 flex justify-end border-t border-white/5">
-                <button onclick="closeModal('invite-member-modal')" class="text-sm text-discord-muted hover:text-white">Fechar</button>
-            </div>
+        <div class="input-group">
+          <label>Nome de Usuário</label>
+          <input type="text" id="settings-username-input">
         </div>
-    </div>
 
-    <!-- MODAL: FULL SETTINGS & WALLPAPER PICKER ("CONFIGURAÇÕES") -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel text-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-white/10 flex flex-col max-h-[90vh]">
-            <div class="h-20 bg-gradient-to-r from-[#5865f2] via-indigo-700 to-purple-800 p-4 flex items-center justify-between shrink-0">
-                <h2 class="text-lg font-bold flex items-center space-x-2">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Configurações da Conta</span>
-                </h2>
-                <button onclick="closeModal('settings-modal')" class="text-white/80 hover:text-white bg-black/30 p-1.5 rounded-full">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <div class="p-6 overflow-y-auto space-y-6 flex-1">
-                <!-- User Profile Section -->
-                <div class="space-y-4">
-                    <h3 class="text-xs font-bold text-discord-muted uppercase tracking-wider">Perfil do Usuário</h3>
-                    <div class="flex items-center space-x-4">
-                        <img id="settings-avatar-preview" src="" class="w-16 h-16 rounded-full object-cover border-2 border-[#5865f2]">
-                        <div class="space-y-1">
-                            <label class="cursor-pointer bg-[#5865f2] hover:bg-[#4752c4] text-white text-xs font-bold px-3 py-2 rounded-xl transition-all inline-block">
-                                <i class="fa-solid fa-upload mr-1"></i> Alterar Foto (Avatar)
-                                <input type="file" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
-                            </label>
-                            <p class="text-[10px] text-discord-muted">Suporta arquivos PNG, JPG e WebP.</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="text-xs font-bold text-discord-muted uppercase tracking-wider block mb-1">Nome de Exibição</label>
-                        <input id="settings-username-input" type="text" class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-[#5865f2]">
-                    </div>
-                </div>
-
-                <div class="border-t border-white/10 pt-4 space-y-4">
-                    <!-- Chat Wallpaper Picker -->
-                    <h3 class="text-xs font-bold text-discord-muted uppercase tracking-wider">Papel de Parede do Chat (Wallpaper)</h3>
-                    
-                    <div class="grid grid-cols-4 gap-2">
-                        <button onclick="setWallpaperPreset('none')" class="h-16 rounded-xl bg-discord-chat border-2 border-white/20 hover:border-[#5865f2] flex flex-col items-center justify-center text-xs font-semibold">
-                            <span>Padrão</span>
-                        </button>
-                        <button onclick="setWallpaperPreset('dots')" class="h-16 rounded-xl wp-pattern-dots border-2 border-white/20 hover:border-[#5865f2] flex flex-col items-center justify-center text-xs font-semibold">
-                            <span>Pontos</span>
-                        </button>
-                        <button onclick="setWallpaperPreset('grid')" class="h-16 rounded-xl wp-pattern-grid border-2 border-white/20 hover:border-[#5865f2] flex flex-col items-center justify-center text-xs font-semibold">
-                            <span>Grade</span>
-                        </button>
-                        <button onclick="setWallpaperPreset('zap')" class="h-16 rounded-xl wp-pattern-zap border-2 border-white/20 hover:border-[#5865f2] flex flex-col items-center justify-center text-xs font-semibold">
-                            <span>Zap</span>
-                        </button>
-                    </div>
-
-                    <div>
-                        <label class="cursor-pointer w-full bg-[#1e1f22] hover:bg-white/5 border border-dashed border-white/20 p-3 rounded-xl flex items-center justify-center space-x-2 text-xs font-semibold text-discord-muted hover:text-white transition-all">
-                            <i class="fa-solid fa-image text-brand-green"></i>
-                            <span>Upload de Imagem Personalizada para Wallpaper</span>
-                            <input type="file" accept="image/*" class="hidden" onchange="handleWallpaperUpload(event)">
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-[#1e1f22] px-6 py-4 flex justify-between items-center border-t border-white/5 shrink-0">
-                <button onclick="closeModal('settings-modal')" class="text-sm text-discord-muted hover:text-white">Cancelar</button>
-                <button onclick="saveUserSettings()" class="bg-[#5865f2] hover:bg-[#4752c4] text-white font-bold px-6 py-2.5 rounded-xl transition-all shadow">Salvar Alterações</button>
-            </div>
+        <div class="input-group">
+          <label>Papel de Parede do Chat</label>
+          <select id="settings-wallpaper-select" onchange="changeWallpaperTheme(this.value)">
+            <option value="default">Escuro Padrão (Dark)</option>
+            <option value="matrix">Estilo Matrix / Hacker</option>
+            <option value="neon">Neon Roxo</option>
+            <option value="clean">Minimalista Claro</option>
+          </select>
         </div>
+
+        <button class="btn-auth" onclick="saveUserSettings()">Salvar Alterações</button>
+      </div>
     </div>
 
-    <!-- MODAL: SEARCH & JOIN PUBLIC SERVERS -->
-    <div id="search-server-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel text-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-white/10">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold flex items-center space-x-2">
-                        <i class="fa-solid fa-compass text-[#5865f2]"></i>
-                        <span>Explorar Servidores</span>
-                    </h2>
-                    <button onclick="closeModal('search-server-modal')" class="text-discord-muted hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-                </div>
-                <div class="relative mb-4">
-                    <input id="search-server-input" onkeyup="renderPublicServersList()" type="text" placeholder="Pesquisar servidores..." class="w-full bg-[#1e1f22] p-3 pl-10 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-[#5865f2]">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-discord-muted"></i>
-                </div>
-                <div id="public-servers-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                    <!-- Dynamic servers -->
-                </div>
-            </div>
-        </div>
+    <!-- TELA DE EXPLORAR SERVIDORES -->
+    <div class="view-container" id="search-servers-view">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
+        <h2 style="color: white; font-size: 18px;">Explorar Servidores</h2>
+      </div>
+      <div id="public-servers-list"></div>
     </div>
 
-    <!-- MODAL: CREATE SERVER -->
-    <div id="create-server-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel text-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-white/10">
-            <div class="p-6">
-                <h2 class="text-2xl font-bold mb-1">Criar seu Servidor</h2>
-                <p class="text-xs text-discord-muted mb-6">Crie um espaço para conversar com os amigos!</p>
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-discord-muted uppercase tracking-wider block mb-1.5">Nome do Servidor</label>
-                        <input id="new-server-name" type="text" placeholder="Ex: Galera do Soares" class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-[#5865f2]">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-discord-muted uppercase tracking-wider block mb-1.5">Emoji / Ícone</label>
-                        <input id="new-server-icon" type="text" placeholder="⚡ ou 🎮" class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-[#5865f2]">
-                    </div>
-                </div>
-            </div>
-            <div class="bg-[#1e1f22] px-6 py-4 flex justify-between items-center border-t border-white/5">
-                <button onclick="closeModal('create-server-modal')" class="text-sm text-discord-muted hover:text-white">Cancelar</button>
-                <button onclick="createNewServer()" class="bg-[#5865f2] hover:bg-[#4752c4] text-white font-bold px-6 py-2.5 rounded-xl transition-all">Criar Servidor</button>
-            </div>
-        </div>
+  </div>
+
+  <!-- MODAL DE CHAMADA DE VÍDEO / ÁUDIO / TELA -->
+  <div id="call-modal">
+    <h2 style="color: white; margin-bottom: 20px;" id="call-status-title">Em Chamada</h2>
+    <div class="video-grid">
+      <div class="video-box"><video id="local-video" autoplay muted playsinline></video></div>
+      <div class="video-box"><video id="remote-video" autoplay playsinline></video></div>
     </div>
-
-    <!-- MODAL: ADD FRIEND -->
-    <div id="add-friend-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel text-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-white/10">
-            <div class="p-6">
-                <h2 class="text-xl font-bold mb-1 flex items-center space-x-2">
-                    <i class="fa-solid fa-user-plus text-[#5865f2]"></i>
-                    <span>Adicionar Amigo</span>
-                </h2>
-                <p class="text-xs text-discord-muted mb-4">Digite o e-mail exato ou nome do usuário cadastrado.</p>
-                
-                <div class="space-y-3 mb-4">
-                    <input id="friend-input" type="text" placeholder="seuamigo@email.com ou nome..." class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-[#5865f2]">
-                    
-                    <div id="add-friend-status" class="hidden p-3 rounded-xl text-xs flex flex-col space-y-1"></div>
-                </div>
-
-                <div class="flex justify-between items-center">
-                    <button onclick="toggleRegisteredUsersList()" class="text-xs text-[#5865f2] hover:underline flex items-center space-x-1">
-                        <i class="fa-solid fa-users text-xs"></i>
-                        <span>Ver usuários cadastrados</span>
-                    </button>
-
-                    <div class="flex space-x-2">
-                        <button onclick="closeModal('add-friend-modal')" class="text-sm text-discord-muted hover:text-white px-3 py-2">Cancelar</button>
-                        <button id="btn-submit-friend" onclick="submitAddFriend()" class="bg-[#5865f2] hover:bg-[#4752c4] text-white font-bold px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5">
-                            <span>Adicionar</span>
-                            <i id="friend-spinner" class="fa-solid fa-circle-notch fa-spin hidden"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="registered-users-box" class="hidden mt-4 pt-3 border-t border-white/10">
-                    <span class="text-[11px] font-bold text-discord-muted uppercase tracking-wider block mb-2">Usuários Cadastrados no Sistema:</span>
-                    <div id="registered-users-list" class="max-h-36 overflow-y-auto space-y-1.5 pr-1 text-xs">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="call-controls">
+      <button class="btn-call-action btn-video-toggle" onclick="toggleVideoCamera()"><i class="fa-solid fa-video"></i></button>
+      <button class="btn-call-action btn-hangup" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></button>
     </div>
+  </div>
 
-    <!-- LIGHTBOX IMAGE PREVIEW MODAL -->
-    <div id="lightbox-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" onclick="closeLightbox()">
-        <img id="lightbox-img" src="" class="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain border border-white/10">
-    </div>
+  <script>
+    // Configurações do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
+      authDomain: "soares-app-61b17.firebaseapp.com",
+      databaseURL: "https://soares-app-61b17-default-rtdb.firebaseio.com",
+      projectId: "soares-app-61b17",
+      storageBucket: "soares-app-61b17.appspot.com",
+      messagingSenderId: "19280861322",
+      appId: "1:19280861322:web:a8209a4aa491f7c0eb7573"
+    };
 
-    <!-- FIREBASE JS V9 SDK & WEBRTC REALTIME DB BACKEND -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, get, child, push, onValue, off, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-        // Updated Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
-            authDomain: "soares-app-61b17.firebaseapp.com",
-            databaseURL: "https://soares-app-61b17-default-rtdb.firebaseio.com",
-            projectId: "soares-app-61b17",
-            storageBucket: "soares-app-61b17.appspot.com",
-            messagingSenderId: "19280861322",
-            appId: "1:19280861322:web:a8209a4aa491f7c0eb7573"
-        };
+    let currentUser = null;
+    let isSignUp = false;
+    let selectedAvatarBase64 = "";
+    let currentServerId = null;
+    let currentChannelId = 'geral';
+    let currentTargetDmUid = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const rtdb = getDatabase(app);
+    let localStream = null;
+    let peerConnection = null;
+    const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-        // Global State Manager
-        window.appState = {
-            currentUser: null,
-            activeAuthTab: 'login',
-            activeView: 'dms',
-            activeServerId: null,
-            activeChannelId: null,
-            activeDmUserId: null,
-            activeDmChannelId: null,
-            inVoiceChannel: false,
-            voiceChannelId: null,
-            customWallpaper: '',
-            servers: [
-                {
-                    id: 's_default',
-                    name: 'Comunidade Soares',
-                    icon: '⚡',
-                    channels: [
-                        { id: 'c_geral', name: 'geral', type: 'text' },
-                        { id: 'c_voz', name: 'Sala de Voz', type: 'voice' }
-                    ],
-                    members: [],
-                    messages: {}
-                }
-            ],
-            publicServers: [
-                { id: 'pub_1', name: 'Comunidade Soares Zap', icon: '⚡', description: 'Servidor oficial para todos os membros!', membersCount: 24 },
-                { id: 'pub_2', name: 'Games & WebRTC Calls', icon: '🎮', description: 'Encontre uma sala de voz e compartilhe sua tela!', membersCount: 12 }
-            ],
-            friendsList: [],
-            dmMessages: {},
-            unsubscribers: []
-        };
+    function toggleMobileSidebar() {
+      document.getElementById('sidebar-wrapper').classList.toggle('open');
+      document.getElementById('sidebar-overlay').classList.toggle('open');
+    }
+    function closeMobileSidebar() {
+      document.getElementById('sidebar-wrapper').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('open');
+    }
 
-        window.firebaseServices = {
-            app, auth, rtdb,
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            signOut,
-            ref, set, get, child, push, onValue, off, update
-        };
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
 
-        window.getDeterministicDmId = function(uid1, uid2) {
-            return uid1 < uid2 ? `dm_${uid1}_${uid2}` : `dm_${uid2}_${uid1}`;
-        };
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        db.ref('users/' + user.uid).once('value', snapshot => {
+          let val = snapshot.val();
+          if (!val) {
+            val = { username: user.email.split('@')[0], email: user.email.toLowerCase(), photoUrl: "", wallpaper: "default" };
+            db.ref('users/' + user.uid).set(val);
+          }
+          currentUser = { uid: user.uid, ...val };
+          
+          document.getElementById('auth-screen').style.display = 'none';
+          document.getElementById('devs-screen').style.display = 'flex';
 
-        async function syncUserProfileRTDB(user, customName = '') {
-            if (!rtdb || !user) return null;
-            const userRef = ref(rtdb, `users/${user.uid}`);
-            
-            try {
-                const snapshot = await get(userRef);
-                const normalizedEmail = (user.email || '').toLowerCase().trim();
-                let profile = {};
+          document.getElementById('current-user-name').innerText = currentUser.username;
+          document.getElementById('settings-username-input').value = currentUser.username;
+          document.getElementById('settings-wallpaper-select').value = currentUser.wallpaper || "default";
+          changeWallpaperTheme(currentUser.wallpaper || "default");
 
-                if (snapshot.exists()) {
-                    profile = snapshot.val();
-                    if (!profile.email || profile.email !== normalizedEmail) {
-                        profile.email = normalizedEmail;
-                        await update(userRef, { email: normalizedEmail });
-                    }
-                } else {
-                    profile = {
-                        uid: user.uid,
-                        name: customName || user.displayName || normalizedEmail.split('@')[0],
-                        email: normalizedEmail,
-                        avatar: user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
-                        status: 'online',
-                        wallpaper: '',
-                        createdAt: Date.now()
-                    };
-                    await set(userRef, profile);
-                }
-                return profile;
-            } catch (err) {
-                console.error("RTDB Profile sync error:", err);
-                return {
-                    uid: user.uid,
-                    name: customName || user.email.split('@')[0],
-                    email: (user.email || '').toLowerCase(),
-                    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
-                    status: 'online',
-                    wallpaper: ''
-                };
+          const avatarEl = document.getElementById('current-user-avatar');
+          if (currentUser.photoUrl) {
+            avatarEl.style.backgroundImage = `url(${currentUser.photoUrl})`;
+            avatarEl.innerText = '';
+            document.getElementById('settings-avatar-preview').style.backgroundImage = `url(${currentUser.photoUrl})`;
+          } else {
+            avatarEl.innerText = currentUser.username[0].toUpperCase();
+          }
+
+          loadServers();
+          openDirectMessages();
+        });
+      } else {
+        document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('devs-screen').style.display = 'none';
+      }
+    });
+
+    function enterApp() {
+      document.getElementById('devs-screen').style.display = 'none';
+    }
+
+    function toggleAuthMode() {
+      isSignUp = !isSignUp;
+      document.getElementById('auth-title').innerText = isSignUp ? "Criar nova conta" : "Entrar na sua conta";
+      document.getElementById('group-username').style.display = isSignUp ? "block" : "none";
+      document.getElementById('group-avatar').style.display = isSignUp ? "flex" : "none";
+      document.getElementById('btn-auth-submit').innerText = isSignUp ? "Cadastrar" : "Entrar";
+      document.getElementById('auth-toggle-text').innerText = isSignUp ? "Já tem uma conta?" : "Não tem uma conta?";
+      document.getElementById('auth-toggle-btn').innerText = isSignUp ? "Entrar" : "Registre-se";
+    }
+
+    function handleAvatarSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        selectedAvatarBase64 = evt.target.result;
+        const preview = document.getElementById('avatar-preview');
+        preview.style.backgroundImage = `url(${selectedAvatarBase64})`;
+        document.getElementById('avatar-icon').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleSettingsAvatar(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        currentUser.photoUrl = evt.target.result;
+        document.getElementById('settings-avatar-preview').style.backgroundImage = `url(${currentUser.photoUrl})`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function changeWallpaperTheme(theme) {
+      const container = document.getElementById('messages-container');
+      if (theme === 'matrix') {
+        container.style.backgroundColor = '#000000';
+        container.style.backgroundImage = 'radial-gradient(#00ff66 1px, transparent 0)';
+      } else if (theme === 'neon') {
+        container.style.backgroundColor = '#130e21';
+        container.style.backgroundImage = 'radial-gradient(#bf00ff 1px, transparent 0)';
+      } else if (theme === 'clean') {
+        container.style.backgroundColor = '#f2f3f5';
+        container.style.backgroundImage = 'none';
+        container.style.color = '#111';
+      } else {
+        container.style.backgroundColor = '#0b141a';
+        container.style.backgroundImage = 'radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 0)';
+      }
+    }
+
+    function openSettingsView() {
+      closeMobileSidebar();
+      document.getElementById('main-chat-area').style.display = 'none';
+      document.getElementById('friends-view').style.display = 'none';
+      document.getElementById('search-servers-view').style.display = 'none';
+      document.getElementById('settings-view').style.display = 'block';
+    }
+
+    function saveUserSettings() {
+      const newUsername = document.getElementById('settings-username-input').value.trim();
+      const newWallpaper = document.getElementById('settings-wallpaper-select').value;
+      if (!newUsername) return alert("O nome de usuário não pode estar vazio!");
+
+      db.ref(`users/${currentUser.uid}`).update({
+        username: newUsername,
+        photoUrl: currentUser.photoUrl || "",
+        wallpaper: newWallpaper
+      }).then(() => {
+        currentUser.username = newUsername;
+        currentUser.wallpaper = newWallpaper;
+        document.getElementById('current-user-name').innerText = newUsername;
+        showToast("Configurações salvas com sucesso!");
+        openDirectMessages();
+      });
+    }
+
+    function handleAuth() {
+      const email = document.getElementById('auth-email').value.trim().toLowerCase();
+      const password = document.getElementById('auth-password').value;
+      const username = document.getElementById('auth-username').value.trim();
+
+      if (!email || !password) return alert("Preencha e-mail e senha!");
+
+      if (isSignUp) {
+        if (!username) return alert("Preencha o nome de usuário!");
+        
+        db.ref('users').once('value', snapshot => {
+          let exists = false;
+          snapshot.forEach(child => {
+            if (child.val().username && child.val().username.toLowerCase() === username.toLowerCase()) {
+              exists = true;
             }
-        }
+          });
 
-        function setupRealtimeListeners(currentUser) {
-            window.appState.unsubscribers.forEach(unsub => unsub());
-            window.appState.unsubscribers = [];
+          if (exists) {
+            return alert("Este nome de usuário já está em uso! Escolha outro.");
+          }
 
-            // Listen for user friends
-            const friendsRef = ref(rtdb, `friends/${currentUser.uid}`);
-            const unsubFriends = onValue(friendsRef, async (snapshot) => {
-                if (snapshot.exists()) {
-                    const friendIds = Object.keys(snapshot.val());
-                    const friendsProfiles = [];
-                    for (const fUid of friendIds) {
-                        try {
-                            const fSnap = await get(ref(rtdb, `users/${fUid}`));
-                            if (fSnap.exists()) {
-                                friendsProfiles.push(fSnap.val());
-                            }
-                        } catch (e) {}
-                    }
-                    window.appState.friendsList = friendsProfiles;
-                } else {
-                    window.appState.friendsList = [];
-                }
-                if (window.appState.activeView === 'dms') {
-                    window.renderFriendsList();
-                }
+          auth.createUserWithEmailAndPassword(email, password).then(res => {
+            db.ref('users/' + res.user.uid).set({
+              username: username,
+              email: email,
+              photoUrl: selectedAvatarBase64 || "",
+              wallpaper: "default",
+              created_at: Date.now()
             });
-            window.appState.unsubscribers.push(() => off(friendsRef));
-        }
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const profile = await syncUserProfileRTDB(user);
-                window.appState.currentUser = profile;
-                if (profile.wallpaper) window.applyWallpaper(profile.wallpaper);
-                setupRealtimeListeners(profile);
-                window.showMainApp();
-            } else {
-                window.appState.currentUser = null;
-                window.showAuthScreen();
-            }
+            showToast("Conta criada com sucesso!");
+          }).catch(err => alert("Erro ao criar conta: " + err.message));
         });
 
-        window.syncUserProfileRTDB = syncUserProfileRTDB;
-    </script>
+      } else {
+        auth.signInWithEmailAndPassword(email, password).catch(err => alert("Erro ao entrar: " + err.message));
+      }
+    }
 
-    <!-- UI & WEBRTC BUSINESS LOGIC SCRIPT -->
-    <script>
-        let mediaRecorder = null;
-        let audioChunks = [];
-        let recordTimerInterval = null;
-        let recordSeconds = 0;
-        let activeDmListenerRef = null;
-        let localStream = null;
-        let screenStream = null;
-        let peerConnection = null;
+    function logout() { auth.signOut(); location.reload(); }
 
-        window.onload = function() {
-            const savedUser = localStorage.getItem('soares_zap_user');
-            if (savedUser && (!window.firebaseServices || !window.firebaseServices.auth.currentUser)) {
-                window.appState.currentUser = JSON.parse(savedUser);
-                showMainApp();
-            }
-        };
+    function getDmChannelId(uid1, uid2) {
+      return uid1 < uid2 ? `dm_${uid1}_${uid2}` : `dm_${uid2}_${uid1}`;
+    }
 
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            const bgClass = type === 'error' ? 'bg-red-600' : type === 'success' ? 'bg-brand-green' : 'bg-[#5865f2]';
-            toast.className = `${bgClass} text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in zoom-in duration-200 pointer-events-auto border border-white/20`;
-            toast.innerHTML = `
-                <i class="fa-solid ${type === 'error' ? 'fa-triangle-exclamation' : type === 'success' ? 'fa-circle-check' : 'fa-circle-info'}"></i>
-                <span>${message}</span>
+    function openDirectMessages() {
+      closeMobileSidebar();
+      currentServerId = null;
+      currentTargetDmUid = null;
+      document.getElementById('sidebar-header-title').innerText = "Mensagens Diretas";
+      document.getElementById('main-chat-area').style.display = 'none';
+      document.getElementById('search-servers-view').style.display = 'none';
+      document.getElementById('settings-view').style.display = 'none';
+      document.getElementById('friends-view').style.display = 'block';
+      loadFriends();
+    }
+
+    function addFriendPrompt() {
+      const targetUsername = prompt("Digite o nome de usuário exato do seu amigo:");
+      if (!targetUsername) return;
+
+      const cleanUsername = targetUsername.trim().toLowerCase();
+
+      db.ref('users').once('value', snapshot => {
+        let foundUid = null;
+        let foundData = null;
+
+        snapshot.forEach(child => {
+          const u = child.val();
+          if (u.username && u.username.toLowerCase() === cleanUsername) {
+            foundUid = child.key;
+            foundData = u;
+          }
+        });
+
+        if (foundUid) {
+          if (foundUid === currentUser.uid) return alert("Você não pode adicionar a si mesmo!");
+
+          db.ref(`friends/${currentUser.uid}/${foundUid}`).set(true);
+          db.ref(`friends/${foundUid}/${currentUser.uid}`).set(true);
+
+          showToast(`Você e ${foundData.username} agora são amigos!`);
+          loadFriends();
+        } else {
+          alert("Nenhum usuário encontrado com esse Nome de Usuário.");
+        }
+      });
+    }
+
+    function loadFriends() {
+      db.ref(`friends/${currentUser.uid}`).on('value', snapshot => {
+        const list = document.getElementById('friends-list');
+        list.innerHTML = '';
+
+        if (!snapshot.exists()) {
+          list.innerHTML = '<p style="color:#949ba4; font-size: 13px;">Nenhum amigo adicionado ainda.</p>';
+          return;
+        }
+
+        snapshot.forEach(child => {
+          const friendUid = child.key;
+          db.ref(`users/${friendUid}`).once('value', uSnap => {
+            const friend = uSnap.val();
+            if (!friend) return;
+
+            const avatarStyle = friend.photoUrl ? `background-image: url(${friend.photoUrl});` : '';
+            const avatarChar = friend.photoUrl ? '' : (friend.username || 'U')[0].toUpperCase();
+
+            const div = document.createElement('div');
+            div.className = 'card-item';
+            div.innerHTML = `
+              <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                <div class="avatar" style="${avatarStyle}">${avatarChar}</div>
+                <strong style="color:white; font-size: 14px; text-overflow:ellipsis; overflow:hidden;">@${friend.username}</strong>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn-auth" style="width:auto; padding:6px 10px; font-size: 12px;" onclick="startPrivateChat('${friendUid}', '${friend.username}')">Conversar</button>
+                <button class="btn-auth" style="width:auto; padding:6px 10px; font-size: 12px; background:#23a55a;" onclick="inviteFriendToServer('${friendUid}', '${friend.username}')" title="Adicionar ao Servidor Atual">+ Servidor</button>
+              </div>
             `;
-            container.appendChild(toast);
+            list.appendChild(div);
+          });
+        });
+      });
+    }
 
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'transition-opacity');
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
+    function inviteFriendToServer(friendUid, friendUsername) {
+      if (!currentServerId || currentServerId === 'DIRECT_MESSAGES') {
+        return alert("Abra um servidor próprio primeiro para adicionar membros nele!");
+      }
+      db.ref(`servers/${currentServerId}/members/${friendUid}`).set(true).then(() => {
+        showToast(`${friendUsername} foi adicionado ao servidor!`);
+      });
+    }
+
+    function startPrivateChat(friendUid, friendUsername) {
+      closeMobileSidebar();
+      currentServerId = 'DIRECT_MESSAGES';
+      currentTargetDmUid = friendUid;
+      currentChannelId = getDmChannelId(currentUser.uid, friendUid);
+
+      document.getElementById('chat-title').innerText = `@ ${friendUsername}`;
+      document.getElementById('friends-view').style.display = 'none';
+      document.getElementById('settings-view').style.display = 'none';
+      document.getElementById('search-servers-view').style.display = 'none';
+      document.getElementById('main-chat-area').style.display = 'flex';
+
+      listenMessages();
+    }
+
+    function listenMessages() {
+      if (!currentServerId || !currentChannelId) return;
+
+      const path = currentServerId === 'DIRECT_MESSAGES'
+        ? `dm_messages/${currentChannelId}`
+        : `messages/${currentServerId}/${currentChannelId}`;
+
+      const msgRef = db.ref(path);
+      msgRef.off();
+
+      msgRef.on('value', snapshot => {
+        const container = document.getElementById('messages-container');
+        container.innerHTML = '';
+
+        snapshot.forEach(child => {
+          const msg = child.val();
+          const div = document.createElement('div');
+          div.className = 'message';
+
+          let bodyHtml = `<p>${msg.text || ''}</p>`;
+          if (msg.image) bodyHtml += `<img src="${msg.image}" class="message-img">`;
+          if (msg.audio) bodyHtml += `<audio controls src="${msg.audio}" style="margin-top:6px; max-width: 100%; display:block;"></audio>`;
+
+          const avatarStyle = msg.senderPhoto ? `background-image: url(${msg.senderPhoto});` : '';
+          const avatarChar = msg.senderPhoto ? '' : (msg.senderName || 'U')[0].toUpperCase();
+
+          div.innerHTML = `
+            <div class="avatar" style="${avatarStyle}">${avatarChar}</div>
+            <div class="message-content">
+              <h4>${msg.senderName || 'Usuário'} <span>${new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></h4>
+              ${bodyHtml}
+            </div>
+          `;
+          container.appendChild(div);
+        });
+
+        container.scrollTop = container.scrollHeight;
+      });
+    }
+
+    function sendMessage(extraData = {}) {
+      const input = document.getElementById('chat-message-input');
+      const text = input.value.trim();
+
+      if (!text && !extraData.image && !extraData.audio) return;
+
+      const path = currentServerId === 'DIRECT_MESSAGES'
+        ? `dm_messages/${currentChannelId}`
+        : `messages/${currentServerId}/${currentChannelId}`;
+
+      db.ref(path).push({
+        senderId: currentUser.uid,
+        senderName: currentUser.username,
+        senderPhoto: currentUser.photoUrl || "",
+        text: text,
+        timestamp: Date.now(),
+        ...extraData
+      });
+
+      input.value = '';
+    }
+
+    function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        sendMessage({ image: evt.target.result });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function toggleAudioRecord() {
+      const micBtn = document.getElementById('mic-btn');
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+          mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const blob = new Blob(audioChunks, { type: 'audio/mp3' });
+            const reader = new FileReader();
+            reader.onload = e => sendMessage({ audio: e.target.result });
+            reader.readAsDataURL(blob);
+          };
+          mediaRecorder.start();
+          isRecording = true;
+          micBtn.style.color = '#f23f43';
+          showToast("Gravando áudio...");
+        } catch(err) {
+          alert("Permissão de microfone necessária para gravar.");
         }
+      } else {
+        mediaRecorder.stop();
+        isRecording = false;
+        micBtn.style.color = '#8696a0';
+      }
+    }
 
-        function toggleMobileDrawer() {
-            const sidebar = document.getElementById('sub-sidebar');
-            const overlay = document.getElementById('mobile-drawer-overlay');
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-            }
-        }
+    function createServerPrompt() {
+      const name = prompt("Nome do novo Servidor:");
+      if (!name) return;
 
-        function closeMobileDrawer() {
-            document.getElementById('sub-sidebar').classList.add('-translate-x-full');
-            document.getElementById('mobile-drawer-overlay').classList.add('hidden');
-        }
+      const serverRef = db.ref('servers').push();
+      serverRef.set({
+        name: name,
+        owner: currentUser.uid,
+        members: { [currentUser.uid]: true },
+        channels: { geral: { name: 'geral' } }
+      });
+      showToast("Servidor criado com sucesso!");
+    }
 
-        function switchAuthTab(tab) {
-            window.appState.activeAuthTab = tab;
-            const loginTab = document.getElementById('tab-login');
-            const regTab = document.getElementById('tab-register');
-            const usernameField = document.getElementById('field-username');
-            const btnText = document.getElementById('auth-btn-text');
+    function createChannelPrompt() {
+      if (!currentServerId || currentServerId === 'DIRECT_MESSAGES') {
+        return alert("Abra um servidor para criar canais de texto!");
+      }
+      const chName = prompt("Nome do novo canal (ex: jogos, memes):");
+      if (!chName) return;
 
-            if (tab === 'login') {
-                loginTab.className = "flex-1 pb-3 font-bold text-center border-b-2 border-[#5865f2] text-white transition-all";
-                regTab.className = "flex-1 pb-3 font-bold text-center border-b-2 border-transparent text-discord-muted hover:text-white transition-all";
-                usernameField.classList.add('hidden');
-                btnText.innerText = "Entrar";
-            } else {
-                regTab.className = "flex-1 pb-3 font-bold text-center border-b-2 border-[#5865f2] text-white transition-all";
-                loginTab.className = "flex-1 pb-3 font-bold text-center border-b-2 border-transparent text-discord-muted hover:text-white transition-all";
-                usernameField.classList.remove('hidden');
-                btnText.innerText = "Criar Conta";
-            }
-            hideAuthError();
-        }
+      const cleanName = chName.trim().toLowerCase().replace(/\s+/g, '-');
+      db.ref(`servers/${currentServerId}/channels/${cleanName}`).set({
+        name: cleanName
+      }).then(() => {
+        showToast("Canal criado com sucesso!");
+      });
+    }
 
-        function showAuthError(message) {
-            const errorDiv = document.getElementById('auth-error');
-            const errorText = document.getElementById('auth-error-text');
-            errorText.innerText = message;
-            errorDiv.classList.remove('hidden');
-        }
+    function loadServers() {
+      db.ref('servers').on('value', snapshot => {
+        const list = document.getElementById('servers-list');
+        list.innerHTML = '';
+        snapshot.forEach(child => {
+          const server = child.val();
+          if (server.members && server.members[currentUser.uid]) {
+            const el = document.createElement('div');
+            el.className = `server-icon ${currentServerId === child.key ? 'active' : ''}`;
+            el.innerText = server.name.substring(0, 2).toUpperCase();
+            el.onclick = () => selectServer(child.key, server);
+            list.appendChild(el);
+          }
+        });
+      });
+    }
 
-        function hideAuthError() {
-            document.getElementById('auth-error').classList.add('hidden');
-        }
+    function selectServer(serverId, server) {
+      closeMobileSidebar();
+      currentServerId = serverId;
+      document.getElementById('sidebar-header-title').innerText = server.name;
+      document.getElementById('main-chat-area').style.display = 'flex';
+      document.getElementById('friends-view').style.display = 'none';
+      document.getElementById('settings-view').style.display = 'none';
+      document.getElementById('search-servers-view').style.display = 'none';
 
-        async function handleAuthSubmit(event) {
-            event.preventDefault();
-            const email = document.getElementById('auth-email-input').value.trim();
-            const password = document.getElementById('auth-password-input').value.trim();
-            const username = document.getElementById('auth-username-input').value.trim();
-            const spinner = document.getElementById('auth-spinner');
-            const submitBtn = document.getElementById('auth-submit-btn');
+      const channelsList = document.getElementById('channels-list');
+      channelsList.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:11px; font-weight:bold; color:#80848e;">CANAIS</span>
+          <i class="fa-solid fa-plus" style="font-size:12px; color:#80848e; cursor:pointer;" onclick="createChannelPrompt()" title="Criar Canal"></i>
+        </div>
+      `;
 
-            hideAuthError();
-
-            if (!email || !password) {
-                showAuthError("Preencha todos os campos obrigatórios.");
-                return;
-            }
-
-            spinner.classList.remove('hidden');
-            submitBtn.disabled = true;
-
-            try {
-                const { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword } = window.firebaseServices || {};
-                
-                if (auth && createUserWithEmailAndPassword && signInWithEmailAndPassword) {
-                    if (window.appState.activeAuthTab === 'register') {
-                        const userCred = await createUserWithEmailAndPassword(auth, email, password);
-                        await window.syncUserProfileRTDB(userCred.user, username);
-                        showToast("Conta criada com sucesso!", "success");
-                    } else {
-                        const userCred = await signInWithEmailAndPassword(auth, email, password);
-                        await window.syncUserProfileRTDB(userCred.user);
-                        showToast("Bem-vindo de volta!", "success");
-                    }
-                } else {
-                    setTimeout(() => {
-                        const newUser = {
-                            uid: 'usr_' + Date.now(),
-                            name: username || email.split('@')[0],
-                            email: email.toLowerCase(),
-                            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
-                            status: 'online'
-                        };
-                        window.appState.currentUser = newUser;
-                        localStorage.setItem('soares_zap_user', JSON.stringify(newUser));
-                        spinner.classList.add('hidden');
-                        submitBtn.disabled = false;
-                        showMainApp();
-                    }, 500);
-                }
-            } catch (err) {
-                spinner.classList.add('hidden');
-                submitBtn.disabled = false;
-                let msg = err.message;
-                if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') msg = "E-mail ou senha incorretos.";
-                if (err.code === 'auth/email-already-in-use') msg = "Este e-mail já está em uso.";
-                if (err.code === 'auth/weak-password') msg = "A senha deve ter pelo menos 6 caracteres.";
-                showAuthError(msg);
-            }
-        }
-
-        function guestLogin() {
-            const guestUser = {
-                uid: 'guest_' + Math.floor(Math.random() * 10000),
-                name: 'Visitante_' + Math.floor(Math.random() * 1000),
-                email: 'convidado@soareszap.com',
-                avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop',
-                status: 'online'
-            };
-            window.appState.currentUser = guestUser;
-            localStorage.setItem('soares_zap_user', JSON.stringify(guestUser));
-            showMainApp();
-            showToast("Entrou no Modo Convidado", "info");
-        }
-
-        function handleLogout() {
-            if (window.firebaseServices && window.firebaseServices.auth && window.firebaseServices.signOut) {
-                window.firebaseServices.signOut(window.firebaseServices.auth).catch(() => {});
-            }
-            localStorage.removeItem('soares_zap_user');
-            window.appState.currentUser = null;
-            showAuthScreen();
-        }
-
-        function showAuthScreen() {
-            document.getElementById('auth-screen').classList.remove('hidden');
-            document.getElementById('app').classList.add('hidden');
-            document.getElementById('insta-modal').classList.add('hidden');
-        }
-
-        function showMainApp() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            document.getElementById('insta-modal').classList.remove('hidden');
-
-            if (window.appState.currentUser) {
-                document.getElementById('user-name').innerText = window.appState.currentUser.name;
-                document.getElementById('user-avatar').src = window.appState.currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop';
-                document.getElementById('user-status-text').innerText = (window.appState.currentUser.status || 'online').toUpperCase();
-                
-                if (window.appState.currentUser.wallpaper) {
-                    applyWallpaper(window.appState.currentUser.wallpaper);
-                }
-            }
-
-            renderServersList();
-            switchView('dms');
-        }
-
-        function closeInstaModal() {
-            document.getElementById('insta-modal').classList.add('hidden');
-        }
-
-        function renderServersList() {
-            const list = document.getElementById('server-list');
-            list.innerHTML = window.appState.servers.map(server => `
-                <button onclick="selectServer('${server.id}')" class="relative group flex items-center justify-center w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-discord-dark hover:bg-[#5865f2] transition-all duration-200 text-white font-bold ${window.appState.activeServerId === server.id && window.appState.activeView === 'server' ? '!rounded-[16px] !bg-[#5865f2]' : ''}">
-                    <div class="absolute left-0 w-1 bg-white rounded-r-full transition-all duration-200 ${window.appState.activeServerId === server.id && window.appState.activeView === 'server' ? 'h-10 -ml-3' : 'h-0 group-hover:h-5 -ml-3'}"></div>
-                    <span class="text-lg">${server.icon}</span>
-                    <span class="absolute left-[80px] bg-discord-darker text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap hidden group-hover:block z-50 font-semibold border border-white/10">${server.name}</span>
-                </button>
-            `).join('');
-        }
-
-        function switchView(view, serverId = null) {
-            window.appState.activeView = view;
-            const dmIndicator = document.getElementById('indicator-dm');
-            const callBtn = document.getElementById('btn-dm-call');
-            const inviteBtn = document.getElementById('btn-server-invite');
-
-            closeMobileDrawer();
-
-            if (view === 'dms') {
-                window.appState.activeServerId = null;
-                dmIndicator.classList.remove('h-0');
-                dmIndicator.classList.add('h-10');
-                callBtn.classList.add('hidden');
-                inviteBtn.classList.add('hidden');
-                renderFriendsList();
-                renderMemberList([]);
-            } else {
-                window.appState.activeServerId = serverId;
-                dmIndicator.classList.remove('h-10');
-                dmIndicator.classList.add('h-0');
-                callBtn.classList.add('hidden');
-                inviteBtn.classList.remove('hidden');
-                const server = window.appState.servers.find(s => s.id === serverId);
-                if (server) {
-                    renderChannelsList(server);
-                    if (server.channels && server.channels.length > 0) selectChannel(server.channels[0].id);
-                    renderMemberList(server.members || []);
-                }
-            }
-            renderServersList();
-        }
-
-        function selectServer(serverId) {
-            switchView('server', serverId);
-        }
-
-        function renderChannelsList(server) {
-            document.getElementById('header-title').innerText = server.name;
-            const content = document.getElementById('sidebar-content');
-
-            content.innerHTML = `
-                <div class="flex items-center justify-between px-2 py-1.5">
-                    <span class="text-[11px] font-bold text-discord-muted uppercase tracking-wider">Canais de Texto</span>
-                    <button onclick="openModal('create-channel-modal')" class="text-discord-muted hover:text-white text-xs p-1" title="Criar Canal">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-                ${(server.channels || []).filter(c => c.type === 'text').map(c => `
-                    <button onclick="selectChannel('${c.id}')" class="w-full flex items-center space-x-2 px-2.5 py-1.5 rounded hover:bg-white/5 text-discord-muted hover:text-white transition-all ${window.appState.activeChannelId === c.id ? 'bg-white/10 !text-white font-semibold' : ''}">
-                        <i class="fa-solid fa-hashtag text-xs text-discord-muted"></i>
-                        <span class="text-sm truncate">${c.name}</span>
-                    </button>
-                `).join('')}
-
-                <div class="flex items-center justify-between px-2 py-1.5 mt-4">
-                    <span class="text-[11px] font-bold text-discord-muted uppercase tracking-wider">Canais de Voz</span>
-                    <button onclick="openModal('create-channel-modal')" class="text-discord-muted hover:text-white text-xs p-1" title="Criar Canal">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-                ${(server.channels || []).filter(c => c.type === 'voice').map(c => `
-                    <button onclick="joinVoiceChannel('${c.id}', '${c.name}')" class="w-full flex items-center space-x-2 px-2.5 py-1.5 rounded hover:bg-white/5 text-discord-muted hover:text-white transition-all ${window.appState.voiceChannelId === c.id ? 'text-brand-green font-bold' : ''}">
-                        <i class="fa-solid fa-volume-high text-xs"></i>
-                        <span class="text-sm truncate">${c.name}</span>
-                    </button>
-                `).join('')}
-            `;
-        }
-
-        window.renderFriendsList = function() {
-            document.getElementById('header-title').innerText = 'Soares Zap';
-            const content = document.getElementById('sidebar-content');
-            const friends = window.appState.friendsList || [];
-
-            content.innerHTML = `
-                <button onclick="openModal('add-friend-modal')" class="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl bg-[#5865f2] hover:bg-[#4752c4] text-white mb-3 font-bold text-xs transition-all shadow">
-                    <i class="fa-solid fa-user-plus text-xs"></i>
-                    <span>Adicionar Amigo</span>
-                </button>
-                
-                <div class="text-[11px] font-bold text-discord-muted uppercase px-2 py-1 tracking-wider">
-                    Amigos (${friends.length})
-                </div>
-
-                ${friends.length === 0 ? `
-                    <p class="text-xs text-discord-muted px-2 py-3 italic">Nenhum amigo adicionado ainda. Clique acima!</p>
-                ` : friends.map(f => `
-                    <button onclick="selectDM('${f.uid}')" class="w-full flex items-center space-x-2.5 px-2.5 py-2 rounded hover:bg-white/5 text-discord-muted hover:text-white transition-all ${window.appState.activeDmUserId === f.uid ? 'bg-white/10 !text-white' : ''}">
-                        <div class="relative shrink-0">
-                            <img src="${f.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}" class="w-8 h-8 rounded-full object-cover">
-                            <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-green border-2 border-[#2b2d31]"></div>
-                        </div>
-                        <div class="flex flex-col min-w-0 text-left">
-                            <span class="text-sm font-semibold truncate leading-tight">${f.name}</span>
-                            <span class="text-[10px] text-discord-muted truncate">${f.email}</span>
-                        </div>
-                    </button>
-                `).join('')}
-            `;
+      Object.keys(server.channels || {}).forEach(cId => {
+        const ch = server.channels[cId];
+        const item = document.createElement('div');
+        item.className = 'channel-item';
+        item.innerHTML = `<span><i class="fa-solid fa-hashtag"></i> ${ch.name}</span>`;
+        item.onclick = () => {
+          closeMobileSidebar();
+          currentChannelId = cId;
+          document.getElementById('chat-title').innerText = `# ${ch.name}`;
+          listenMessages();
         };
-
-        function selectChannel(channelId) {
-            window.appState.activeChannelId = channelId;
-            window.appState.activeDmUserId = null;
-            window.appState.activeDmChannelId = null;
-
-            closeMobileDrawer();
-
-            if (activeDmListenerRef && window.firebaseServices) {
-                window.firebaseServices.off(activeDmListenerRef);
-                activeDmListenerRef = null;
-            }
-
-            const server = window.appState.servers.find(s => s.id === window.appState.activeServerId);
-            const channel = server ? server.channels.find(c => c.id === channelId) : null;
-
-            document.getElementById('main-header-icon').className = 'fa-solid fa-hashtag text-discord-muted';
-            document.getElementById('main-header-title').innerText = channel ? channel.name : 'geral';
-            document.getElementById('main-header-desc').innerText = `Canal de texto #${channel ? channel.name : ''}`;
-            document.getElementById('chat-input').placeholder = `Conversar em #${channel ? channel.name : ''}...`;
-
-            renderMessages();
-            if (server) renderChannelsList(server);
-        }
-
-        function selectDM(friendUid) {
-            const currentUid = window.appState.currentUser?.uid;
-            if (!currentUid || !friendUid) return;
-
-            window.appState.activeDmUserId = friendUid;
-            const dmId = window.getDeterministicDmId(currentUid, friendUid);
-            window.appState.activeDmChannelId = dmId;
-
-            closeMobileDrawer();
-
-            const friend = window.appState.friendsList.find(f => f.uid === friendUid);
-
-            document.getElementById('main-header-icon').className = 'fa-solid fa-at text-discord-muted';
-            document.getElementById('main-header-title').innerText = friend ? friend.name : 'Amigo';
-            document.getElementById('main-header-desc').innerText = `Mensagens diretas com ${friend ? friend.email : ''}`;
-            document.getElementById('chat-input').placeholder = `Mensagem para @${friend ? friend.name : ''}...`;
-            
-            document.getElementById('btn-dm-call').classList.remove('hidden');
-
-            if (window.firebaseServices && window.firebaseServices.rtdb) {
-                const { rtdb, ref, onValue, off } = window.firebaseServices;
-                
-                if (activeDmListenerRef) off(activeDmListenerRef);
-
-                activeDmListenerRef = ref(rtdb, `direct_messages/${dmId}`);
-                onValue(activeDmListenerRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const msgsObj = snapshot.val();
-                        window.appState.dmMessages[dmId] = Object.values(msgsObj);
-                    } else {
-                        window.appState.dmMessages[dmId] = [];
-                    }
-                    if (window.appState.activeDmChannelId === dmId) {
-                        renderMessages();
-                    }
-                });
-            }
-
-            renderMessages();
-            renderFriendsList();
-        }
-
-        window.renderMessages = function() {
-            const container = document.getElementById('messages-container');
-            let messages = [];
-
-            if (window.appState.activeView === 'server') {
-                const server = window.appState.servers.find(s => s.id === window.appState.activeServerId);
-                messages = (server && server.messages && server.messages[window.appState.activeChannelId]) || [];
-            } else if (window.appState.activeDmChannelId) {
-                messages = window.appState.dmMessages[window.appState.activeDmChannelId] || [];
-            }
-
-            if (messages.length === 0) {
-                container.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full text-center text-discord-muted">
-                        <i class="fa-solid fa-comments text-4xl mb-3 text-[#5865f2]"></i>
-                        <p class="font-bold text-white text-base">Nenhuma mensagem por aqui!</p>
-                        <p class="text-xs mt-1">Envie uma mensagem para começar a conversar.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = messages.map(m => `
-                <div class="flex space-x-3 group hover:bg-white/[0.02] -mx-4 px-4 py-1.5 rounded transition-all relative">
-                    <img src="${m.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}" class="w-9 h-9 rounded-full object-cover mt-0.5 shrink-0">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center space-x-2">
-                            <span class="font-bold text-white text-sm hover:underline cursor-pointer">${m.senderName}</span>
-                            <span class="text-[10px] text-discord-muted">${m.timestamp}</span>
-                        </div>
-                        ${m.content ? `<p class="text-sm text-gray-200 break-words mt-1 leading-relaxed">${m.content}</p>` : ''}
-                        ${m.imageUrl ? `<img src="${m.imageUrl}" onclick="openLightbox('${m.imageUrl}')" class="mt-2 max-w-xs max-h-60 rounded-xl object-cover border border-white/10 cursor-pointer hover:opacity-90 shadow-md">` : ''}
-                        ${m.audioUrl ? `
-                            <div class="mt-2 bg-[#2b2d31] p-2.5 rounded-xl max-w-xs flex items-center space-x-2 border border-white/10">
-                                <audio controls src="${m.audioUrl}" class="w-full h-8"></audio>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `).join('');
-
-            container.scrollTop = container.scrollHeight;
-        };
-
-        function createNewChannel() {
-            const server = window.appState.servers.find(s => s.id === window.appState.activeServerId);
-            const name = document.getElementById('new-channel-name').value.trim();
-            const type = document.getElementById('new-channel-type').value;
-
-            if (!server || !name) return;
-
-            const newChan = { id: 'c_' + Date.now(), name: name.toLowerCase().replace(/\s+/g, '-'), type: type };
-            if (!server.channels) server.channels = [];
-            server.channels.push(newChan);
-
-            closeModal('create-channel-modal');
-            document.getElementById('new-channel-name').value = '';
-            renderChannelsList(server);
-            showToast(`Canal #${newChan.name} criado!`, "success");
-        }
-
-        function sendTextMessage() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            addMessageToCurrentStore({ content: text });
-            input.value = '';
-        }
-
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') sendTextMessage();
-        }
-
-        function handleImageUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    addMessageToCurrentStore({ imageUrl: evt.target.result });
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        async function addMessageToCurrentStore(payload) {
-            if (!window.appState.currentUser) return;
-
-            const newMsg = {
-                id: 'm_' + Date.now(),
-                senderId: window.appState.currentUser.uid,
-                senderName: window.appState.currentUser.name,
-                avatar: window.appState.currentUser.avatar,
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                ...payload
-            };
-
-            if (window.appState.activeView === 'server') {
-                const server = window.appState.servers.find(s => s.id === window.appState.activeServerId);
-                if (server) {
-                    if (!server.messages) server.messages = {};
-                    if (!server.messages[window.appState.activeChannelId]) server.messages[window.appState.activeChannelId] = [];
-                    server.messages[window.appState.activeChannelId].push(newMsg);
-                }
-            } else if (window.appState.activeDmChannelId) {
-                const dmId = window.appState.activeDmChannelId;
-                if (!window.appState.dmMessages[dmId]) window.appState.dmMessages[dmId] = [];
-                window.appState.dmMessages[dmId].push(newMsg);
-
-                if (window.firebaseServices && window.firebaseServices.rtdb) {
-                    const { rtdb, ref, push } = window.firebaseServices;
-                    try {
-                        const dmRef = ref(rtdb, `direct_messages/${dmId}`);
-                        await push(dmRef, newMsg);
-                    } catch (e) {}
-                }
-            }
-
-            renderMessages();
-            playAudioNotification('audio-message');
-        }
-
-        async function submitAddFriend() {
-            const inputEl = document.getElementById('friend-input');
-            const searchVal = inputEl.value.trim().toLowerCase();
-            const statusBox = document.getElementById('add-friend-status');
-            const spinner = document.getElementById('friend-spinner');
-
-            if (!searchVal) {
-                statusBox.className = "p-3 rounded-xl text-xs bg-red-500/20 text-red-300 border border-red-500/40 block";
-                statusBox.innerHTML = "Por favor, insira o e-mail ou nome do usuário.";
-                return;
-            }
-
-            statusBox.className = "hidden";
-            spinner.classList.remove('hidden');
-
-            try {
-                const { rtdb, ref, get, set } = window.firebaseServices || {};
-                const currentUser = window.appState.currentUser;
-
-                if (!rtdb || !currentUser) {
-                    setTimeout(() => {
-                        spinner.classList.add('hidden');
-                        const fakeFriend = {
-                            uid: 'f_' + Date.now(),
-                            name: searchVal.split('@')[0],
-                            email: searchVal,
-                            avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop',
-                            status: 'online'
-                        };
-                        window.appState.friendsList.push(fakeFriend);
-                        renderFriendsList();
-                        closeModal('add-friend-modal');
-                        showToast(`Amigo ${fakeFriend.name} adicionado!`, "success");
-                    }, 500);
-                    return;
-                }
-
-                const usersSnap = await get(ref(rtdb, 'users'));
-                
-                if (!usersSnap.exists()) {
-                    spinner.classList.add('hidden');
-                    statusBox.className = "p-3 rounded-xl text-xs bg-red-500/20 text-red-300 border border-red-500/40 block";
-                    statusBox.innerHTML = "Nenhum usuário cadastrado no sistema ainda.";
-                    return;
-                }
-
-                const allUsers = Object.values(usersSnap.val());
-                const matchedUser = allUsers.find(u => 
-                    u.uid !== currentUser.uid && (
-                        (u.email && u.email.toLowerCase() === searchVal) ||
-                        (u.name && u.name.toLowerCase() === searchVal)
-                    )
-                );
-
-                spinner.classList.add('hidden');
-
-                if (matchedUser) {
-                    await set(ref(rtdb, `friends/${currentUser.uid}/${matchedUser.uid}`), true);
-                    await set(ref(rtdb, `friends/${matchedUser.uid}/${currentUser.uid}`), true);
-
-                    inputEl.value = '';
-                    closeModal('add-friend-modal');
-                    showToast(`Amigo @${matchedUser.name} adicionado com sucesso!`, "success");
-                    selectDM(matchedUser.uid);
-                } else {
-                    statusBox.className = "p-3 rounded-xl text-xs bg-red-500/20 text-red-300 border border-red-500/40 block";
-                    statusBox.innerHTML = `Usuário "<b>${searchVal}</b>" não foi encontrado.`;
-                    await loadRegisteredUsersList();
-                    document.getElementById('registered-users-box').classList.remove('hidden');
-                }
-
-            } catch (err) {
-                spinner.classList.add('hidden');
-                statusBox.className = "p-3 rounded-xl text-xs bg-red-500/20 text-red-300 border border-red-500/40 block";
-                statusBox.innerHTML = "Erro ao buscar usuário: " + err.message;
-            }
-        }
-
-        async function toggleRegisteredUsersList() {
-            const box = document.getElementById('registered-users-box');
-            if (box.classList.contains('hidden')) {
-                await loadRegisteredUsersList();
-                box.classList.remove('hidden');
-            } else {
-                box.classList.add('hidden');
-            }
-        }
-
-        async function loadRegisteredUsersList() {
-            const listEl = document.getElementById('registered-users-list');
-            listEl.innerHTML = `<p class="text-discord-muted animate-pulse">Carregando usuários...</p>`;
-
-            try {
-                const { rtdb, ref, get } = window.firebaseServices || {};
-                if (!rtdb) {
-                    listEl.innerHTML = `<p class="text-discord-muted">Modo offline / sem Firebase</p>`;
-                    return;
-                }
-
-                const usersSnap = await get(ref(rtdb, 'users'));
-                if (!usersSnap.exists()) {
-                    listEl.innerHTML = `<p class="text-discord-muted">Sem usuários cadastrados.</p>`;
-                    return;
-                }
-
-                const currentUser = window.appState.currentUser;
-                const usersArr = Object.values(usersSnap.val()).filter(u => u.uid !== currentUser?.uid);
-
-                if (usersArr.length === 0) {
-                    listEl.innerHTML = `<p class="text-discord-muted">Nenhum outro usuário disponível.</p>`;
-                    return;
-                }
-
-                listEl.innerHTML = usersArr.map(u => `
-                    <div onclick="quickAddFriend('${u.email}')" class="flex items-center justify-between p-2 rounded-lg bg-[#1e1f22] hover:bg-white/10 cursor-pointer border border-white/5 transition-all">
-                        <div class="flex items-center space-x-2 min-w-0">
-                            <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}" class="w-6 h-6 rounded-full object-cover shrink-0">
-                            <div class="truncate">
-                                <span class="font-bold text-white block truncate">${u.name}</span>
-                                <span class="text-[10px] text-discord-muted block truncate">${u.email}</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] bg-[#5865f2] text-white px-2 py-0.5 rounded font-semibold shrink-0">Copiar</span>
-                    </div>
-                `).join('');
-
-            } catch (e) {
-                listEl.innerHTML = `<p class="text-red-400">Erro ao carregar lista.</p>`;
-            }
-        }
-
-        function quickAddFriend(email) {
-            document.getElementById('friend-input').value = email;
-            submitAddFriend();
-        }
-
-        // --- STREAMING_CHUNK:WebRTC Audio & Screen Sharing Implementation... ---
-        async function joinVoiceChannel(channelId, name) {
-            window.appState.inVoiceChannel = true;
-            window.appState.voiceChannelId = channelId;
-            document.getElementById('voice-bar').classList.remove('hidden');
-            document.getElementById('voice-channel-name').innerText = name;
-            playAudioNotification('audio-call');
-
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                showToast("Conectado à sala de voz com WebRTC!", "success");
-            } catch (err) {
-                showToast("Modo simulação de voz ativo (sem microfone físico).", "info");
-            }
-
-            const server = window.appState.servers.find(s => s.id === window.appState.activeServerId);
-            if (server) renderChannelsList(server);
-        }
-
-        async function toggleScreenShare() {
-            const videoContainer = document.getElementById('screen-share-preview-container');
-            const videoEl = document.getElementById('remote-screen-video');
-
-            if (screenStream) {
-                // Stop screen sharing
-                screenStream.getTracks().forEach(track => track.stop());
-                screenStream = null;
-                videoContainer.classList.add('hidden');
-                showToast("Compartilhamento de tela encerrado.", "info");
-            } else {
-                try {
-                    screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-                    videoEl.srcObject = screenStream;
-                    videoContainer.classList.remove('hidden');
-                    showToast("Transmitindo tela em alta definição!", "success");
-
-                    screenStream.getVideoTracks()[0].onended = () => {
-                        screenStream = null;
-                        videoContainer.classList.add('hidden');
-                    };
-                } catch (err) {
-                    showToast("Não foi possível compartilhar a tela.", "error");
-                }
-            }
-        }
-
-        function leaveVoiceChannel() {
-            if (localStream) {
-                localStream.getTracks().forEach(t => t.stop());
-                localStream = null;
-            }
-            if (screenStream) {
-                screenStream.getTracks().forEach(t => t.stop());
-                screenStream = null;
-            }
-
-            window.appState.inVoiceChannel = false;
-            window.appState.voiceChannelId = null;
-            document.getElementById('voice-bar').classList.add('hidden');
-            document.getElementById('screen-share-preview-container').classList.add('hidden');
-
-            const server = window.appState.servers.find(s => s.id === window.appState.activeServerId);
-            if (server) renderChannelsList(server);
-        }
-
-        function startWebRTCCall() {
-            joinVoiceChannel('call_dm', 'Chamada Privada DM');
-        }
-
-        // --- STREAMING_CHUNK:Audio Recording Functions... ---
-        async function toggleAudioRecord() {
-            const recBar = document.getElementById('recording-bar');
-            if (recBar.classList.contains('hidden')) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                    mediaRecorder.start();
-
-                    recBar.classList.remove('hidden');
-                    recordSeconds = 0;
-                    document.getElementById('recording-timer').innerText = '00:00';
-                    recordTimerInterval = setInterval(() => {
-                        recordSeconds++;
-                        const mins = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
-                        const secs = String(recordSeconds % 60).padStart(2, '0');
-                        document.getElementById('recording-timer').innerText = `${mins}:${secs}`;
-                    }, 1000);
-                } catch (err) {
-                    showToast('Permita o acesso ao microfone para gravar áudios.', 'error');
-                }
-            }
-        }
-
-        function stopAudioRecordAndSend() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.onstop = () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        addMessageToCurrentStore({ audioUrl: reader.result });
-                    };
-                    reader.readAsDataURL(audioBlob);
-                };
-                mediaRecorder.stop();
-                cleanupRecord();
-            }
-        }
-
-        function cancelAudioRecord() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-            cleanupRecord();
-        }
-
-        function cleanupRecord() {
-            clearInterval(recordTimerInterval);
-            document.getElementById('recording-bar').classList.add('hidden');
-        }
-
-        // --- STREAMING_CHUNK:Settings & Custom Wallpaper Logic... ---
-        function handleAvatarUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    document.getElementById('settings-avatar-preview').src = evt.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function handleWallpaperUpload(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    applyWallpaper(`url(${evt.target.result})`);
-                    showToast("Wallpaper personalizado aplicado!", "success");
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function setWallpaperPreset(type) {
-            let wpVal = '';
-            if (type === 'dots') wpVal = 'wp-pattern-dots';
-            else if (type === 'grid') wpVal = 'wp-pattern-grid';
-            else if (type === 'zap') wpVal = 'wp-pattern-zap';
-            
-            applyWallpaper(wpVal);
-            showToast("Estilo de Wallpaper alterado!", "info");
-        }
-
-        function applyWallpaper(wpVal) {
-            const container = document.getElementById('messages-container');
-            container.className = "flex-1 overflow-y-auto p-4 space-y-4 transition-all bg-cover bg-center";
-            
-            if (wpVal.startsWith('url')) {
-                container.style.backgroundImage = wpVal;
-            } else if (wpVal) {
-                container.style.backgroundImage = 'none';
-                container.classList.add(wpVal);
-            } else {
-                container.style.backgroundImage = 'none';
-            }
-            window.appState.customWallpaper = wpVal;
-        }
-
-        async function saveUserSettings() {
-            const newName = document.getElementById('settings-username-input').value.trim();
-            const newAvatar = document.getElementById('settings-avatar-preview').src;
-
-            if (newName) window.appState.currentUser.name = newName;
-            if (newAvatar) window.appState.currentUser.avatar = newAvatar;
-            window.appState.currentUser.wallpaper = window.appState.customWallpaper;
-
-            document.getElementById('user-name').innerText = window.appState.currentUser.name;
-            document.getElementById('user-avatar').src = window.appState.currentUser.avatar;
-
-            if (window.firebaseServices && window.firebaseServices.rtdb) {
-                const { rtdb, ref, update } = window.firebaseServices;
-                try {
-                    await update(ref(rtdb, `users/${window.appState.currentUser.uid}`), {
-                        name: window.appState.currentUser.name,
-                        avatar: window.appState.currentUser.avatar,
-                        wallpaper: window.appState.customWallpaper
-                    });
-                } catch (e) {}
-            }
-
-            localStorage.setItem('soares_zap_user', JSON.stringify(window.appState.currentUser));
-            closeModal('settings-modal');
-            showToast("Perfil e preferências salvos!", "success");
-        }
-
-        function toggleMic() {
-            if (!window.appState.currentUser) return;
-            window.appState.currentUser.muted = !window.appState.currentUser.muted;
-            const icon = document.getElementById('icon-mic');
-            const callIcon = document.getElementById('call-mic-icon');
-
-            if (window.appState.currentUser.muted) {
-                if (icon) icon.className = 'fa-solid fa-microphone-slash text-red-400';
-                if (callIcon) callIcon.className = 'fa-solid fa-microphone-slash text-red-400';
-            } else {
-                if (icon) icon.className = 'fa-solid fa-microphone text-xs';
-                if (callIcon) callIcon.className = 'fa-solid fa-microphone';
-            }
-        }
-
-        function toggleEmojiPicker() {
-            document.getElementById('emoji-picker').classList.toggle('hidden');
-        }
-
-        function addEmoji(emoji) {
-            const input = document.getElementById('chat-input');
-            input.value += emoji;
-            toggleEmojiPicker();
-            input.focus();
-        }
-
-        function renderPublicServersList() {
-            const queryVal = (document.getElementById('search-server-input').value || '').toLowerCase();
-            const container = document.getElementById('public-servers-list');
-            const filtered = window.appState.publicServers.filter(s => s.name.toLowerCase().includes(queryVal));
-
-            container.innerHTML = filtered.map(s => `
-                <div class="flex items-center justify-between p-3 rounded-xl bg-[#1e1f22] border border-white/5">
-                    <div class="flex items-center space-x-3">
-                        <span class="text-2xl">${s.icon}</span>
-                        <div>
-                            <div class="font-bold text-sm text-white">${s.name}</div>
-                            <div class="text-xs text-discord-muted">${s.description}</div>
-                        </div>
-                    </div>
-                    <button onclick="joinPublicServer('${s.id}')" class="bg-[#5865f2] hover:bg-[#4752c4] text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all">
-                        Entrar
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function joinPublicServer(pubServerId) {
-            const pub = window.appState.publicServers.find(s => s.id === pubServerId);
-            if (!pub) return;
-
-            if (!window.appState.servers.some(s => s.id === pub.id)) {
-                const newServer = {
-                    id: pub.id,
-                    name: pub.name,
-                    icon: pub.icon,
-                    channels: [
-                        { id: 'c_gen', name: 'geral', type: 'text' },
-                        { id: 'c_voice', name: 'Voz Principal', type: 'voice' }
-                    ],
-                    members: [
-                        { id: window.appState.currentUser.uid, name: window.appState.currentUser.name, status: 'online', role: 'Membro' }
-                    ],
-                    messages: {}
-                };
-                window.appState.servers.push(newServer);
-            }
-
-            closeModal('search-server-modal');
-            selectServer(pub.id);
-        }
-
-        function createNewServer() {
-            const name = document.getElementById('new-server-name').value.trim();
-            const icon = document.getElementById('new-server-icon').value.trim() || '⚡';
-            if (!name) return;
-
-            const newServer = {
-                id: 's_' + Date.now(),
-                name: name,
-                icon: icon,
-                channels: [
-                    { id: 'c_' + Date.now(), name: 'geral', type: 'text' },
-                    { id: 'cv_' + Date.now(), name: 'Canal de Voz', type: 'voice' }
-                ],
-                members: [
-                    { id: window.appState.currentUser.uid, name: window.appState.currentUser.name, status: 'online', role: 'Dono' }
-                ],
-                messages: {}
-            };
-
-            window.appState.servers.push(newServer);
-            closeModal('create-server-modal');
-            document.getElementById('new-server-name').value = '';
-            document.getElementById('new-server-icon').value = '';
-            selectServer(newServer.id);
-            showToast(`Servidor "${name}" criado com sucesso!`, "success");
-        }
-
-        function renderInviteFriendsList() {
-            const container = document.getElementById('friends-invite-list');
-            const friends = window.appState.friendsList || [];
-
-            if (friends.length === 0) {
-                container.innerHTML = `<p class="text-xs text-discord-muted py-4 text-center">Nenhum amigo para convidar. Adicione amigos primeiro!</p>`;
-                return;
-            }
-
-            container.innerHTML = friends.map(f => `
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#1e1f22] border border-white/5">
-                    <div class="flex items-center space-x-2.5">
-                        <img src="${f.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}" class="w-8 h-8 rounded-full object-cover">
-                        <div>
-                            <div class="font-bold text-xs text-white">${f.name}</div>
-                            <div class="text-[10px] text-discord-muted">${f.email}</div>
-                        </div>
-                    </div>
-                    <button onclick="addFriendToActiveServer('${f.uid}', '${f.name}')" class="bg-[#5865f2] hover:bg-[#4752c4] text-white px-3 py-1 rounded-lg text-xs font-bold transition-all">
-                        Adicionar
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function addFriendToActiveServer(friendUid, friendName) {
-            const server = window.appState.servers.find(s => s.id === window.appState.activeServerId);
-            if (!server) return;
-
-            if (!server.members) server.members = [];
-            if (!server.members.some(m => m.id === friendUid)) {
-                server.members.push({
-                    id: friendUid,
-                    name: friendName,
-                    status: 'online',
-                    role: 'Membro'
-                });
-                renderMemberList(server.members);
-                showToast(`@${friendName} foi adicionado ao servidor!`, "success");
-            } else {
-                showToast(`@${friendName} já é um membro deste servidor.`, "info");
-            }
-            closeModal('invite-member-modal');
-        }
-
-        function renderMemberList(members) {
-            const list = document.getElementById('members-list');
-            document.getElementById('member-count').innerText = members.length;
-
-            if (members.length === 0) {
-                list.innerHTML = `<p class="text-xs text-discord-muted px-2 py-2">Nenhum membro ativo.</p>`;
-                return;
-            }
-
-            list.innerHTML = members.map(m => `
-                <div class="flex items-center space-x-2.5 px-2 py-1.5 rounded hover:bg-white/5 cursor-pointer transition-all">
-                    <div class="relative shrink-0">
-                        <img src="${m.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}" class="w-8 h-8 rounded-full object-cover">
-                        <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-green border-2 border-[#2b2d31]"></div>
-                    </div>
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-sm font-semibold text-gray-200 truncate">${m.name}</span>
-                        <span class="text-[10px] text-discord-muted truncate font-medium">${m.role || 'Membro'}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function openLightbox(url) {
-            document.getElementById('lightbox-img').src = url;
-            document.getElementById('lightbox-modal').classList.remove('hidden');
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox-modal').classList.add('hidden');
-        }
-
-        function playAudioNotification(id) {
-            try {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.currentTime = 0;
-                    el.play().catch(() => {});
-                }
-            } catch(e) {}
-        }
-
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.remove('hidden');
-
-            if (modalId === 'search-server-modal') {
-                renderPublicServersList();
-            } else if (modalId === 'invite-member-modal') {
-                renderInviteFriendsList();
-            } else if (modalId === 'settings-modal' && window.appState.currentUser) {
-                document.getElementById('settings-username-input').value = window.appState.currentUser.name;
-                document.getElementById('settings-avatar-preview').src = window.appState.currentUser.avatar;
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        function filterMessages() {
-            const queryVal = document.getElementById('search-input').value.toLowerCase();
-            const container = document.getElementById('messages-container');
-            const messages = container.querySelectorAll('.group');
-            messages.forEach(msg => {
-                msg.style.display = msg.innerText.toLowerCase().includes(queryVal) ? 'flex' : 'none';
-            });
-        }
-    </script>
+        channelsList.appendChild(item);
+      });
+
+      currentChannelId = 'geral';
+      document.getElementById('chat-title').innerText = `# geral`;
+      listenMessages();
+    }
+
+    function openSearchServers() {
+      closeMobileSidebar();
+      document.getElementById('main-chat-area').style.display = 'none';
+      document.getElementById('friends-view').style.display = 'none';
+      document.getElementById('settings-view').style.display = 'none';
+      document.getElementById('search-servers-view').style.display = 'block';
+
+      db.ref('servers').once('value', snapshot => {
+        const list = document.getElementById('public-servers-list');
+        list.innerHTML = '';
+        snapshot.forEach(child => {
+          const s = child.val();
+          const div = document.createElement('div');
+          div.className = 'card-item';
+          div.innerHTML = `
+            <div><strong style="color:white; font-size:14px;">${s.name}</strong></div>
+            <button class="btn-auth" style="width:auto; padding:6px 12px; font-size:12px;" onclick="joinServer('${child.key}')">Entrar</button>
+          `;
+          list.appendChild(div);
+        });
+      });
+    }
+
+    function joinServer(serverId) {
+      db.ref(`servers/${serverId}/members/${currentUser.uid}`).set(true).then(() => {
+        showToast("Você entrou no servidor!");
+        loadServers();
+      });
+    }
+
+    // CHAMADA DE VOZ E COMPARTILHAMENTO DE TELA (WebRTC)
+    async function startVoiceCall() {
+      document.getElementById('call-modal').style.display = 'flex';
+      document.getElementById('call-status-title').innerText = "Chamada de Voz Ativa";
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        document.getElementById('local-video').srcObject = localStream;
+      } catch(err) {
+        alert("Erro ao acessar microfone para chamada.");
+        endCall();
+      }
+    }
+
+    async function startScreenShare() {
+      document.getElementById('call-modal').style.display = 'flex';
+      document.getElementById('call-status-title').innerText = "Compartilhamento de Tela Ativo";
+      try {
+        localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+        document.getElementById('local-video').srcObject = localStream;
+      } catch(err) {
+        alert("Erro ao compartilhar tela.");
+        endCall();
+      }
+    }
+
+    function toggleVideoCamera() {
+      if (localStream) {
+        localStream.getVideoTracks().forEach(track => track.enabled = !track.enabled);
+        showToast("Câmera alternada");
+      }
+    }
+
+    function endCall() {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+      document.getElementById('local-video').srcObject = null;
+      document.getElementById('remote-video').srcObject = null;
+      document.getElementById('call-modal').style.display = 'none';
+      showToast("Chamada encerrada.");
+    }
+  </script>
 </body>
 </html>
