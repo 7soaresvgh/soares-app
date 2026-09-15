@@ -1,551 +1,863 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="h-full select-none">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soares App - Chat em Tempo Real</title>
-
-    <!-- Importação dos SDKs Compatíveis do Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
+    <title>Discord Web Clone</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root {
-            --bg-primary: #0f172a;
-            --bg-card: #1e293b;
-            --bg-input: #334155;
-            --accent: #4f46e5;
-            --accent-hover: #4338ca;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --msg-mine: #4f46e5;
-            --msg-other: #334155;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+        
         body {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-family: 'Inter', 'gg sans', sans-serif;
+            background-color: #313338;
+            color: #dbdee1;
         }
 
-        /* Telas (Auth e Chat) */
-        .container {
-            width: 100%;
-            max-width: 480px;
-            background: var(--bg-card);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 90vh;
-            max-height: 700px;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2b2d31;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1a1b1e;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #111214;
         }
 
-        .auth-screen {
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: 100%;
+        /* Pulse effect for speaking indicator */
+        .speaking-pulse {
+            box-shadow: 0 0 0 2px #23a55a;
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
-
-        .welcome-title {
-            text-align: center;
-            font-size: 1.5rem;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: var(--text-sub);
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.4rem;
-            font-size: 0.85rem;
-            color: var(--text-sub);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.8rem;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            background: var(--bg-input);
-            color: var(--text-main);
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .form-group input:focus {
-            border-color: var(--accent);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 8px;
-            background: var(--accent);
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 0.5rem;
-        }
-
-        .btn:hover {
-            background: var(--accent-hover);
-        }
-
-        .toggle-auth {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            color: var(--text-sub);
-            cursor: pointer;
-        }
-
-        .toggle-auth span {
-            color: var(--accent);
-            text-decoration: underline;
-        }
-
-        /* Interface do Chat */
-        .chat-screen {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .chat-header {
-            padding: 1rem;
-            background: #111827;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #374151;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .avatar-wrapper {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--accent);
-        }
-
-        .avatar-upload-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: 0.2s;
-            font-size: 0.7rem;
-            color: white;
-        }
-
-        .avatar-wrapper:hover .avatar-upload-overlay {
-            opacity: 1;
-        }
-
-        .header-title h3 {
-            font-size: 1rem;
-        }
-
-        .header-title p {
-            font-size: 0.75rem;
-            color: var(--text-sub);
-        }
-
-        .btn-logout {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .message-bubble {
-            max-width: 75%;
-            padding: 0.8rem;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            word-break: break-word;
-            display: flex;
-            gap: 8px;
-        }
-
-        .message-bubble.mine {
-            align-self: flex-end;
-            background: var(--msg-mine);
-            border-bottom-right-radius: 2px;
-        }
-
-        .message-bubble.other {
-            align-self: flex-start;
-            background: var(--msg-other);
-            border-bottom-left-radius: 2px;
-        }
-
-        .msg-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .msg-content {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .msg-sender {
-            font-size: 0.7rem;
-            color: #cbd5e1;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-
-        .chat-input-area {
-            padding: 1rem;
-            background: #111827;
-            display: flex;
-            gap: 8px;
-        }
-
-        .chat-input-area input {
-            flex: 1;
-            padding: 0.8rem;
-            border-radius: 8px;
-            border: none;
-            background: var(--bg-input);
-            color: var(--text-main);
-            outline: none;
-        }
-
-        .chat-input-area button {
-            padding: 0.8rem 1.2rem;
-            border: none;
-            border-radius: 8px;
-            background: var(--accent);
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Ocultar input de arquivo */
-        #file-input {
-            display: none;
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0px #23a55a; }
+            50% { box-shadow: 0 0 0 3px rgba(35, 165, 90, 0.6); }
+            100% { box-shadow: 0 0 0 0px #23a55a; }
         }
     </style>
 </head>
-<body>
+<body class="h-full flex flex-col overflow-hidden text-sm">
 
-    <div class="container">
-        <!-- Tela de Autenticação -->
-        <div id="auth-screen" class="auth-screen">
-            <h2 class="welcome-title">Bem-vindo ao aplicativo teste do Soares!</h2>
-            <p class="subtitle" id="auth-subtitle">Crie sua conta para começar a conversar</p>
+    <div id="app" class="flex flex-1 h-full w-full overflow-hidden">
 
-            <form id="auth-form">
-                <div class="form-group" id="group-name">
-                    <label>Seu Nome</label>
-                    <input type="text" id="input-name" placeholder="Ex: Gabriel Soares">
-                </div>
-                <div class="form-group">
-                    <label>E-mail</label>
-                    <input type="email" id="input-email" required placeholder="seuemail@exemplo.com">
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="input-password" required placeholder="******">
-                </div>
-                <button type="submit" class="btn" id="btn-submit">Cadastrar</button>
-            </form>
+        <!-- 1. SERVERS SIDEBAR -->
+        <div class="w-[72px] bg-[#1e1f22] flex flex-col items-center py-3 space-y-2 z-20 shrink-0">
+            <!-- DM / Home Button -->
+            <button onclick="switchView('dms')" id="btn-dm" class="relative group flex items-center justify-center w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-[#313338] hover:bg-[#5865f2] transition-all duration-200 text-white">
+                <div id="indicator-dm" class="absolute left-0 w-1 bg-white rounded-r-full transition-all duration-200 h-10 -ml-3"></div>
+                <i data-lucide="disc" class="w-7 h-7"></i>
+                <!-- Tooltip -->
+                <span class="absolute left-[80px] bg-[#111214] text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap hidden group-hover:block z-50 font-semibold">Mensagens Diretas</span>
+            </button>
 
-            <div class="toggle-auth" id="toggle-auth">
-                Já tem conta? <span id="toggle-text">Faça login</span>
+            <div class="w-8 h-[2px] bg-[#35363c] rounded my-1"></div>
+
+            <!-- Server List -->
+            <div id="server-list" class="flex flex-col space-y-2 w-full items-center overflow-y-auto overflow-x-hidden flex-1 no-scrollbar">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Add Server Button -->
+            <button onclick="openModal('create-server-modal')" class="group flex items-center justify-center w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-[#313338] hover:bg-[#23a55a] transition-all duration-200 text-[#23a55a] hover:text-white">
+                <i data-lucide="plus" class="w-6 h-6"></i>
+                <span class="absolute left-[80px] bg-[#111214] text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap hidden group-hover:block z-50 font-semibold">Criar Servidor</span>
+            </button>
+        </div>
+
+        <!-- 2. SUB-SIDEBAR (CHANNELS OR FRIENDS) -->
+        <div class="w-60 bg-[#2b2d31] flex flex-col shrink-0">
+            <!-- Top Header (Server Title or Friends search) -->
+            <div id="sidebar-header" class="h-12 border-b border-[#1f2023] px-4 flex items-center justify-between font-bold text-white shadow-sm cursor-pointer hover:bg-[#35373c] transition-colors">
+                <span id="header-title" class="truncate">Mensagens Diretas</span>
+                <i id="header-icon" data-lucide="chevron-down" class="w-4 h-4 text-[#949ba4]"></i>
+            </div>
+
+            <!-- Content List (Channels or DM Friends) -->
+            <div id="sidebar-content" class="flex-1 overflow-y-auto p-2 space-y-0.5">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- USER FOOTER -->
+            <div class="h-14 bg-[#232428] px-2 flex items-center justify-between shrink-0">
+                <div class="flex items-center space-x-2 p-1 rounded-md hover:bg-[#35373c] cursor-pointer flex-1 min-w-0" onclick="openModal('profile-modal')">
+                    <div class="relative">
+                        <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover">
+                        <div id="user-status-dot" class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#23a55a] border-2 border-[#232428]"></div>
+                    </div>
+                    <div class="flex flex-col min-w-0 flex-1">
+                        <span id="user-name" class="text-xs font-semibold text-white truncate">MeuUsuario</span>
+                        <span id="user-status-text" class="text-[10px] text-[#949ba4] truncate">Online</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-1 text-[#b5bac1]">
+                    <button id="btn-mic" onclick="toggleMic()" class="p-1.5 hover:bg-[#35373c] hover:text-white rounded-md" title="Mutar Microfone">
+                        <i id="icon-mic" data-lucide="mic" class="w-4 h-4"></i>
+                    </button>
+                    <button id="btn-deafen" onclick="toggleDeafen()" class="p-1.5 hover:bg-[#35373c] hover:text-white rounded-md" title="Desativar Áudio">
+                        <i id="icon-deafen" data-lucide="headphones" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="openModal('settings-modal')" class="p-1.5 hover:bg-[#35373c] hover:text-white rounded-md" title="Configurações">
+                        <i data-lucide="settings" class="w-4 h-4"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Tela do Chat -->
-        <div id="chat-screen" class="chat-screen">
-            <div class="chat-header">
-                <div class="user-info">
-                    <div class="avatar-wrapper" onclick="triggerFileInput()" title="Clique para mudar a foto">
-                        <img id="user-avatar" class="avatar" src="https://via.placeholder.com/150" alt="Avatar">
-                        <div class="avatar-upload-overlay">Mudar</div>
+        <!-- 3. MAIN CHAT AREA -->
+        <div class="flex-1 bg-[#313338] flex flex-col min-w-0">
+            <!-- Top Channel Header -->
+            <div class="h-12 border-b border-[#1f2023] px-4 flex items-center justify-between shadow-sm shrink-0">
+                <div class="flex items-center space-x-2 font-bold text-white min-w-0">
+                    <i id="main-header-icon" data-lucide="hash" class="w-5 h-5 text-[#80848e]"></i>
+                    <span id="main-header-title" class="truncate">geral</span>
+                    <span id="main-header-desc" class="text-xs font-normal text-[#949ba4] border-l border-[#3f4147] pl-3 ml-2 truncate hidden md:inline">Boas-vindas ao canal!</span>
+                </div>
+                <div class="flex items-center space-x-3 text-[#b5bac1]">
+                    <div class="relative hidden sm:block">
+                        <input id="search-input" onkeyup="filterMessages()" type="text" placeholder="Buscar..." class="bg-[#1e1f22] text-xs px-2 py-1 rounded w-36 focus:w-48 transition-all focus:outline-none text-white">
+                        <i data-lucide="search" class="w-3.5 h-3.5 absolute right-2 top-1.5 text-[#949ba4]"></i>
                     </div>
-                    <div class="header-title">
-                        <h3 id="user-display-name">Carregando...</h3>
-                        <p>Bem-vindo ao aplicativo teste do Soares!</p>
+                    <button onclick="toggleMemberList()" class="hover:text-white" title="Lista de Membros"><i data-lucide="users" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+
+            <!-- Voice Connected Bar (If inside voice channel) -->
+            <div id="voice-bar" class="hidden bg-[#2b2d31] border-b border-[#1f2023] px-4 py-2 flex items-center justify-between text-xs text-[#23a55a]">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="radio" class="w-4 h-4 animate-pulse"></i>
+                    <div>
+                        <div class="font-bold text-white">Voz Conectada / <span id="voice-channel-name">Geral</span></div>
+                        <div class="text-[10px] text-[#949ba4]">RTC Conectado / 24ms</div>
                     </div>
                 </div>
-                <button class="btn-logout" onclick="logout()">Sair</button>
+                <button onclick="leaveVoiceChannel()" class="bg-[#da373c] hover:bg-[#a12800] text-white px-3 py-1 rounded font-semibold transition-colors flex items-center space-x-1">
+                    <i data-lucide="phone-off" class="w-3.5 h-3.5"></i>
+                    <span>Desconectar</span>
+                </button>
             </div>
 
-            <input type="file" id="file-input" accept="image/*" onchange="uploadAvatar(event)">
-
-            <div class="chat-messages" id="chat-messages">
-                <!-- As mensagens aparecerão aqui em tempo real -->
+            <!-- Chat Messages Container -->
+            <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4">
+                <!-- Messages rendered dynamically -->
             </div>
 
-            <form class="chat-input-area" id="chat-form">
-                <input type="text" id="message-input" placeholder="Digite sua mensagem..." required autocomplete="off">
-                <button type="submit">Enviar</button>
-            </form>
+            <!-- INPUT BAR -->
+            <div class="p-4 pt-0 shrink-0">
+                <!-- Recording Bar (Overlay when active) -->
+                <div id="recording-bar" class="hidden bg-[#2b2d31] p-3 rounded-lg mb-2 flex items-center justify-between border border-[#da373c] animate-pulse">
+                    <div class="flex items-center space-x-2 text-[#da373c]">
+                        <div class="w-3 h-3 rounded-full bg-[#da373c]"></div>
+                        <span class="font-bold text-xs">Gravando Áudio...</span>
+                        <span id="recording-timer" class="text-white text-xs font-mono ml-2">00:00</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="cancelAudioRecord()" class="px-3 py-1 text-xs bg-[#313338] text-white hover:bg-[#35373c] rounded">Cancelar</button>
+                        <button onclick="stopAudioRecordAndSend()" class="px-3 py-1 text-xs bg-[#23a55a] text-white hover:bg-[#1d8a4b] rounded font-bold">Enviar Áudio</button>
+                    </div>
+                </div>
+
+                <div class="bg-[#383a40] rounded-lg p-2.5 flex items-center space-x-2">
+                    <!-- Attachment button -->
+                    <label class="cursor-pointer text-[#b5bac1] hover:text-white p-1 rounded-full hover:bg-[#404249] transition-colors">
+                        <i data-lucide="circle-plus" class="w-5 h-5"></i>
+                        <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                    </label>
+
+                    <!-- Text input -->
+                    <input id="chat-input" onkeydown="handleKeyPress(event)" type="text" placeholder="Conversar em #geral..." class="bg-transparent text-white placeholder-[#80848e] focus:outline-none flex-1 text-sm">
+
+                    <!-- Audio record button -->
+                    <button id="mic-record-btn" onclick="toggleAudioRecord()" class="text-[#b5bac1] hover:text-white p-1.5 rounded-full hover:bg-[#404249] transition-colors" title="Gravar Áudio">
+                        <i data-lucide="mic" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Emoji Picker Trigger -->
+                    <button onclick="toggleEmojiPicker()" class="text-[#b5bac1] hover:text-yellow-400 p-1.5 rounded-full hover:bg-[#404249] transition-colors relative">
+                        <i data-lucide="smile" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Send button -->
+                    <button onclick="sendTextMessage()" class="bg-[#5865f2] hover:bg-[#4752c4] text-white p-2 rounded-md transition-colors">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Emoji Picker Popover -->
+                <div id="emoji-picker" class="hidden absolute bottom-20 right-8 bg-[#2b2d31] border border-[#1f2023] p-3 rounded-lg shadow-2xl grid grid-cols-5 gap-2 z-50">
+                    <button onclick="addEmoji('👍')" class="text-xl hover:bg-[#35373c] p-1 rounded">👍</button>
+                    <button onclick="addEmoji('❤️')" class="text-xl hover:bg-[#35373c] p-1 rounded">❤️</button>
+                    <button onclick="addEmoji('🔥')" class="text-xl hover:bg-[#35373c] p-1 rounded">🔥</button>
+                    <button onclick="addEmoji('😂')" class="text-xl hover:bg-[#35373c] p-1 rounded">😂</button>
+                    <button onclick="addEmoji('🎉')" class="text-xl hover:bg-[#35373c] p-1 rounded">🎉</button>
+                    <button onclick="addEmoji('🚀')" class="text-xl hover:bg-[#35373c] p-1 rounded">🚀</button>
+                    <button onclick="addEmoji('😎')" class="text-xl hover:bg-[#35373c] p-1 rounded">😎</button>
+                    <button onclick="addEmoji('💩')" class="text-xl hover:bg-[#35373c] p-1 rounded">💩</button>
+                    <button onclick="addEmoji('👀')" class="text-xl hover:bg-[#35373c] p-1 rounded">👀</button>
+                    <button onclick="addEmoji('💯')" class="text-xl hover:bg-[#35373c] p-1 rounded">💯</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. RIGHT SIDEBAR (MEMBERS LIST) -->
+        <div id="member-sidebar" class="w-60 bg-[#2b2d31] flex flex-col hidden lg:flex shrink-0">
+            <div class="p-4 text-xs font-bold text-[#949ba4] uppercase tracking-wider">
+                Membros — <span id="member-count">0</span>
+            </div>
+            <div id="members-list" class="flex-1 overflow-y-auto px-2 space-y-1">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE SERVER -->
+    <div id="create-server-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#313338] text-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
+            <div class="p-6 text-center">
+                <h2 class="text-2xl font-bold mb-2">Crie seu servidor</h2>
+                <p class="text-xs text-[#949ba4] mb-4">Seu servidor é onde você fica com seus amigos. Crie o seu e comece a conversar.</p>
+                <div class="space-y-4 text-left">
+                    <div>
+                        <label class="text-xs font-bold text-[#b5bac1] uppercase tracking-wider block mb-1">NOME DO SERVIDOR</label>
+                        <input id="new-server-name" type="text" placeholder="Servidor do Fulano" class="w-full bg-[#1e1f22] p-2.5 rounded border border-[#1f2023] text-sm focus:outline-none focus:border-[#5865f2]">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-[#b5bac1] uppercase tracking-wider block mb-1">ÍCONE (EMOJI OU SIGLA)</label>
+                        <input id="new-server-icon" type="text" placeholder="🎮" class="w-full bg-[#1e1f22] p-2.5 rounded border border-[#1f2023] text-sm focus:outline-none focus:border-[#5865f2]">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-[#2b2d31] px-6 py-4 flex justify-between items-center">
+                <button onclick="closeModal('create-server-modal')" class="text-sm text-white hover:underline">Voltar</button>
+                <button onclick="createNewServer()" class="bg-[#5865f2] hover:bg-[#4752c4] text-white px-6 py-2 rounded text-sm font-semibold transition-colors">Criar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD FRIEND -->
+    <div id="add-friend-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#313338] text-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-bold mb-1">Adicionar Amigo</h2>
+                <p class="text-xs text-[#949ba4] mb-4">Você pode adicionar amigos com o nome de usuário deles.</p>
+                <div>
+                    <input id="friend-username-input" type="text" placeholder="Digite o nome do amigo..." class="w-full bg-[#1e1f22] p-3 rounded border border-[#1f2023] text-sm focus:outline-none focus:border-[#5865f2] mb-4">
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeModal('add-friend-modal')" class="text-sm text-white hover:underline px-4 py-2">Cancelar</button>
+                    <button onclick="submitAddFriend()" class="bg-[#5865f2] hover:bg-[#4752c4] text-white px-5 py-2 rounded text-sm font-semibold transition-colors">Enviar Pedido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PROFILE / SETTINGS -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#313338] text-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden">
+            <div class="h-24 bg-[#5865f2] relative">
+                <button onclick="closeModal('profile-modal')" class="absolute top-3 right-3 bg-black/40 hover:bg-black/60 rounded-full p-1 text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="px-6 pb-6 relative">
+                <div class="relative -top-10 flex justify-between items-end mb-2">
+                    <img id="profile-modal-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop" class="w-20 h-20 rounded-full border-4 border-[#313338] object-cover">
+                </div>
+                <div class="-mt-8 space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-[#b5bac1] uppercase tracking-wider block mb-1">NOME EXIBIDO</label>
+                        <input id="profile-name-input" type="text" class="w-full bg-[#1e1f22] p-2.5 rounded border border-[#1f2023] text-sm focus:outline-none focus:border-[#5865f2]">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-[#b5bac1] uppercase tracking-wider block mb-1">URL DO AVATAR</label>
+                        <input id="profile-avatar-input" type="text" class="w-full bg-[#1e1f22] p-2.5 rounded border border-[#1f2023] text-sm focus:outline-none focus:border-[#5865f2]">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-[#b5bac1] uppercase tracking-wider block mb-1">STATUS</label>
+                        <select id="profile-status-select" class="w-full bg-[#1e1f22] p-2.5 rounded border border-[#1f2023] text-sm focus:outline-none focus:border-[#5865f2]">
+                            <option value="online">Online</option>
+                            <option value="idle">Ausente</option>
+                            <option value="dnd">Ocupado (Do Not Disturb)</option>
+                            <option value="invisible">Invisível</option>
+                        </select>
+                    </div>
+                    <button onclick="saveUserProfile()" class="w-full bg-[#23a55a] hover:bg-[#1d8a4b] text-white font-semibold py-2.5 rounded text-sm transition-colors">Salvar Alterações</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Configuração do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
-            authDomain: "soares-app-61b17.firebaseapp.com",
-            projectId: "soares-app-61b17",
-            storageBucket: "soares-app-61b17.firebasestorage.app",
-            messagingSenderId: "246291781042",
-            appId: "1:246291781042:web:d06b58a9a798a8db2188ab"
+        // GLOBAL APP STATE
+        const state = {
+            currentUser: {
+                id: 'u1',
+                name: 'DevMaster',
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
+                status: 'online',
+                muted: false,
+                deafened: false
+            },
+            activeView: 'dms', // 'dms' or 'server'
+            activeServerId: null,
+            activeChannelId: null,
+            activeDmUserId: null,
+            inVoiceChannel: false,
+            voiceChannelId: null,
+            servers: [
+                {
+                    id: 's1',
+                    name: 'Comunidade Devs',
+                    icon: '💻',
+                    channels: [
+                        { id: 'c1', name: 'geral', type: 'text' },
+                        { id: 'c2', name: 'projetos', type: 'text' },
+                        { id: 'c3', name: 'Sala de Voz', type: 'voice' }
+                    ],
+                    members: [
+                        { id: 'u1', name: 'DevMaster', status: 'online', role: 'Dono' },
+                        { id: 'u2', name: 'Lucas_Coder', status: 'online', role: 'Membro' },
+                        { id: 'u3', name: 'Ana_Design', status: 'idle', role: 'Membro' },
+                        { id: 'u4', name: 'Carlos_Gamer', status: 'offline', role: 'Membro' }
+                    ],
+                    messages: {
+                        'c1': [
+                            { id: 'm1', senderId: 'u2', senderName: 'Lucas_Coder', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100', content: 'Fala pessoal! Bem-vindos ao novo servidor!', timestamp: '14:20', reactions: { '👍': 2 } },
+                            { id: 'm2', senderId: 'u3', senderName: 'Ana_Design', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100', content: 'Ficou show demais essa interface!', timestamp: '14:22', reactions: {} }
+                        ]
+                    }
+                },
+                {
+                    id: 's2',
+                    name: 'Gamers Brasil',
+                    icon: '🎮',
+                    channels: [
+                        { id: 'c4', name: 'chat-geral', type: 'text' },
+                        { id: 'c5', name: 'Voz Squad', type: 'voice' }
+                    ],
+                    members: [
+                        { id: 'u1', name: 'DevMaster', status: 'online', role: 'Membro' },
+                        { id: 'u4', name: 'Carlos_Gamer', status: 'online', role: 'Dono' }
+                    ],
+                    messages: {
+                        'c4': [
+                            { id: 'm3', senderId: 'u4', senderName: 'Carlos_Gamer', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100', content: 'Bora jogar uma partida hoje à noite?', timestamp: '15:10', reactions: { '🔥': 1 } }
+                        ]
+                    }
+                }
+            ],
+            friends: [
+                { id: 'u2', name: 'Lucas_Coder', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100', status: 'online' },
+                { id: 'u3', name: 'Ana_Design', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100', status: 'idle' },
+                { id: 'u4', name: 'Carlos_Gamer', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100', status: 'offline' }
+            ],
+            dmMessages: {
+                'u2': [
+                    { id: 'dm1', senderId: 'u2', senderName: 'Lucas_Coder', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100', content: 'E aí, beleza?', timestamp: '10:05', reactions: {} }
+                ]
+            }
         };
 
-        // Inicializando Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        // Media Recorder Variables for Voice Notes
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordTimerInterval = null;
+        let recordSeconds = 0;
 
-        // Elementos da DOM
-        const authScreen = document.getElementById('auth-screen');
-        const chatScreen = document.getElementById('chat-screen');
-        const authForm = document.getElementById('auth-form');
-        const groupName = document.getElementById('group-name');
-        const inputName = document.getElementById('input-name');
-        const inputEmail = document.getElementById('input-email');
-        const inputPassword = document.getElementById('input-password');
-        const btnSubmit = document.getElementById('btn-submit');
-        const toggleAuth = document.getElementById('toggle-auth');
-        const toggleText = document.getElementById('toggle-text');
-        const authSubtitle = document.getElementById('auth-subtitle');
-        
-        const userAvatar = document.getElementById('user-avatar');
-        const userDisplayName = document.getElementById('user-display-name');
-        const chatMessages = document.getElementById('chat-messages');
-        const chatForm = document.getElementById('chat-form');
-        const messageInput = document.getElementById('message-input');
+        window.onload = function() {
+            lucide.createIcons();
+            renderServersList();
+            switchView('dms');
+        };
 
-        let isLoginState = false;
-        let currentUser = null;
+        // RENDER SERVERS LIST
+        function renderServersList() {
+            const list = document.getElementById('server-list');
+            list.innerHTML = state.servers.map(server => `
+                <button onclick="selectServer('${server.id}')" class="relative group flex items-center justify-center w-12 h-12 rounded-[24px] hover:rounded-[16px] bg-[#313338] hover:bg-[#5865f2] transition-all duration-200 text-white font-bold ${state.activeServerId === server.id && state.activeView === 'server' ? '!rounded-[16px] !bg-[#5865f2]' : ''}">
+                    <div class="absolute left-0 w-1 bg-white rounded-r-full transition-all duration-200 ${state.activeServerId === server.id && state.activeView === 'server' ? 'h-10 -ml-3' : 'h-0 group-hover:h-5 -ml-3'}"></div>
+                    <span class="text-lg">${server.icon}</span>
+                    <span class="absolute left-[80px] bg-[#111214] text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap hidden group-hover:block z-50 font-semibold">${server.name}</span>
+                </button>
+            `).join('');
+        }
 
-        // Alternar entre Cadastro e Login
-        toggleAuth.addEventListener('click', () => {
-            isLoginState = !isLoginState;
-            if (isLoginState) {
-                groupName.style.display = 'none';
-                btnSubmit.textContent = 'Entrar';
-                toggleText.textContent = 'Cadastre-se';
-                authSubtitle.textContent = 'Entre com suas credenciais para acessar';
+        // SWITCH VIEW (DMs vs SERVER)
+        function switchView(view, serverId = null) {
+            state.activeView = view;
+            const dmIndicator = document.getElementById('indicator-dm');
+
+            if (view === 'dms') {
+                state.activeServerId = null;
+                dmIndicator.classList.remove('h-0');
+                dmIndicator.classList.add('h-10');
+                renderFriendsList();
+                renderMemberList([]);
             } else {
-                groupName.style.display = 'block';
-                btnSubmit.textContent = 'Cadastrar';
-                toggleText.textContent = 'Faça login';
-                authSubtitle.textContent = 'Crie sua conta para começar a conversar';
-            }
-        });
-
-        // Cadastro / Login Evento
-        authForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = inputEmail.value;
-            const password = inputPassword.value;
-
-            try {
-                if (isLoginState) {
-                    await auth.signInWithEmailAndPassword(email, password);
-                } else {
-                    const name = inputName.value || "Usuário Soares";
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4f46e5&color=fff`;
-
-                    await userCredential.user.updateProfile({
-                        displayName: name,
-                        photoURL: defaultAvatar
-                    });
-
-                    // Salvar perfil no Firestore
-                    await db.collection('users').doc(userCredential.user.uid).set({
-                        uid: userCredential.user.uid,
-                        name: name,
-                        email: email,
-                        photoURL: defaultAvatar
-                    });
+                state.activeServerId = serverId;
+                dmIndicator.classList.remove('h-10');
+                dmIndicator.classList.add('h-0');
+                const server = state.servers.find(s => s.id === serverId);
+                if (server) {
+                    renderChannelsList(server);
+                    selectChannel(server.channels[0].id);
+                    renderMemberList(server.members);
                 }
-            } catch (error) {
-                alert("Erro na autenticação: " + error.message);
             }
-        });
+            renderServersList();
+        }
 
-        // Monitorar Estado do Usuário
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                authScreen.style.display = 'none';
-                chatScreen.style.display = 'flex';
+        // SELECT SERVER
+        function selectServer(serverId) {
+            switchView('server', serverId);
+        }
 
-                // Carregar dados atualizados do usuário
-                userDisplayName.textContent = user.displayName || "Usuário Soares";
-                userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&background=4f46e5&color=fff`;
+        // RENDER CHANNELS IN SIDEBAR
+        function renderChannelsList(server) {
+            document.getElementById('header-title').innerText = server.name;
+            const content = document.getElementById('sidebar-content');
 
-                loadMessages();
-            } else {
-                currentUser = null;
-                authScreen.style.display = 'flex';
-                chatScreen.style.display = 'none';
+            content.innerHTML = `
+                <div class="text-[11px] font-bold text-[#949ba4] uppercase px-2 py-1 tracking-wider">Canais de Texto</div>
+                ${server.channels.filter(c => c.type === 'text').map(c => `
+                    <button onclick="selectChannel('${c.id}')" class="w-full flex items-center space-x-2 px-2 py-1.5 rounded hover:bg-[#35373c] text-[#949ba4] hover:text-white group ${state.activeChannelId === c.id ? 'bg-[#35373c] !text-white' : ''}">
+                        <i data-lucide="hash" class="w-4 h-4"></i>
+                        <span class="text-sm font-medium truncate">${c.name}</span>
+                    </button>
+                `).join('')}
+
+                <div class="text-[11px] font-bold text-[#949ba4] uppercase px-2 py-1 tracking-wider mt-4">Canais de Voz</div>
+                ${server.channels.filter(c => c.type === 'voice').map(c => `
+                    <button onclick="joinVoiceChannel('${c.id}', '${c.name}')" class="w-full flex items-center space-x-2 px-2 py-1.5 rounded hover:bg-[#35373c] text-[#949ba4] hover:text-white group ${state.voiceChannelId === c.id ? 'text-[#23a55a] font-bold' : ''}">
+                        <i data-lucide="volume-2" class="w-4 h-4"></i>
+                        <span class="text-sm font-medium truncate">${c.name}</span>
+                    </button>
+                `).join('')}
+            `;
+            lucide.createIcons();
+        }
+
+        // RENDER FRIENDS LIST (DM SIDEBAR & MAIN PANEL)
+        function renderFriendsList() {
+            document.getElementById('header-title').innerText = 'Mensagens Diretas';
+            const content = document.getElementById('sidebar-content');
+
+            content.innerHTML = `
+                <button onclick="showAddFriendModal()" class="w-full flex items-center space-x-2 px-2 py-2 rounded bg-[#23a55a] text-white hover:bg-[#1d8a4b] mb-3 font-semibold text-xs justify-center transition-colors">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <span>Adicionar Amigo</span>
+                </button>
+                <div class="text-[11px] font-bold text-[#949ba4] uppercase px-2 py-1 tracking-wider">Amigos Solicitados / Diretas</div>
+                ${state.friends.map(f => `
+                    <button onclick="selectDM('${f.id}')" class="w-full flex items-center space-x-2 px-2 py-1.5 rounded hover:bg-[#35373c] text-[#949ba4] hover:text-white ${state.activeDmUserId === f.id ? 'bg-[#35373c] !text-white' : ''}">
+                        <div class="relative">
+                            <img src="${f.avatar}" class="w-7 h-7 rounded-full object-cover">
+                            <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ${getStatusColor(f.status)} border-2 border-[#2b2d31]"></div>
+                        </div>
+                        <span class="text-sm font-medium truncate">${f.name}</span>
+                    </button>
+                `).join('')}
+            `;
+            lucide.createIcons();
+        }
+
+        // SELECT TEXT CHANNEL
+        function selectChannel(channelId) {
+            state.activeChannelId = channelId;
+            state.activeDmUserId = null;
+            const server = state.servers.find(s => s.id === state.activeServerId);
+            const channel = server.channels.find(c => c.id === channelId);
+
+            document.getElementById('main-header-icon').setAttribute('data-lucide', 'hash');
+            document.getElementById('main-header-title').innerText = channel ? channel.name : 'geral';
+            document.getElementById('main-header-desc').innerText = `Boas-vindas ao canal #${channel ? channel.name : ''}!`;
+            document.getElementById('chat-input').placeholder = `Conversar em #${channel ? channel.name : ''}...`;
+
+            renderMessages();
+            renderChannelsList(server);
+        }
+
+        // SELECT DM CHAT
+        function selectDM(friendId) {
+            state.activeDmUserId = friendId;
+            const friend = state.friends.find(f => f.id === friendId);
+
+            document.getElementById('main-header-icon').setAttribute('data-lucide', 'at-sign');
+            document.getElementById('main-header-title').innerText = friend.name;
+            document.getElementById('main-header-desc').innerText = `Mensagens diretas com @${friend.name}`;
+            document.getElementById('chat-input').placeholder = `Conversar com @${friend.name}...`;
+
+            renderMessages();
+            renderFriendsList();
+        }
+
+        // RENDER MESSAGES
+        function renderMessages() {
+            const container = document.getElementById('messages-container');
+            let messages = [];
+
+            if (state.activeView === 'server') {
+                const server = state.servers.find(s => s.id === state.activeServerId);
+                messages = (server && server.messages[state.activeChannelId]) || [];
+            } else if (state.activeDmUserId) {
+                messages = state.dmMessages[state.activeDmUserId] || [];
             }
-        });
 
-        // Sair da Conta
-        function logout() {
-            auth.signOut();
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-center text-[#949ba4]">
+                        <i data-lucide="message-square" class="w-12 h-12 mb-2 stroke-1"></i>
+                        <p class="font-semibold text-white">Nenhuma mensagem por aqui ainda!</p>
+                        <p class="text-xs">Envie uma mensagem para iniciar a conversa.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = messages.map(m => `
+                <div class="flex space-x-3 group hover:bg-[#2e3035] -mx-4 px-4 py-1 rounded transition-colors relative">
+                    <img src="${m.avatar}" class="w-10 h-10 rounded-full object-cover mt-0.5">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold text-white text-sm hover:underline cursor-pointer">${m.senderName}</span>
+                            <span class="text-[10px] text-[#949ba4]">${m.timestamp}</span>
+                        </div>
+                        ${m.content ? `<p class="text-sm text-[#dbdee1] break-words mt-0.5">${m.content}</p>` : ''}
+                        ${m.imageUrl ? `<img src="${m.imageUrl}" class="mt-2 max-w-xs max-h-60 rounded-lg object-cover border border-[#1f2023]">` : ''}
+                        ${m.audioUrl ? `
+                            <div class="mt-2 bg-[#2b2d31] p-2 rounded-lg max-w-xs flex items-center space-x-2 border border-[#1f2023]">
+                                <audio controls src="${m.audioUrl}" class="w-full h-8"></audio>
+                            </div>
+                        ` : ''}
+                        <!-- Reactions Display -->
+                        <div class="flex flex-wrap gap-1 mt-1">
+                            ${Object.entries(m.reactions || {}).map(([emoji, count]) => `
+                                <button onclick="toggleReaction('${m.id}', '${emoji}')" class="bg-[#2b2d31] hover:bg-[#35373c] text-xs px-2 py-0.5 rounded flex items-center space-x-1 border border-[#3f4147]">
+                                    <span>${emoji}</span>
+                                    <span class="text-[#949ba4] font-semibold">${count}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.scrollTop = container.scrollHeight;
+            lucide.createIcons();
         }
 
-        // Mudar Foto de Perfil (Converte para Base64 para praticidade no teste)
-        function triggerFileInput() {
-            document.getElementById('file-input').click();
-        }
-
-        function uploadAvatar(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const base64Image = e.target.result;
-
-                try {
-                    await currentUser.updateProfile({ photoURL: base64Image });
-                    userAvatar.src = base64Image;
-
-                    await db.collection('users').doc(currentUser.uid).update({
-                        photoURL: base64Image
-                    });
-
-                    alert("Foto de perfil atualizada com sucesso!");
-                } catch (err) {
-                    alert("Erro ao atualizar foto: " + err.message);
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // Enviar Mensagem
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const text = messageInput.value.trim();
+        // SEND TEXT MESSAGE
+        function sendTextMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
             if (!text) return;
 
-            messageInput.value = '';
-
-            try {
-                await db.collection('messages').add({
-                    text: text,
-                    uid: currentUser.uid,
-                    senderName: currentUser.displayName || "Usuário",
-                    photoURL: currentUser.photoURL || "https://via.placeholder.com/150",
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            } catch (err) {
-                alert("Erro ao enviar mensagem: " + err.message);
-            }
-        });
-
-        // Carregar Mensagens do Chat em Tempo Real
-        function loadMessages() {
-            db.collection('messages')
-                .orderBy('createdAt', 'asc')
-                .onSnapshot(snapshot => {
-                    chatMessages.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const isMine = data.uid === currentUser.uid;
-
-                        const bubble = document.createElement('div');
-                        bubble.className = `message-bubble ${isMine ? 'mine' : 'other'}`;
-
-                        const avatarImg = `<img class="msg-avatar" src="${data.photoURL || 'https://via.placeholder.com/150'}" alt="Foto">`;
-                        
-                        bubble.innerHTML = `
-                            ${!isMine ? avatarImg : ''}
-                            <div class="msg-content">
-                                ${!isMine ? `<div class="msg-sender">${data.senderName}</div>` : ''}
-                                <div>${escapeHtml(data.text)}</div>
-                            </div>
-                            ${isMine ? avatarImg : ''}
-                        `;
-
-                        chatMessages.appendChild(bubble);
-                    });
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                });
+            addMessageToCurrentStore({ content: text });
+            input.value = '';
         }
 
-        // Função de segurança para escapar caracteres HTML
-        function escapeHtml(text) {
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+        // HANDLE KEYPRESS
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendTextMessage();
+            }
+        }
+
+        // HANDLE IMAGE UPLOAD
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    addMessageToCurrentStore({ imageUrl: evt.target.result });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // ADD MESSAGE TO CURRENT CONVERSATION
+        function addMessageToCurrentStore(payload) {
+            const newMsg = {
+                id: 'm_' + Date.now(),
+                senderId: state.currentUser.id,
+                senderName: state.currentUser.name,
+                avatar: state.currentUser.avatar,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                reactions: {},
+                ...payload
+            };
+
+            if (state.activeView === 'server') {
+                const server = state.servers.find(s => s.id === state.activeServerId);
+                if (server) {
+                    if (!server.messages[state.activeChannelId]) server.messages[state.activeChannelId] = [];
+                    server.messages[state.activeChannelId].push(newMsg);
+                }
+            } else if (state.activeDmUserId) {
+                if (!state.dmMessages[state.activeDmUserId]) state.dmMessages[state.activeDmUserId] = [];
+                state.dmMessages[state.activeDmUserId].push(newMsg);
+            }
+
+            renderMessages();
+        }
+
+        // EMOJI ACTIONS
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emoji-picker');
+            picker.classList.toggle('hidden');
+        }
+
+        function addEmoji(emoji) {
+            const input = document.getElementById('chat-input');
+            input.value += emoji;
+            toggleEmojiPicker();
+            input.focus();
+        }
+
+        // AUDIO RECORDING (MICROPHONE)
+        async function toggleAudioRecord() {
+            const recBar = document.getElementById('recording-bar');
+            if (recBar.classList.contains('hidden')) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.start();
+
+                    recBar.classList.remove('hidden');
+                    recordSeconds = 0;
+                    document.getElementById('recording-timer').innerText = '00:00';
+                    recordTimerInterval = setInterval(() => {
+                        recordSeconds++;
+                        const mins = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+                        const secs = String(recordSeconds % 60).padStart(2, '0');
+                        document.getElementById('recording-timer').innerText = `${mins}:${secs}`;
+                    }, 1000);
+                } catch (err) {
+                    alert('Não foi possível acessar seu microfone.');
+                }
+            }
+        }
+
+        function stopAudioRecordAndSend() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    addMessageToCurrentStore({ audioUrl: audioUrl });
+                };
+                mediaRecorder.stop();
+                cleanupRecord();
+            }
+        }
+
+        function cancelAudioRecord() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            cleanupRecord();
+        }
+
+        function cleanupRecord() {
+            clearInterval(recordTimerInterval);
+            document.getElementById('recording-bar').classList.add('hidden');
+        }
+
+        // VOICE CHANNELS SIMULATION
+        function joinVoiceChannel(channelId, name) {
+            state.inVoiceChannel = true;
+            state.voiceChannelId = channelId;
+            document.getElementById('voice-bar').classList.remove('hidden');
+            document.getElementById('voice-channel-name').innerText = name;
+            const server = state.servers.find(s => s.id === state.activeServerId);
+            if (server) renderChannelsList(server);
+        }
+
+        function leaveVoiceChannel() {
+            state.inVoiceChannel = false;
+            state.voiceChannelId = null;
+            document.getElementById('voice-bar').classList.add('hidden');
+            const server = state.servers.find(s => s.id === state.activeServerId);
+            if (server) renderChannelsList(server);
+        }
+
+        function toggleMic() {
+            state.currentUser.muted = !state.currentUser.muted;
+            const icon = document.getElementById('icon-mic');
+            const btn = document.getElementById('btn-mic');
+            if (state.currentUser.muted) {
+                icon.setAttribute('data-lucide', 'mic-off');
+                btn.classList.add('text-[#da373c]');
+            } else {
+                icon.setAttribute('data-lucide', 'mic');
+                btn.classList.remove('text-[#da373c]');
+            }
+            lucide.createIcons();
+        }
+
+        function toggleDeafen() {
+            state.currentUser.deafened = !state.currentUser.deafened;
+            const icon = document.getElementById('icon-deafen');
+            const btn = document.getElementById('btn-deafen');
+            if (state.currentUser.deafened) {
+                icon.setAttribute('data-lucide', 'volume-x');
+                btn.classList.add('text-[#da373c]');
+            } else {
+                icon.setAttribute('data-lucide', 'headphones');
+                btn.classList.remove('text-[#da373c]');
+            }
+            lucide.createIcons();
+        }
+
+        // MEMBERS LIST SIDEBAR
+        function renderMemberList(members) {
+            const list = document.getElementById('members-list');
+            document.getElementById('member-count').innerText = members.length;
+
+            if (members.length === 0) {
+                list.innerHTML = `<p class="text-xs text-[#949ba4] px-2">Nenhum membro visível.</p>`;
+                return;
+            }
+
+            list.innerHTML = members.map(m => `
+                <div class="flex items-center space-x-2 px-2 py-1.5 rounded hover:bg-[#35373c] cursor-pointer">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover">
+                        <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ${getStatusColor(m.status)} border-2 border-[#2b2d31]"></div>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-sm font-medium text-[#dbdee1] truncate">${m.name}</span>
+                        <span class="text-[10px] text-[#949ba4] truncate">${m.role}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleMemberList() {
+            const sidebar = document.getElementById('member-sidebar');
+            sidebar.classList.toggle('hidden');
+        }
+
+        // CREATE NEW SERVER MODAL LOGIC
+        function createNewServer() {
+            const name = document.getElementById('new-server-name').value.trim();
+            const icon = document.getElementById('new-server-icon').value.trim() || '💬';
+
+            if (!name) return;
+
+            const newServer = {
+                id: 's_' + Date.now(),
+                name: name,
+                icon: icon,
+                channels: [
+                    { id: 'c_' + Date.now(), name: 'geral', type: 'text' },
+                    { id: 'cv_' + Date.now(), name: 'Voz Principal', type: 'voice' }
+                ],
+                members: [
+                    { id: state.currentUser.id, name: state.currentUser.name, status: 'online', role: 'Dono' }
+                ],
+                messages: {}
+            };
+
+            state.servers.push(newServer);
+            closeModal('create-server-modal');
+            document.getElementById('new-server-name').value = '';
+            document.getElementById('new-server-icon').value = '';
+            selectServer(newServer.id);
+        }
+
+        // ADD FRIEND LOGIC
+        function showAddFriendModal() {
+            openModal('add-friend-modal');
+        }
+
+        function submitAddFriend() {
+            const input = document.getElementById('friend-username-input');
+            const username = input.value.trim();
+            if (!username) return;
+
+            state.friends.push({
+                id: 'u_' + Date.now(),
+                name: username,
+                avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop',
+                status: 'online'
+            });
+
+            input.value = '';
+            closeModal('add-friend-modal');
+            renderFriendsList();
+        }
+
+        // USER PROFILE SAVE
+        function saveUserProfile() {
+            const name = document.getElementById('profile-name-input').value.trim();
+            const avatar = document.getElementById('profile-avatar-input').value.trim();
+            const status = document.getElementById('profile-status-select').value;
+
+            if (name) state.currentUser.name = name;
+            if (avatar) state.currentUser.avatar = avatar;
+            state.currentUser.status = status;
+
+            document.getElementById('user-name').innerText = state.currentUser.name;
+            document.getElementById('user-avatar').src = state.currentUser.avatar;
+            document.getElementById('user-status-text').innerText = status.toUpperCase();
+            
+            const dot = document.getElementById('user-status-dot');
+            dot.className = `absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#232428] ${getStatusColor(status)}`;
+
+            closeModal('profile-modal');
+        }
+
+        // HELPERS & UTILS
+        function getStatusColor(status) {
+            switch (status) {
+                case 'online': return 'bg-[#23a55a]';
+                case 'idle': return 'bg-[#f0b232]';
+                case 'dnd': return 'bg-[#f23f43]';
+                default: return 'bg-[#80848e]';
+            }
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+
+            if (modalId === 'profile-modal') {
+                document.getElementById('profile-name-input').value = state.currentUser.name;
+                document.getElementById('profile-avatar-input').value = state.currentUser.avatar;
+                document.getElementById('profile-modal-avatar').src = state.currentUser.avatar;
+                document.getElementById('profile-status-select').value = state.currentUser.status;
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function filterMessages() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const container = document.getElementById('messages-container');
+            const messages = container.querySelectorAll('.group');
+            messages.forEach(msg => {
+                const text = msg.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    msg.style.display = 'flex';
+                } else {
+                    msg.style.display = 'none';
+                }
+            });
         }
     </script>
 </body>
