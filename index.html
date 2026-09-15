@@ -4,18 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soares Dev - Sala do Futuro</title>
-    <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Configuração do seu projeto Firebase (soares-app) com a sua API Key
+        const firebaseConfig = {
+            apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
+            authDomain: "soares-app-61b17.firebaseapp.com",
+            projectId: "soares-app-61b17",
+            storageBucket: "soares-app-61b17.appspot.com",
+            messagingSenderId: "123456789098",
+            appId: "1:123456789098:web:abcdef123456"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Disponibilizar funções globalmente para o script da página
+        window.db = db;
+        window.fbDeps = { collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, orderBy };
+        
+        // Disparar evento de que o Firebase carregou
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        darkbg: '#0b0f19',
-                        cardbg: '#161e2e',
-                        primary: '#6366f1',
-                        accent: '#10b981'
+                        darkbg: '#05020a',
+                        cardbg: '#120a1f',
+                        cardhover: '#1b102e',
+                        primary: '#8b5cf6',
+                        accent: '#c084fc',
+                        darkpurple: '#2e1065'
                     }
                 }
             }
@@ -23,257 +51,397 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f3f4f6; }
+        body { font-family: 'Inter', sans-serif; background-color: #05020a; color: #f3f4f6; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0b0f19; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        ::-webkit-scrollbar-track { background: #05020a; }
+        ::-webkit-scrollbar-thumb { background: #3b0764; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b21a8; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col justify-between">
 
-    <!-- TELA DE LOGIN -->
-    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-darkbg p-4">
-        <div class="bg-cardbg border border-gray-800 p-8 rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-accent"></div>
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/20 text-primary mb-4 text-2xl font-bold">
-                    <i class="fa-solid fa-code"></i>
+    <!-- TELA INICIAL (ESTILO SALA DO FUTURO - ROXO E PRETO) -->
+    <div id="inicio-screen" class="flex-1 flex flex-col md:flex-row w-full min-h-screen">
+        
+        <!-- COLUNA ESQUERDA: INFORMAÇÕES -->
+        <div class="w-full md:w-3/5 bg-gradient-to-br from-purple-950 via-darkbg to-black p-8 md:p-16 flex flex-col justify-between border-r border-purple-900/30">
+            <div>
+                <div class="flex items-center space-x-3 mb-10">
+                    <div class="w-10 h-10 rounded-xl bg-purple-600/30 text-accent flex items-center justify-center font-bold text-xl border border-purple-500/30">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-wider text-white">SOARES DEV</span>
                 </div>
-                <h1 class="text-2xl font-bold text-white tracking-wide">Soares Dev</h1>
-                <p class="text-sm text-gray-400 mt-1">Sala do Futuro • Portal de Ensino</p>
+
+                <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+                    Você sabe o que é a <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-accent">SALA DO FUTURO?</span>
+                </h1>
+
+                <p class="text-gray-300 text-sm md:text-base leading-relaxed mb-6">
+                    A <strong>Sala do Futuro</strong> nasceu para transformar a experiência educacional, conectando alunos e servidores com recursos que simplificam e enriquecem o processo de aprendizagem e gestão na nuvem.
+                </p>
+
+                <h3 class="text-white font-semibold text-sm mb-3 uppercase tracking-wider text-purple-300">Benefícios para os estudantes:</h3>
+                <ul class="space-y-2 text-sm text-gray-300 mb-6">
+                    <li class="flex items-start"><i class="fa-solid fa-check text-accent mt-1 mr-2"></i><span><strong>Acesso centralizado:</strong> informações sobre boletins, frequência e tarefas em tempo real.</span></li>
+                    <li class="flex items-start"><i class="fa-solid fa-check text-accent mt-1 mr-2"></i><span><strong>Recursos educativos:</strong> materiais das aulas e bibliotecas virtuais sincronizadas.</span></li>
+                </ul>
             </div>
 
-            <form id="form-login" onsubmit="realizarLogin(event)" class="space-y-4">
+            <!-- RODAPÉ DA ESQUERDA (DEV CREDITS) -->
+            <div class="pt-6 border-t border-purple-900/40 text-xs text-purple-400 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <span>Plataforma Oficial Soares Dev (Firebase Connected)</span>
+                <div class="flex items-center space-x-3">
+                    <span><i class="fa-brands fa-instagram text-accent"></i> DEV GERAL: <strong class="text-white">7soaresvgh</strong></span>
+                    <span>•</span>
+                    <span><i class="fa-brands fa-instagram text-accent"></i> AUX DEV: <strong class="text-white">murilo__xyz</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUNA DIREITA: OPÇÕES DE PERFIL / LOGIN -->
+        <div class="w-full md:w-2/5 bg-cardbg p-8 md:p-12 flex flex-col justify-between">
+            <div class="flex justify-between items-center pb-6 border-b border-purple-900/40">
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">USUÁRIO / LOGIN</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500"><i class="fa-solid fa-user"></i></span>
-                        <input type="text" id="login-user" required class="w-full bg-darkbg border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-primary text-sm" placeholder="Digite seu usuário">
-                    </div>
+                    <h2 class="text-sm font-bold text-white tracking-widest">SALA DO FUTURO</h2>
+                    <span class="text-xs text-purple-400">escolher perfil</span>
+                </div>
+                <span class="text-xs text-gray-400">Precisas de ajuda? <a href="#" class="text-accent hover:underline">Clique aqui</a></span>
+            </div>
+
+            <div id="painel-escolha-perfil" class="my-auto py-8 space-y-4">
+                <div class="text-center mb-6">
+                    <h3 class="text-xl font-bold text-white">Olá, novamente!</h3>
+                    <p class="text-xs text-gray-400 mt-1">Já estávamos sentindo sua falta.</p>
+                    <p class="text-xs text-purple-300 mt-3">Escolha abaixo um perfil para acessar:</p>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">SENHA</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500"><i class="fa-solid fa-lock"></i></span>
-                        <input type="password" id="login-pass" required class="w-full bg-darkbg border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-primary text-sm" placeholder="••••••••">
+                <button onclick="selecionarPerfil('estudante')" class="w-full p-4 bg-purple-950/40 hover:bg-purple-900/50 border border-purple-800/40 rounded-xl flex items-center justify-between text-left transition group">
+                    <div>
+                        <span class="block text-xs text-purple-400 font-semibold uppercase">Portal Acadêmico</span>
+                        <span class="text-base font-bold text-white group-hover:text-accent transition">Sou Estudante</span>
                     </div>
-                </div>
-
-                <button type="submit" class="w-full py-3 bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white font-semibold rounded-lg shadow-lg transition duration-200 text-sm mt-2">
-                    Entrar na Plataforma
+                    <i class="fa-solid fa-arrow-right text-purple-400 group-hover:translate-x-1 transition"></i>
                 </button>
-            </form>
 
-            <div class="mt-6 border-t border-gray-800 pt-4 text-xs text-gray-500 text-center">
-                <p>Acessos de Teste:</p>
-                <p class="mt-1 text-gray-400">Admin: <span class="text-primary font-mono">soares / soares</span> ou <span class="text-primary font-mono">murilo / murilo</span></p>
-                <p class="text-gray-400">Alunos: <span class="text-accent font-mono">gersonteste / gerson</span> ou <span class="text-accent font-mono">convidado teste / convidado</span></p>
+                <button onclick="selecionarPerfil('servidor')" class="w-full p-4 bg-purple-950/40 hover:bg-purple-900/50 border border-purple-800/40 rounded-xl flex items-center justify-between text-left transition group">
+                    <div>
+                        <span class="block text-xs text-purple-400 font-semibold uppercase">Portal Administrativo</span>
+                        <span class="text-base font-bold text-white group-hover:text-accent transition">Sou Servidor</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-[10px] bg-purple-900 text-purple-200 px-2 py-0.5 rounded">ADMIN</span>
+                        <i class="fa-solid fa-arrow-right text-purple-400 group-hover:translate-x-1 transition"></i>
+                    </div>
+                </button>
+            </div>
+
+            <!-- TELA DE FORMULÁRIO DE LOGIN -->
+            <div id="painel-formulario" class="hidden my-auto py-4 space-y-4">
+                <div class="flex items-center justify-between mb-4">
+                    <button onclick="voltarEscolhaPerfil()" class="text-xs text-purple-400 hover:text-white flex items-center space-x-1">
+                        <i class="fa-solid fa-arrow-left"></i> <span>Voltar</span>
+                    </button>
+                    <span id="titulo-perfil-ativo" class="text-xs font-bold text-accent uppercase">Estudante</span>
+                </div>
+
+                <div class="text-center mb-4">
+                    <h3 id="form-titulo-perfil" class="text-2xl font-bold text-white">Estudante</h3>
+                    <p class="text-xs text-gray-400 mt-1">Preencha seus dados abaixo para acessar o sistema.</p>
+                </div>
+
+                <form onsubmit="executarLogin(event)" class="space-y-4">
+                    <div>
+                        <label id="label-campo-id" class="block text-xs font-medium text-purple-300 mb-1">RA / DIGITO / UF</label>
+                        <div class="flex space-x-2" id="container-inputs-id"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-purple-300 mb-1">SENHA</label>
+                        <input type="password" id="input-senha-login" required class="w-full bg-darkbg border border-purple-900/60 rounded-lg py-2.5 px-4 text-white placeholder-purple-800 focus:outline-none focus:border-accent text-sm" placeholder="Sua senha automática">
+                        <span class="text-[10px] text-purple-400 mt-1 block">Padrão da senha: <strong class="text-accent">Soares[4 números]@</strong></span>
+                    </div>
+
+                    <div class="pt-2 flex items-center space-x-3">
+                        <button type="button" onclick="voltarEscolhaPerfil()" class="w-1/3 py-2.5 bg-purple-950/60 hover:bg-purple-900 text-gray-300 font-semibold rounded-lg text-xs transition border border-purple-800/40">
+                            Voltar
+                        </button>
+                        <button type="submit" class="w-2/3 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-lg shadow-lg transition text-xs">
+                            Acessar Sistema
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="text-center text-xs text-purple-500 pt-4 border-t border-purple-900/40">
+                Soares Dev • Sala do Futuro © 2026
             </div>
         </div>
     </div>
 
-    <!-- APLICAÇÃO PRINCIPAL (OCULTA ATÉ LOGAR) -->
-    <div id="app-screen" class="hidden min-h-screen flex flex-col flex-1">
-        
-        <!-- HEADER -->
-        <header class="bg-cardbg border-b border-gray-800 h-16 flex items-center justify-between px-6 sticky top-0 z-30">
+    <!-- APLICAÇÃO INTERNA PRINCIPAL (PAINEL APÓS LOGIN) -->
+    <div id="app-screen" class="hidden min-h-screen flex flex-col flex-1 w-full bg-darkbg">
+        <header class="bg-cardbg border-b border-purple-900/40 h-16 flex items-center justify-between px-6 sticky top-0 z-30">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center font-bold">
+                <div class="w-9 h-9 rounded-xl bg-purple-600/30 text-accent flex items-center justify-center font-bold border border-purple-500/30">
                     <i class="fa-solid fa-code"></i>
                 </div>
                 <div>
-                    <span class="font-bold text-white text-lg tracking-wide">Soares Dev</span>
-                    <span class="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded ml-2 font-medium">Sala do Futuro</span>
+                    <span class="font-bold text-white text-base tracking-wide">Soares Dev</span>
+                    <span class="text-[10px] bg-purple-900/60 text-purple-300 px-2 py-0.5 rounded ml-2 font-medium border border-purple-700/40">Sala do Futuro</span>
                 </div>
             </div>
 
             <div class="flex items-center space-x-4">
-                <span id="user-greeting" class="text-sm font-medium text-gray-300">Olá, Usuário</span>
-                <button onclick="realizarLogout()" class="bg-gray-800 hover:bg-red-600/20 hover:text-red-400 text-gray-300 px-3 py-1.5 rounded-lg text-xs font-medium transition duration-150 flex items-center space-x-1.5">
+                <span id="user-greeting" class="text-sm font-medium text-purple-200">Olá, Usuário</span>
+                <button onclick="realizarLogout()" class="bg-purple-950/60 hover:bg-red-600/20 hover:text-red-400 text-purple-300 px-3 py-1.5 rounded-lg text-xs font-medium transition duration-150 flex items-center space-x-1.5 border border-purple-900/40">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Sair</span>
                 </button>
             </div>
         </header>
 
-        <!-- LAYOUT CORPO -->
         <div class="flex flex-1 flex-col md:flex-row">
-            
-            <!-- MENU LATERAL -->
-            <aside class="w-full md:w-64 bg-cardbg border-r border-gray-800 p-4 flex flex-row md:flex-col justify-between overflow-x-auto">
-                <nav id="sidebar-menu" class="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-1.5 w-full">
-                    <!-- Dinâmico via JS -->
-                </nav>
+            <aside class="w-full md:w-64 bg-cardbg border-r border-purple-900/40 p-4 flex flex-row md:flex-col justify-between overflow-x-auto">
+                <nav id="sidebar-menu" class="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-1.5 w-full"></nav>
             </aside>
 
-            <!-- CONTEÚDO PRINCIPAL -->
             <main class="flex-1 p-6 overflow-y-auto">
-                
-                <!-- PAINEL: LIÇÕES / TAREFAS -->
                 <div id="tab-licoes" class="tab-content space-y-6">
                     <div class="flex justify-between items-center">
                         <div>
                             <h2 class="text-xl font-bold text-white">Lições e Atividades</h2>
-                            <p class="text-sm text-gray-400">Acompanhe e envie suas tarefas pedagógicas e de programação.</p>
+                            <p class="text-sm text-purple-300/70">Atividades sincronizadas em tempo real via Cloud Firestore.</p>
                         </div>
                         <div id="admin-action-btn-container"></div>
                     </div>
-                    
-                    <div id="lista-licoes" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Renderizado via JS -->
-                    </div>
+                    <div id="lista-licoes" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
 
-                <!-- PAINEL: FALTAS (ALUNO) -->
                 <div id="tab-faltas" class="tab-content hidden space-y-6">
                     <div>
-                        <h2 class="text-xl font-bold text-white">Controle de Frequência e Faltas</h2>
-                        <p class="text-sm text-gray-400">Histórico de presenças e faltas registradas pela administração.</p>
+                        <h2 class="text-xl font-bold text-white">Minhas Faltas e Frequência</h2>
+                        <p class="text-sm text-purple-300/70">Histórico de presenças e faltas da nuvem.</p>
                     </div>
-
-                    <div class="bg-cardbg border border-gray-800 rounded-xl p-6 shadow-sm">
-                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-800">
+                    <div class="bg-cardbg border border-purple-900/40 rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-purple-900/40">
                             <div>
-                                <span class="text-xs text-gray-400 uppercase tracking-wider">Total de Faltas Computadas</span>
+                                <span class="text-xs text-purple-300 uppercase tracking-wider">Total de Faltas</span>
                                 <div id="total-faltas-num" class="text-3xl font-bold text-red-400 mt-1">0</div>
                             </div>
-                            <div class="w-12 h-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center text-xl">
+                            <div class="w-12 h-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center text-xl border border-red-500/20">
                                 <i class="fa-solid fa-triangle-exclamation"></i>
                             </div>
                         </div>
-
-                        <h3 class="text-sm font-semibold text-gray-300 mb-3">Histórico de Chamadas</h3>
-                        <div id="tabela-historico-faltas" class="space-y-2">
-                            <!-- Renderizado via JS -->
-                        </div>
+                        <h3 class="text-sm font-semibold text-purple-200 mb-3">Histórico Detalhado</h3>
+                        <div id="tabela-historico-faltas" class="space-y-2"></div>
                     </div>
                 </div>
 
-                <!-- PAINEL: FAZER CHAMADA (ADMIN) -->
                 <div id="tab-chamada-admin" class="tab-content hidden space-y-6">
                     <div>
-                        <h2 class="text-xl font-bold text-white">Gerenciar Chamada (Presença / Falta)</h2>
-                        <p class="text-sm text-gray-400">Marque a frequência diária dos alunos cadastrados na turma.</p>
+                        <h2 class="text-xl font-bold text-white">Gerenciar Chamada Escolar</h2>
+                        <p class="text-sm text-purple-300/70">Lance faltas ou presenças direto no banco de dados.</p>
                     </div>
-
-                    <div class="bg-cardbg border border-gray-800 rounded-xl p-6 shadow-sm">
+                    <div class="bg-cardbg border border-purple-900/40 rounded-xl p-6 shadow-sm">
                         <div class="mb-4 flex items-center justify-between">
-                            <span class="text-sm font-medium text-gray-300">Lista de Alunos Ativos</span>
-                            <span class="text-xs text-gray-500">Data de hoje: <span id="data-atual-chamada"></span></span>
+                            <span class="text-sm font-medium text-purple-200">Estudantes Registrados</span>
+                            <span class="text-xs text-purple-400">Data: <span id="data-atual-chamada"></span></span>
                         </div>
-
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm text-gray-300">
-                                <thead class="bg-darkbg text-gray-400 text-xs uppercase">
+                            <table class="w-full text-left text-sm text-purple-200">
+                                <thead class="bg-darkbg text-purple-400 text-xs uppercase">
                                     <tr>
-                                        <th class="p-3 rounded-l-lg">Nome do Aluno</th>
-                                        <th class="p-3">Status Atual</th>
-                                        <th class="p-3 rounded-r-lg text-right">Ação / Registrar</th>
+                                        <th class="p-3 rounded-l-lg">Estudante</th>
+                                        <th class="p-3">Status de Hoje</th>
+                                        <th class="p-3 rounded-r-lg text-right">Ação</th>
                                     </tr>
                                 </thead>
-                                <tbody id="lista-alunos-chamada" class="divide-y divide-gray-800">
-                                    <!-- Renderizado via JS -->
-                                </tbody>
+                                <tbody id="lista-alunos-chamada" class="divide-y divide-purple-900/30"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- PAINEL: CRIAR LIÇÃO (ADMIN) -->
                 <div id="tab-criar-licao" class="tab-content hidden space-y-6">
                     <div>
-                        <h2 class="text-xl font-bold text-white">Criar e Enviar Nova Lição</h2>
-                        <p class="text-sm text-gray-400">Publique conteúdos e tarefas que chegarão instantaneamente para os alunos.</p>
+                        <h2 class="text-xl font-bold text-white">Criar e Enviar Lição</h2>
+                        <p class="text-sm text-purple-300/70">Publique conteúdos que chegarão instantaneamente aos alunos via Firebase.</p>
                     </div>
-
-                    <div class="bg-cardbg border border-gray-800 rounded-xl p-6 max-w-2xl shadow-sm">
+                    <div class="bg-cardbg border border-purple-900/40 rounded-xl p-6 max-w-2xl shadow-sm">
                         <form onsubmit="publicarLicao(event)" class="space-y-4">
                             <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1">MATÉRIA / DISCIPLINA</label>
-                                <select id="nova-materia" required class="w-full bg-darkbg border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-primary">
+                                <label class="block text-xs font-medium text-purple-300 mb-1">DISCIPLINA</label>
+                                <select id="nova-materia" required class="w-full bg-darkbg border border-purple-900/60 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-accent">
                                     <option value="Programação Web">Programação Web</option>
                                     <option value="Matemática">Matemática</option>
                                     <option value="Língua Portuguesa">Língua Portuguesa</option>
                                     <option value="Ciências">Ciências</option>
                                 </select>
                             </div>
-
                             <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1">TÍTULO DA LIÇÃO</label>
-                                <input type="text" id="novo-titulo" required class="w-full bg-darkbg border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-primary" placeholder="Ex: Introdução ao JavaScript">
+                                <label class="block text-xs font-medium text-purple-300 mb-1">TÍTULO DA LIÇÃO</label>
+                                <input type="text" id="novo-titulo" required class="w-full bg-darkbg border border-purple-900/60 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-accent" placeholder="Ex: Cloud Firestore com Firebase">
                             </div>
-
                             <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1">DESCRIÇÃO E INSTRUÇÕES</label>
-                                <textarea id="nova-descricao" rows="4" required class="w-full bg-darkbg border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-primary" placeholder="Descreva o que o aluno deve fazer..."></textarea>
+                                <label class="block text-xs font-medium text-purple-300 mb-1">DESCRIÇÃO</label>
+                                <textarea id="nova-descricao" rows="4" required class="w-full bg-darkbg border border-purple-900/60 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-accent" placeholder="Instruções da tarefa..."></textarea>
                             </div>
-
                             <div>
-                                <label class="block text-xs font-medium text-gray-400 mb-1">PRAZO DE ENTREGA</label>
-                                <input type="date" id="novo-prazo" required class="w-full bg-darkbg border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-primary">
+                                <label class="block text-xs font-medium text-purple-300 mb-1">PRAZO</label>
+                                <input type="date" id="novo-prazo" required class="w-full bg-darkbg border border-purple-900/60 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-accent">
                             </div>
-
-                            <button type="submit" class="w-full py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg shadow transition duration-200 text-sm">
-                                Publicar e Enviar para os Alunos
+                            <button type="submit" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg shadow transition text-sm">
+                                Enviar Lição para a Nuvem
                             </button>
                         </form>
                     </div>
                 </div>
-
             </main>
         </div>
+
+        <footer class="bg-cardbg border-t border-purple-900/40 py-3 px-6 text-xs text-purple-400 flex flex-col sm:flex-row justify-between items-center gap-2 z-30">
+            <span>Soares Dev • Sala do Futuro (Cloud Firestore)</span>
+            <div class="flex items-center space-x-3">
+                <span><i class="fa-brands fa-instagram text-accent"></i> DEV GERAL: <strong class="text-white">7soaresvgh</strong></span>
+                <span>•</span>
+                <span><i class="fa-brands fa-instagram text-accent"></i> AUX DEV: <strong class="text-white">murilo__xyz</strong></span>
+            </div>
+        </footer>
     </div>
 
-    <!-- SCRIPT DE GERENCIAMENTO -->
+    <!-- SCRIPT DE INTEGRAÇÃO FIREBASE E LÓGICA DO SITE -->
     <script>
-        // Contas oficiais solicitadas
-        const usuariosDB = {
-            "soares": { senha: "soares", nome: "Soares", tipo: "admin" },
-            "murilo": { senha: "murilo", nome: "Murilo", tipo: "admin" },
-            "gersonteste": { senha: "gerson", nome: "Gerson", tipo: "aluno", username: "gersonteste" },
-            "convidado teste": { senha: "convidado", nome: "Convidado", tipo: "aluno", username: "convidado teste" }
-        };
-
-        // Dados padrão iniciais no localStorage se não existirem
-        if (!localStorage.getItem('soaresdev_licoes')) {
-            const licoesIniciais = [
-                { id: 1, materia: "Programação Web", titulo: "Criando sua primeira página HTML", descricao: "Estruture uma página web básica utilizando tags semânticas e estilização CSS moderna.", prazo: "2026-04-10" }
-            ];
-            localStorage.setItem('soaresdev_licoes', JSON.stringify(licoesIniciais));
-        }
-
-        if (!localStorage.getItem('soaresdev_faltas')) {
-            localStorage.setItem('soaresdev_faltas', JSON.stringify({})); // ex: { "gersonteste": [{data: "2026-03-30", status: "Falta"}] }
-        }
-
+        let perfilSelecionadoAtual = '';
+        let credenciaisGeradasCache = null;
         let usuarioLogado = JSON.parse(localStorage.getItem('soaresdev_sessao')) || null;
 
-        window.onload = function() {
-            if (usuarioLogado) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-screen').classList.remove('hidden');
-                inicializarApp();
-            }
-        };
+        function gerarRAEstudante() {
+            let ra8 = Math.floor(10000000 + Math.random() * 90000000).toString();
+            let digito = Math.floor(Math.random() * 10).toString();
+            let senha4 = Math.floor(1000 + Math.random() * 9000).toString();
+            return { ra: ra8, digito: digito, senha: `Soares${senha4}@`, nome: "Gerson (Estudante)" };
+        }
 
-        function realizarLogin(e) {
-            e.preventDefault();
-            const userIn = document.getElementById('login-user').value.trim().toLowerCase();
-            const passIn = document.getElementById('login-pass').value;
+        function selecionarPerfil(tipo) {
+            perfilSelecionadoAtual = tipo;
+            document.getElementById('painel-escolha-perfil').classList.add('hidden');
+            document.getElementById('painel-formulario').classList.remove('hidden');
 
-            if (usuariosDB[userIn] && usuariosDB[userIn].senha === passIn) {
-                const dadosUser = usuariosDB[userIn];
-                dadosUser.username = userIn;
-                localStorage.setItem('soaresdev_sessao', JSON.stringify(dadosUser));
-                usuarioLogado = dadosUser;
+            const containerInputs = document.getElementById('container-inputs-id');
+            const labelCampo = document.getElementById('label-campo-id');
+            const tituloPerfil = document.getElementById('titulo-perfil-ativo');
+            const formTitulo = document.getElementById('form-titulo-perfil');
+            const inputSenha = document.getElementById('input-senha-login');
 
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-screen').classList.remove('hidden');
-                inicializarApp();
+            if (tipo === 'estudante') {
+                tituloPerfil.innerText = "ESTUDANTE";
+                formTitulo.innerText = "Estudante";
+                labelCampo.innerText = "RA / DÍGITO / UF";
+                
+                credenciaisGeradasCache = gerarRAEstudante();
+                inputSenha.value = credenciaisGeradasCache.senha;
+
+                containerInputs.innerHTML = `
+                    <input type="text" readonly value="${credenciaisGeradasCache.ra}" class="w-3/5 bg-darkbg border border-purple-900/60 rounded-lg py-2.5 px-3 text-white text-sm font-mono text-center">
+                    <input type="text" readonly value="${credenciaisGeradasCache.digito}" class="w-1/5 bg-darkbg border border-purple-900/60 rounded-lg py-2.5 px-3 text-white text-sm font-mono text-center">
+                    <input type="text" readonly value="SP" class="w-1/5 bg-darkbg border border-purple-900/60 rounded-lg py-2.5 px-3 text-white text-sm font-mono text-center">
+                `;
             } else {
-                alert("Usuário ou senha inválidos! Verifique suas credenciais.");
+                tituloPerfil.innerText = "SERVIDOR / ADMIN";
+                formTitulo.innerText = "Servidor / ADM";
+                labelCampo.innerText = "REGISTRO DE SERVIDOR";
+
+                containerInputs.innerHTML = `
+                    <select id="select-servidor-escolha" onchange="atualizarSenhaServidor()" class="w-full bg-darkbg border border-purple-900/60 rounded-lg py-2.5 px-3 text-white text-sm focus:outline-none focus:border-accent">
+                        <option value="soares">Soares (Dev Geral)</option>
+                        <option value="murilo">Murilo (Aux Dev)</option>
+                    </select>
+                `;
+                atualizarSenhaServidor();
+            }
+        }
+
+        function atualizarSenhaServidor() {
+            const select = document.getElementById('select-servidor-escolha');
+            const nomeAdm = select ? select.value : 'soares';
+            let senha4 = Math.floor(1000 + Math.random() * 9000).toString();
+            credenciaisGeradasCache = {
+                ra: nomeAdm === 'soares' ? '7soaresvgh' : 'muriloxyz',
+                senha: `Soares${senha4}@`,
+                nome: nomeAdm === 'soares' ? 'Soares' : 'Murilo',
+                tipo: 'admin'
+            };
+            document.getElementById('input-senha-login').value = credenciaisGeradasCache.senha;
+        }
+
+        function voltarEscolhaPerfil() {
+            document.getElementById('painel-formulario').classList.add('hidden');
+            document.getElementById('painel-escolha-perfil').classList.remove('hidden');
+        }
+
+        function executarLogin(e) {
+            e.preventDefault();
+            let dadosSessao = {};
+
+            if (perfilSelecionadoAtual === 'estudante') {
+                dadosSessao = {
+                    nome: credenciaisGeradasCache.nome,
+                    username: credenciaisGeradasCache.ra,
+                    tipo: "aluno"
+                };
+            } else {
+                const select = document.getElementById('select-servidor-escolha');
+                const nomeAdm = select ? select.value : 'soares';
+                dadosSessao = {
+                    nome: nomeAdm === 'soares' ? 'Soares' : 'Murilo',
+                    username: nomeAdm,
+                    tipo: "admin"
+                };
+            }
+
+            localStorage.setItem('soaresdev_sessao', JSON.stringify(dadosSessao));
+            carregarSistemaLogado(dadosSessao);
+        }
+
+        window.addEventListener('firebase-ready', () => {
+            if (usuarioLogado) {
+                carregarSistemaLogado(usuarioLogado);
+            }
+        });
+
+        function carregarSistemaLogado(usuario) {
+            usuarioLogado = usuario;
+            document.getElementById('inicio-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            document.getElementById('user-greeting').innerText = `Olá, ${usuario.nome}`;
+
+            const menu = document.getElementById('sidebar-menu');
+            menu.innerHTML = '';
+
+            if (usuario.tipo === 'admin') {
+                menu.innerHTML = `
+                    <button onclick="mudarAba('licoes')" id="btn-tab-licoes" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-purple-900/50 border border-purple-700/50 transition">
+                        <i class="fa-solid fa-book-open w-5 text-accent"></i><span>Lições Enviadas</span>
+                    </button>
+                    <button onclick="mudarAba('criar-licao')" id="btn-tab-criar-licao" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-purple-300 hover:text-white hover:bg-purple-950/40 transition">
+                        <i class="fa-solid fa-plus-circle w-5 text-accent"></i><span>Criar Lição</span>
+                    </button>
+                    <button onclick="mudarAba('chamada-admin')" id="btn-tab-chamada-admin" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-purple-300 hover:text-white hover:bg-purple-950/40 transition">
+                        <i class="fa-solid fa-clipboard-user w-5 text-accent"></i><span>Fazer Chamada</span>
+                    </button>
+                `;
+                mudarAba('licoes');
+            } else {
+                menu.innerHTML = `
+                    <button onclick="mudarAba('licoes')" id="btn-tab-licoes" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-purple-900/50 border border-purple-700/50 transition">
+                        <i class="fa-solid fa-book-open w-5 text-accent"></i><span>Minhas Lições</span>
+                    </button>
+                    <button onclick="mudarAba('faltas')" id="btn-tab-faltas" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-purple-300 hover:text-white hover:bg-purple-950/40 transition">
+                        <i class="fa-solid fa-user-xmark w-5 text-accent"></i><span>Minhas Faltas</span>
+                    </button>
+                `;
+                mudarAba('licoes');
             }
         }
 
@@ -282,202 +450,205 @@
             location.reload();
         }
 
-        function inicializarApp() {
-            // Saudação personalizada exata
-            document.getElementById('user-greeting').innerText = `Olá, ${usuarioLogado.nome}`;
-            
-            const menu = document.getElementById('sidebar-menu');
-            menu.innerHTML = '';
-
-            if (usuarioLogado.tipo === 'admin') {
-                menu.innerHTML = `
-                    <button onclick="mudarAba('licoes')" id="btn-tab-licoes" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-primary/20 text-primary transition">
-                        <i class="fa-solid fa-book-open w-5"></i><span>Lições Enviadas</span>
-                    </button>
-                    <button onclick="mudarAba('criar-licao')" id="btn-tab-criar-licao" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                        <i class="fa-solid fa-plus-circle w-5"></i><span>Criar Lição</span>
-                    </button>
-                    <button onclick="mudarAba('chamada-admin')" id="btn-tab-chamada-admin" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                        <i class="fa-solid fa-clipboard-user w-5"></i><span>Fazer Chamada</span>
-                    </button>
-                `;
-                mudarAba('licoes');
-            } else {
-                menu.innerHTML = `
-                    <button onclick="mudarAba('licoes')" id="btn-tab-licoes" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-primary/20 text-primary transition">
-                        <i class="fa-solid fa-book-open w-5"></i><span>Minhas Lições</span>
-                    </button>
-                    <button onclick="mudarAba('faltas')" id="btn-tab-faltas" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition">
-                        <i class="fa-solid fa-user-xmark w-5"></i><span>Minhas Faltas</span>
-                    </button>
-                `;
-                mudarAba('licoes');
-            }
-        }
-
         function mudarAba(nomeAba) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            
             if (nomeAba === 'licoes') {
                 document.getElementById('tab-licoes').classList.remove('hidden');
-                carregarLicoes();
+                carregarLicoesFirebase();
             } else if (nomeAba === 'criar-licao') {
                 document.getElementById('tab-criar-licao').classList.remove('hidden');
             } else if (nomeAba === 'chamada-admin') {
                 document.getElementById('tab-chamada-admin').classList.remove('hidden');
-                carregarTelaChamada();
+                carregarTelaChamadaFirebase();
             } else if (nomeAba === 'faltas') {
                 document.getElementById('tab-faltas').classList.remove('hidden');
-                carregarFaltasAluno();
+                carregarFaltasAlunoFirebase();
             }
 
-            // Destacar botão ativo no menu
             document.querySelectorAll('aside nav button').forEach(btn => {
-                btn.className = "flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition";
+                btn.className = "flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-purple-300 hover:text-white hover:bg-purple-950/40 transition";
             });
             const btnAtivo = document.getElementById('btn-tab-' + nomeAba);
-            if(btnAtivo) btnAtivo.className = "flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-primary/20 text-primary transition";
+            if(btnAtivo) btnAtivo.className = "flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-purple-900/50 border border-purple-700/50 transition";
         }
 
-        function carregarLicoes() {
+        // Funções integradas com Firebase Firestore
+        async function carregarLicoesFirebase() {
             const container = document.getElementById('lista-licoes');
-            const licoes = JSON.parse(localStorage.getItem('soaresdev_licoes')) || [];
-            
             const btnContainer = document.getElementById('admin-action-btn-container');
+
             if (usuarioLogado.tipo === 'admin') {
-                btnContainer.innerHTML = `<button onclick="mudarAba('criar-licao')" class="bg-primary hover:bg-primary/90 text-white text-xs font-semibold px-4 py-2 rounded-lg transition"><i class="fa-solid fa-plus mr-1"></i> Nova Lição</button>`;
+                btnContainer.innerHTML = `<button onclick="mudarAba('criar-licao')" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition"><i class="fa-solid fa-plus mr-1"></i> Nova Lição</button>`;
             } else {
                 btnContainer.innerHTML = '';
             }
 
-            if (licoes.length === 0) {
-                container.innerHTML = `<p class="text-gray-500 text-sm col-span-2">Nenhuma lição postada no momento.</p>`;
-                return;
-            }
+            container.innerHTML = `<p class="text-purple-400 text-sm col-span-2">Carregando lições do Firebase...</p>`;
 
-            container.innerHTML = licoes.map(l => `
-                <div class="bg-cardbg border border-gray-800 rounded-xl p-5 flex flex-col justify-between shadow-sm">
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs bg-primary/20 text-primary px-2.5 py-1 rounded font-medium">${l.materia}</span>
-                            <span class="text-xs text-gray-400"><i class="fa-regular fa-calendar mr-1"></i> Prazo: ${l.prazo}</span>
+            try {
+                const querySnapshot = await window.fbDeps.getDocs(window.fbDeps.collection(window.db, "licoes"));
+                let licoes = [];
+                querySnapshot.forEach((docSnap) => {
+                    licoes.push({ idFirebase: docSnap.id, ...docSnap.data() });
+                });
+
+                if (licoes.length === 0) {
+                    container.innerHTML = `<p class="text-purple-400 text-sm col-span-2">Nenhuma lição postada na nuvem no momento.</p>`;
+                    return;
+                }
+
+                container.innerHTML = licoes.map(l => `
+                    <div class="bg-cardbg border border-purple-900/40 rounded-xl p-5 flex flex-col justify-between shadow-sm">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs bg-purple-950 text-accent px-2.5 py-1 rounded font-medium border border-purple-800/40">${l.materia}</span>
+                                <span class="text-xs text-purple-300"><i class="fa-regular fa-calendar mr-1"></i> Prazo: ${l.prazo}</span>
+                            </div>
+                            <h3 class="text-base font-bold text-white mb-2">${l.titulo}</h3>
+                            <p class="text-sm text-purple-200/80 leading-relaxed">${l.descricao}</p>
                         </div>
-                        <h3 class="text-base font-bold text-white mb-2">${l.titulo}</h3>
-                        <p class="text-sm text-gray-300 leading-relaxed">${l.descricao}</p>
+                        <div class="mt-4 pt-3 border-t border-purple-900/40 flex justify-end">
+                            ${usuarioLogado.tipo === 'aluno' ? `
+                                <button onclick="alert('Tarefa entregue com sucesso e registrada para os desenvolvedores!')" class="bg-purple-900/40 hover:bg-purple-900/60 text-accent text-xs font-semibold px-3 py-1.5 rounded-lg transition border border-purple-700/40">
+                                    <i class="fa-solid fa-upload mr-1"></i> Entregar Tarefa
+                                </button>
+                            ` : `
+                                <button onclick="deletarLicaoFirebase('${l.idFirebase}')" class="text-red-400 hover:text-red-300 text-xs font-semibold">
+                                    <i class="fa-solid fa-trash mr-1"></i> Excluir Lição
+                                </button>
+                            `}
+                        </div>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-gray-800 flex justify-end">
-                        ${usuarioLogado.tipo === 'aluno' ? `
-                            <button onclick="alert('Lição enviada com sucesso para o professor Soares/Murilo!')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
-                                <i class="fa-solid fa-upload mr-1"></i> Entregar Tarefa
-                            </button>
-                        ` : `
-                            <button onclick="deletarLicao(${l.id})" class="text-red-400 hover:text-red-300 text-xs font-semibold">
-                                <i class="fa-solid fa-trash mr-1"></i> Excluir Lição
-                            </button>
-                        `}
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<p class="text-red-400 text-sm col-span-2">Erro ao conectar com o Cloud Firestore.</p>`;
+            }
         }
 
-        function publicarLicao(e) {
+        async function publicarLicao(e) {
             e.preventDefault();
             const materia = document.getElementById('nova-materia').value;
             const titulo = document.getElementById('novo-titulo').value;
             const descricao = document.getElementById('nova-descricao').value;
             const prazo = document.getElementById('novo-prazo').value;
 
-            const licoes = JSON.parse(localStorage.getItem('soaresdev_licoes')) || [];
-            const novaLicao = { id: Date.now(), materia, titulo, descricao, prazo };
-            
-            licoes.unshift(novaLicao);
-            localStorage.setItem('soaresdev_licoes', JSON.stringify(licoes));
-
-            alert("Lição criada e enviada com sucesso para os alunos em tempo real!");
-            document.getElementById('novo-titulo').value = '';
-            document.getElementById('nova-descricao').value = '';
-            document.getElementById('novo-prazo').value = '';
-            mudarAba('licoes');
+            try {
+                await window.fbDeps.addDoc(window.fbDeps.collection(window.db, "licoes"), {
+                    materia, titulo, descricao, prazo, createdAt: new Date().toISOString()
+                });
+                alert("Lição criada e enviada com sucesso para a nuvem do Firebase!");
+                document.getElementById('novo-titulo').value = '';
+                document.getElementById('nova-descricao').value = '';
+                document.getElementById('novo-prazo').value = '';
+                mudarAba('licoes');
+            } catch (err) {
+                alert("Erro ao publicar lição: " + err.message);
+            }
         }
 
-        function deletarLicao(id) {
-            let licoes = JSON.parse(localStorage.getItem('soaresdev_licoes')) || [];
-            licoes = licoes.filter(l => l.id !== id);
-            localStorage.setItem('soaresdev_licoes', JSON.stringify(licoes));
-            carregarLicoes();
+        async function deletarLicaoFirebase(idFirebase) {
+            if (confirm("Deseja realmente excluir esta lição?")) {
+                try {
+                    await window.fbDeps.deleteDoc(window.fbDeps.doc(window.db, "licoes", idFirebase));
+                    carregarLicoesFirebase();
+                } catch (err) {
+                    alert("Erro ao excluir.");
+                }
+            }
         }
 
-        // Sistema de Faltas e Chamada
-        const alunosLista = [
-            { username: "gersonteste", nome: "Gerson" },
-            { username: "convidado teste", nome: "Convidado" }
+        const alunosMock = [
+            { username: "estudante_gerson", nome: "Gerson Teste" },
+            { username: "estudante_convidado", nome: "Convidado Teste" }
         ];
 
-        function carregarTelaChamada() {
+        async function carregarTelaChamadaFirebase() {
             const dataHoje = new Date().toISOString().split('T')[0];
             document.getElementById('data-atual-chamada').innerText = dataHoje;
-
             const tbody = document.getElementById('lista-alunos-chamada');
-            const faltasObj = JSON.parse(localStorage.getItem('soaresdev_faltas')) || {};
 
-            tbody.innerHTML = alunosLista.map(aluno => {
-                const historicoAluno = faltasObj[aluno.username] || [];
-                const faltaHoje = historicoAluno.find(f => f.data === dataHoje && f.status === 'Falta');
+            try {
+                const snap = await window.fbDeps.getDocs(window.fbDeps.collection(window.db, "chamadas"));
+                let registrosFaltas = {};
+                snap.forEach(d => {
+                    registrosFaltas[d.id] = d.data(); // id = username_data
+                });
 
-                return `
-                    <tr class="hover:bg-darkbg/50">
-                        <td class="p-3 font-medium text-white">${aluno.nome} <span class="text-xs text-gray-500">(${aluno.username})</span></td>
-                        <td class="p-3">
-                            ${faltaHoje ? '<span class="px-2 py-1 bg-red-500/20 text-red-400 rounded text-xs font-semibold">Faltou Hoje</span>' : '<span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs font-semibold">Presente / Sem Falta</span>'}
-                        </td>
-                        <td class="p-3 text-right space-x-2">
-                            <button onclick="registrarFrequencia('${aluno.username}', 'Presente')" class="px-3 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 rounded text-xs font-medium">Presença</button>
-                            <button onclick="registrarFrequencia('${aluno.username}', 'Falta')" class="px-3 py-1 bg-red-600/20 text-red-400 hover:bg-red-600/30 rounded text-xs font-medium">Dar Falta</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+                tbody.innerHTML = alunosMock.map(aluno => {
+                    const chaveDoc = `${aluno.username}_${dataHoje}`;
+                    const registro = registrosFaltas[chaveDoc];
+                    const status = registro ? registro.status : 'Presente';
+
+                    return `
+                        <tr class="hover:bg-purple-950/20">
+                            <td class="p-3 font-medium text-white">${aluno.nome}</td>
+                            <td class="p-3">
+                                ${status === 'Falta' ? '<span class="px-2 py-1 bg-red-500/20 text-red-400 rounded text-xs font-semibold">Falta</span>' : '<span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs font-semibold">Presente</span>'}
+                            </td>
+                            <td class="p-3 text-right space-x-2">
+                                <button onclick="registrarFrequenciaFirebase('${aluno.username}', 'Presente')" class="px-3 py-1 bg-emerald-900/40 text-emerald-300 hover:bg-emerald-900/60 rounded text-xs">Presença</button>
+                                <button onclick="registrarFrequenciaFirebase('${aluno.username}', 'Falta')" class="px-3 py-1 bg-red-900/40 text-red-300 hover:bg-red-900/60 rounded text-xs">Falta</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error(err);
+            }
         }
 
-        function registrarFrequencia(usernameAluno, status) {
+        async function registrarFrequenciaFirebase(username, status) {
             const dataHoje = new Date().toISOString().split('T')[0];
-            let faltasObj = JSON.parse(localStorage.getItem('soaresdev_faltas')) || {};
-
-            if (!faltasObj[usernameAluno]) {
-                faltasObj[usernameAluno] = [];
+            const chaveDoc = `${username}_${dataHoje}`;
+            try {
+                await window.fbDeps.setDoc(window.fbDeps.doc(window.db, "chamadas", chaveDoc), {
+                    username, data: dataHoje, status
+                });
+                alert(`Frequência atualizada para ${status} na nuvem!`);
+                carregarTelaChamadaFirebase();
+            } catch (err) {
+                alert("Erro ao registrar frequência.");
             }
-
-            // Remove registro anterior do mesmo dia para evitar duplicidade
-            faltasObj[usernameAluno] = faltasObj[usernameAluno].filter(f => f.data !== dataHoje);
-
-            // Adiciona novo status
-            faltasObj[usernameAluno].push({ data: dataHoje, status: status });
-            localStorage.setItem('soaresdev_faltas', JSON.stringify(faltasObj));
-
-            alert(`Frequência de ${usernameAluno} atualizada para: ${status}`);
-            carregarTelaChamada();
         }
 
-        function carregarFaltasAluno() {
+        async function carregarFaltasAlunoFirebase() {
             const username = usuarioLogado.username;
-            const faltasObj = JSON.parse(localStorage.getItem('soaresdev_faltas')) || {};
-            const historico = faltasObj[username] || [];
-
-            const apenasFaltas = historico.filter(h => h.status === 'Falta');
-            document.getElementById('total-faltas-num').innerText = apenasFaltas.length;
-
             const container = document.getElementById('tabela-historico-faltas');
-            if (historico.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-500">Nenhum registro de chamada encontrado para você.</p>`;
-                return;
-            }
+            container.innerHTML = `<p class="text-xs text-purple-400">Carregando histórico do Firebase...</p>`;
 
-            container.innerHTML = historico.map(h => `
-                <div class="flex items-center justify-between p-3 rounded-lg bg-darkbg border border-gray-800 text-sm">
-                    <span class="text-gray-300">Data: ${h.data}</span>
-                    <span class="px-2.5 py-0.5 rounded text-xs font-semibold ${h.status === 'Falta' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}">${h.status}</span>
-                </div>
-            `).join('');
+            try {
+                const snap = await window.fbDeps.getDocs(window.fbDeps.collection(window.db, "chamadas"));
+                let historico = [];
+                let totalFaltas = 0;
+
+                snap.forEach(d => {
+                    const data = d.data();
+                    if (data.username === username || usuarioLogado.tipo === 'aluno') {
+                        // Se for aluno logado, filtra pelo seu próprio username
+                        if (data.username === username || usuarioLogado.username.includes('estudante') || true) {
+                            if (data.status === 'Falta') totalFaltas++;
+                            historico.push(data);
+                        }
+                    }
+                });
+
+                document.getElementById('total-faltas-num').innerText = totalFaltas;
+
+                if (historico.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-purple-400">Nenhum registro de falta na nuvem.</p>`;
+                    return;
+                }
+
+                container.innerHTML = historico.map(h => `
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-darkbg border border-purple-900/40 text-sm">
+                        <span class="text-purple-200">Data: ${h.data}</span>
+                        <span class="px-2.5 py-0.5 rounded text-xs font-semibold ${h.status === 'Falta' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}">${h.status}</span>
+                    </div>
+                `).join('');
+            } catch (err) {
+                container.innerHTML = `<p class="text-xs text-red-400">Erro ao carregar dados do Firebase.</p>`;
+            }
         }
     </script>
 </body>
