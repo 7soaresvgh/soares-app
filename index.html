@@ -1,904 +1,484 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Soares App - Conexão em Tempo Real</title>
-
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- Firebase SDKs Compatíveis -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: #111214; color: #dbdee1; height: 100vh; height: 100dvh; display: flex; overflow: hidden; }
-
-    /* TELAS DE AUTENTICAÇÃO E DEVS */
-    .overlay-screen {
-      position: fixed; inset: 0; background: radial-gradient(circle at center, #2b2d31 0%, #111214 100%);
-      display: flex; justify-content: center; align-items: center; z-index: 10000; flex-direction: column; padding: 16px;
-    }
-    .auth-box {
-      background: #313338; width: 420px; max-width: 100%; padding: 24px; border-radius: 12px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.7); text-align: center; border: 1px solid #3f4147;
-      max-height: 90vh; overflow-y: auto;
-    }
-    .auth-logo { 
-      font-size: 28px; color: #f2a900; margin-bottom: 8px; font-weight: 800; 
-      display: flex; align-items: center; justify-content: center; gap: 12px; 
-      text-shadow: 0 0 15px rgba(242, 169, 0, 0.6); 
-    }
-    .auth-box h2 { color: #f2f3f5; font-size: 18px; margin-bottom: 16px; }
-    .input-group { margin-bottom: 14px; text-align: left; }
-    .input-group label { display: block; color: #b5bac1; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
-    .input-group input, .input-group select {
-      width: 100%; padding: 12px; background: #1e1f22; border: 1px solid #111214; border-radius: 6px;
-      color: #f2f3f5; font-size: 15px; outline: none; transition: border 0.2s;
-    }
-    .input-group input:focus { border-color: #5865f2; }
-    .btn-auth {
-      width: 100%; padding: 12px; background: #5865f2; color: white; border: none; border-radius: 6px;
-      font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 8px; transition: all 0.2s;
-    }
-    .btn-auth:hover { background: #4752c4; }
-    .auth-switch { margin-top: 16px; font-size: 13px; color: #949ba4; }
-    .auth-switch span { color: #00a8fc; cursor: pointer; text-decoration: underline; }
-
-    /* SELEÇÃO DE FOTO DE PERFIL */
-    .avatar-picker {
-      display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 16px;
-    }
-    .avatar-preview {
-      width: 76px; height: 76px; border-radius: 50%; background: #1e1f22; border: 2px dashed #5865f2;
-      display: flex; align-items: center; justify-content: center; color: #b5bac1; font-size: 24px;
-      cursor: pointer; overflow: hidden; background-size: cover; background-position: center;
-    }
-
-    /* TELA INSTAGRAM DOS DEVS */
-    .devs-container {
-      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 16px 0;
-    }
-    .dev-card {
-      background: #2b2d31; border: 1px solid #3f4147; border-radius: 12px; padding: 16px;
-      width: 100%; max-width: 200px; text-align: center; display: flex; flex-direction: column; align-items: center;
-    }
-    .dev-card img { width: 64px; height: 64px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #e1306c; }
-    .dev-card h3 { font-size: 15px; color: #f2f3f5; margin-bottom: 2px; }
-    .dev-card p { font-size: 12px; color: #949ba4; margin-bottom: 10px; }
-    .btn-insta {
-      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-      color: white; padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 12px; font-weight: bold;
-      display: flex; align-items: center; gap: 6px;
-    }
-
-    /* LAYOUT DA APLICAÇÃO */
-    #app-container { display: flex; width: 100vw; height: 100vh; height: 100dvh; position: relative; overflow: hidden; }
-
-    /* MASCARA E CONTAINER DA SIDEBAR PARA CELULAR */
-    .sidebar-wrapper {
-      display: flex; z-index: 100; height: 100%; transition: transform 0.3s ease-in-out;
-    }
-    .sidebar-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90;
-    }
-
-    /* BARRA DE SERVIDORES */
-    .servers-bar { width: 72px; background: #1e1f22; display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 8px; flex-shrink: 0; }
-    .server-icon {
-      width: 48px; height: 48px; border-radius: 50%; background: #313338; display: flex; align-items: center;
-      justify-content: center; cursor: pointer; color: #dbdee1; transition: all 0.2s; font-weight: bold; font-size: 18px;
-      background-size: cover; background-position: center;
-    }
-    .server-icon:hover, .server-icon.active { border-radius: 16px; background-color: #5865f2; color: white; }
-    .server-divider { width: 32px; height: 2px; background: #35363c; margin: 4px 0; }
-
-    /* SUB-BARRA LATERAL */
-    .sub-sidebar { width: 220px; background: #2b2d31; display: flex; flex-direction: column; flex-shrink: 0; }
-    .sidebar-header { height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1f2023; font-weight: bold; color: #f2f3f5; }
-    .channels-list { flex: 1; padding: 12px; overflow-y: auto; }
-    .channel-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: #949ba4; margin-bottom: 2px; font-size: 14px; }
-    .channel-item:hover, .channel-item.active { background: #35373c; color: #f2f3f5; }
-
-    /* PAINEL DO USUÁRIO */
-    .user-panel { height: 54px; background: #232428; padding: 0 10px; display: flex; align-items: center; justify-content: space-between; }
-    .user-info { display: flex; align-items: center; gap: 8px; overflow: hidden; cursor: pointer; }
-    .avatar { width: 34px; height: 34px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; flex-shrink: 0; background-size: cover; background-position: center; overflow: hidden; }
-
-    /* ÁREA PRINCIPAL DO CHAT */
-    .chat-area { flex: 1; background: #313338; display: flex; flex-direction: column; position: relative; height: 100%; width: 100%; }
-    .chat-header { height: 48px; padding: 0 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2b2d31; font-weight: bold; color: #f2f3f5; background: #313338; }
-    .chat-header-left { display: flex; align-items: center; gap: 12px; }
-    .chat-header-actions { display: flex; align-items: center; gap: 14px; }
-    .menu-toggle-btn { display: none; font-size: 20px; color: #b5bac1; cursor: pointer; padding: 4px; }
-
-    /* PAPEL DE PAREDE DO CHAT (Customizável) */
-    .messages-container {
-      flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
-      background-color: #0b141a;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 0);
-      background-size: 24px 24px;
-      background-repeat: repeat;
-    }
-    .message { display: flex; gap: 10px; }
-    .message-content { flex: 1; cursor: pointer; }
-    .message-content h4 { color: #f2f3f5; font-size: 13px; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
-    .message-content h4 span { font-size: 10px; color: #949ba4; font-weight: normal; }
-    .message-content p { color: #dbdee1; font-size: 14px; line-height: 1.4; word-break: break-word; background: #111b21; padding: 8px 12px; border-radius: 0 8px 8px 8px; display: inline-block; max-width: 90%; border: 1px solid #202c33; }
-    .message-img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 6px; display: block; }
-
-    /* BARRA DE DIGITAÇÃO */
-    .chat-input-area { padding: 8px 12px 12px 12px; background: #111b21; }
-    .input-wrapper { background: #202c33; border-radius: 20px; padding: 6px 12px; display: flex; align-items: center; gap: 10px; }
-    .input-wrapper input { flex: 1; background: transparent; border: none; outline: none; color: #f2f3f5; font-size: 15px; height: 36px; }
-    .input-btn { color: #8696a0; cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
-    .input-btn:hover { color: #f2f3f5; }
-
-    /* TELAS ALTERNATIVAS */
-    .view-container { flex: 1; padding: 16px; overflow-y: auto; display: none; background: #313338; height: 100%; }
-    .friends-header { display: flex; gap: 8px; border-bottom: 1px solid #3f4147; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-    .friend-tab { padding: 8px 12px; border-radius: 4px; cursor: pointer; color: #b5bac1; font-weight: bold; font-size: 13px; }
-    .friend-tab.active { background: #3f4147; color: white; }
-    .card-item { background: #2b2d31; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid #3f4147; gap: 8px; }
-
-    /* MODAL DE VÍDEO / CHAMADA / COMPARTILHAMENTO DE TELA */
-    #call-modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 30000; display: none;
-      flex-direction: column; justify-content: center; align-items: center; padding: 20px;
-    }
-    .video-grid { display: flex; gap: 16px; width: 100%; max-width: 900px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
-    .video-box { width: 400px; height: 300px; background: #1e1f22; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #3f4147; display: flex; align-items: center; justify-content: center; }
-    .video-box video { width: 100%; height: 100%; object-fit: cover; }
-    .call-controls { display: flex; gap: 16px; }
-    .btn-call-action { width: 50px; height: 50px; border-radius: 50%; border: none; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; }
-    .btn-hangup { background: #ed4245; }
-    .btn-video-toggle { background: #5865f2; }
-
-    /* TOAST */
-    #toast {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #5865f2; color: white; padding: 10px 20px;
-      border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: none; z-index: 20000; font-weight: bold; font-size: 13px; text-align: center; white-space: nowrap;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar-wrapper { position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); }
-      .sidebar-wrapper.open { transform: translateX(0); }
-      .sidebar-overlay.open { display: block; }
-      .menu-toggle-btn { display: block; }
-      .sub-sidebar { width: 200px; }
-      .servers-bar { width: 64px; }
-      .video-box { width: 100%; height: 200px; }
-    }
-  </style>
-</head>
-<body>
-
-  <div id="toast">Notificação</div>
-
-  <!-- TELA DE AUTENTICAÇÃO -->
-  <div id="auth-screen" class="overlay-screen">
-    <div class="auth-box">
-      <div class="auth-logo"><i class="fa-solid fa-bolt"></i> Soares App</div>
-      <h2 id="auth-title">Entrar na sua conta</h2>
-
-      <div class="avatar-picker" id="group-avatar" style="display: none;">
-        <label style="color: #b5bac1; font-size: 11px; font-weight: 700; text-transform: uppercase;">Foto de Perfil</label>
-        <div class="avatar-preview" id="avatar-preview" onclick="document.getElementById('avatar-input').click()">
-          <i class="fa-solid fa-camera" id="avatar-icon"></i>
-        </div>
-        <input type="file" id="avatar-input" accept="image/*" style="display: none;" onchange="handleAvatarSelect(event)">
-      </div>
-
-      <div class="input-group" id="group-username" style="display: none;">
-        <label>Nome de Usuário (Username)</label>
-        <input type="text" id="auth-username" placeholder="Ex: soares_dev">
-      </div>
-      <div class="input-group">
-        <label>E-mail</label>
-        <input type="email" id="auth-email" placeholder="seu@email.com">
-      </div>
-      <div class="input-group">
-        <label>Senha</label>
-        <input type="password" id="auth-password" placeholder="******">
-      </div>
-      <button class="btn-auth" id="btn-auth-submit" onclick="handleAuth()">Entrar</button>
-
-      <div class="auth-switch">
-        <span id="auth-toggle-text">Não tem uma conta?</span>
-        <span onclick="toggleAuthMode()" id="auth-toggle-btn">Registre-se</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- TELA INSTAGRAM DOS DEVS (APÓS O LOGIN) -->
-  <div id="devs-screen" class="overlay-screen" style="display: none;">
-    <div class="auth-box" style="width: 520px;">
-      <div class="auth-logo"><i class="fa-solid fa-code"></i> Desenvolvedores</div>
-      <p style="color: #b5bac1; font-size: 13px; margin-bottom: 12px;">Conheça a equipe por trás do Soares App!</p>
-
-      <div class="devs-container">
-        <div class="dev-card">
-          <img src="https://ui-avatars.com/api/?name=Soares&background=5865f2&color=fff" alt="Dev 1">
-          <h3>7soaresvgh</h3>
-          <p>Lead Developer</p>
-          <a href="https://instagram.com/7soaresvgh" target="_blank" class="btn-insta"><i class="fa-brands fa-instagram"></i> Instagram</a>
-        </div>
-        <div class="dev-card">
-          <img src="https://ui-avatars.com/api/?name=Murilo&background=23a55a&color=fff" alt="Dev 2">
-          <h3>murilo__xyz</h3>
-          <p>UI/UX & Database</p>
-          <a href="https://instagram.com/murilo__xyz" target="_blank" class="btn-insta"><i class="fa-brands fa-instagram"></i> Instagram</a>
-        </div>
-      </div>
-
-      <button class="btn-auth" onclick="enterApp()">Continuar para o App <i class="fa-solid fa-arrow-right"></i></button>
-    </div>
-  </div>
-
-  <!-- APLICAÇÃO PRINCIPAL -->
-  <div id="app-container">
-
-    <!-- OVERLAY ESCURO PARA CELULAR -->
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
-
-    <!-- WRAPPER DAS BARRAS LATERAIS -->
-    <div class="sidebar-wrapper" id="sidebar-wrapper">
-      <!-- BARRA LATERAL DE SERVIDORES -->
-      <div class="servers-bar">
-        <div class="server-icon active" id="btn-dm" onclick="openDirectMessages()" title="Mensagens Diretas">
-          <i class="fa-solid fa-comments"></i>
-        </div>
-        <div class="server-divider"></div>
-
-        <div id="servers-list"></div>
-
-        <div class="server-icon" onclick="openSearchServers()" title="Explorar Servidores" style="color: #23a55a;">
-          <i class="fa-solid fa-compass"></i>
-        </div>
-        <div class="server-icon" onclick="createServerPrompt()" title="Criar Servidor" style="color: #23a55a;">
-          <i class="fa-solid fa-plus"></i>
-        </div>
-      </div>
-
-      <!-- SUB-BARRA LATERAL (AMIGOS / CANAIS) -->
-      <div class="sub-sidebar">
-        <div class="sidebar-header" id="sidebar-header-title">
-          <span>Soares App</span>
-        </div>
-
-        <div class="channels-list" id="channels-list"></div>
-
-        <!-- PAINEL DO USUÁRIO -->
-        <div class="user-panel">
-          <div class="user-info" onclick="openSettingsView()" title="Abrir Configurações">
-            <div class="avatar" id="current-user-avatar">?</div>
-            <div style="overflow: hidden;">
-              <div style="font-size: 13px; font-weight: bold; color: white; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;" id="current-user-name">Carregando...</div>
-              <div style="font-size: 10px; color: #23a55a;">● Configurações</div>
-            </div>
-          </div>
-          <div>
-            <i class="fa-solid fa-gear input-btn" onclick="openSettingsView()" title="Configurações"></i>
-            <i class="fa-solid fa-arrow-right-from-bracket input-btn" onclick="logout()" title="Sair"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TELA PRINCIPAL DE CHAT -->
-    <div class="chat-area" id="main-chat-area">
-      <div class="chat-header">
-        <div class="chat-header-left">
-          <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
-          <span id="chat-title"># geral</span>
-        </div>
-        <div class="chat-header-actions">
-          <i class="fa-solid fa-phone input-btn" onclick="startVoiceCall()" title="Chamada de Voz"></i>
-          <i class="fa-solid fa-desktop input-btn" onclick="startScreenShare()" title="Compartilhar Tela"></i>
-        </div>
-      </div>
-
-      <div class="messages-container" id="messages-container"></div>
-
-      <!-- BARRA DE DIGITAÇÃO -->
-      <div class="chat-input-area">
-        <div class="input-wrapper">
-          <label for="img-upload" class="input-btn" title="Enviar Imagem">
-            <i class="fa-solid fa-circle-plus"></i>
-          </label>
-          <input type="file" id="img-upload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
-
-          <input type="text" id="chat-message-input" placeholder="Digite sua mensagem..." onkeypress="if(event.key==='Enter') sendMessage()">
-
-          <i class="fa-solid fa-microphone input-btn" id="mic-btn" onclick="toggleAudioRecord()" title="Gravar Voz"></i>
-          <i class="fa-solid fa-paper-plane input-btn" onclick="sendMessage()" style="color: #5865f2;"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- TELA DE AMIGOS E DMs -->
-    <div class="view-container" id="friends-view">
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-        <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
-        <h2 style="color: white; font-size: 18px;">Mensagens Diretas</h2>
-      </div>
-      <div class="friends-header">
-        <div class="friend-tab active">Seus Amigos</div>
-        <div class="friend-tab" onclick="addFriendPrompt()" style="background: #23a55a; color: white;">+ Adicionar Amigo</div>
-      </div>
-      <h3 style="color: #f2f3f5; margin-bottom: 12px; font-size: 15px;">Amigos Adicionados</h3>
-      <div id="friends-list"></div>
-    </div>
-
-    <!-- TELA DE CONFIGURAÇÕES -->
-    <div class="view-container" id="settings-view">
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-        <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
-        <h2 style="color: white; font-size: 20px;"><i class="fa-solid fa-gear"></i> Configurações da Conta</h2>
-      </div>
-
-      <div class="auth-box" style="width: 100%; max-width: 500px; text-align: left; margin: 0 auto;">
-        <div class="avatar-picker">
-          <label>Alterar Foto de Perfil</label>
-          <div class="avatar-preview" id="settings-avatar-preview" onclick="document.getElementById('settings-avatar-input').click()">
-            <i class="fa-solid fa-camera"></i>
-          </div>
-          <input type="file" id="settings-avatar-input" accept="image/*" style="display: none;" onchange="handleSettingsAvatar(event)">
-        </div>
-
-        <div class="input-group">
-          <label>Nome de Usuário</label>
-          <input type="text" id="settings-username-input">
-        </div>
-
-        <div class="input-group">
-          <label>Papel de Parede do Chat</label>
-          <select id="settings-wallpaper-select" onchange="changeWallpaperTheme(this.value)">
-            <option value="default">Escuro Padrão (Dark)</option>
-            <option value="matrix">Estilo Matrix / Hacker</option>
-            <option value="neon">Neon Roxo</option>
-            <option value="clean">Minimalista Claro</option>
-          </select>
-        </div>
-
-        <button class="btn-auth" onclick="saveUserSettings()">Salvar Alterações</button>
-      </div>
-    </div>
-
-    <!-- TELA DE EXPLORAR SERVIDORES -->
-    <div class="view-container" id="search-servers-view">
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-        <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
-        <h2 style="color: white; font-size: 18px;">Explorar Servidores</h2>
-      </div>
-      <div id="public-servers-list"></div>
-    </div>
-
-  </div>
-
-  <!-- MODAL DE CHAMADA DE VÍDEO / ÁUDIO / TELA -->
-  <div id="call-modal">
-    <h2 style="color: white; margin-bottom: 20px;" id="call-status-title">Em Chamada</h2>
-    <div class="video-grid">
-      <div class="video-box"><video id="local-video" autoplay muted playsinline></video></div>
-      <div class="video-box"><video id="remote-video" autoplay playsinline></video></div>
-    </div>
-    <div class="call-controls">
-      <button class="btn-call-action btn-video-toggle" onclick="toggleVideoCamera()"><i class="fa-solid fa-video"></i></button>
-      <button class="btn-call-action btn-hangup" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></button>
-    </div>
-  </div>
-
-  <!-- MENU FLUTUANTE DE AÇÕES DA MENSAGEM -->
-  <div id="message-action-menu" style="display:none; position:fixed; background:#2b2d31; border:1px solid #3f4147; border-radius:8px; padding:6px; z-index:50000; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
-    <div onclick="actionReply()" style="padding:8px 12px; color:#dbdee1; cursor:pointer; font-size:13px; border-radius:4px;"><i class="fa-solid fa-reply"></i> Responder</div>
-    <div onclick="actionReact()" style="padding:8px 12px; color:#dbdee1; cursor:pointer; font-size:13px; border-radius:4px;"><i class="fa-solid fa-face-smile"></i> Reagir</div>
-    <div onclick="actionCopy()" style="padding:8px 12px; color:#dbdee1; cursor:pointer; font-size:13px; border-radius:4px;"><i class="fa-solid fa-copy"></i> Copiar Texto</div>
-    <div onclick="actionForward()" style="padding:8px 12px; color:#dbdee1; cursor:pointer; font-size:13px; border-radius:4px;"><i class="fa-solid fa-share"></i> Encaminhar</div>
-  </div>
-
-  <script>
-    // Configurações do Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
-      authDomain: "soares-app-61b17.firebaseapp.com",
-      databaseURL: "https://soares-app-61b17-default-rtdb.firebaseio.com",
-      projectId: "soares-app-61b17",
-      storageBucket: "soares-app-61b17.appspot.com",
-      messagingSenderId: "19280861322",
-      appId: "1:19280861322:web:a8209a4aa491f7c0eb7573"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-
-    let currentUser = null;
-    let isSignUp = false;
-    let selectedAvatarBase64 = "";
-    let currentServerId = null;
-    let currentChannelId = 'geral';
-    let currentTargetDmUid = null;
-    let mediaRecorder = null;
-    let audioChunks = [];
-    let isRecording = false;
-
-    let localStream = null;
-    let peerConnection = null;
-    const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-
-    // Variáveis de Controle do Menu Flutuante
-    let selectedMessageForAction = null;
-    let replyingToMessageId = null;
-
-    function openMessageMenu(event, messageId, messageText, senderName) {
-      event.stopPropagation();
-      selectedMessageForAction = { id: messageId, text: messageText, sender: senderName };
-      
-      const menu = document.getElementById('message-action-menu');
-      menu.style.display = 'block';
-      menu.style.left = `${event.pageX}px`;
-      menu.style.top = `${event.pageY}px`;
-    }
-
-    window.addEventListener('click', () => {
-      const menu = document.getElementById('message-action-menu');
-      if (menu) menu.style.display = 'none';
-    });
-
-    function actionCopy() {
-      if (selectedMessageForAction && selectedMessageForAction.text) {
-        navigator.clipboard.writeText(selectedMessageForAction.text);
-        showToast("Texto copiado para a área de transferência!");
-      }
-    }
-
-    function actionReact() {
-      const emoji = prompt("Escolha uma reação (ex: ❤️, 👍, 😂):");
-      if (!emoji || !selectedMessageForAction) return;
-      
-      const path = currentServerId === 'DIRECT_MESSAGES' || !currentServerId
-        ? `dm_messages/${currentChannelId}/${selectedMessageForAction.id}/reactions` 
-        : `messages/${currentServerId}/${currentChannelId}/${selectedMessageForAction.id}/reactions`;
-        
-      if (typeof db !== 'undefined') {
-        db.ref(path).push({ user: currentUser.uid, emoji: emoji });
-      }
-      showToast("Reação enviada!");
-    }
-
-    function actionReply() {
-      if (!selectedMessageForAction) return;
-      replyingToMessageId = selectedMessageForAction.id;
-      showToast(`Respondendo para ${selectedMessageForAction.sender}`);
-    }
-
-    function actionForward() {
-      const target = prompt("Para quem você deseja encaminhar esta mensagem?");
-      if (target) {
-        showToast("Mensagem encaminhada com sucesso!");
-      }
-    }
-
-    function toggleMobileSidebar() {
-      document.getElementById('sidebar-wrapper').classList.toggle('open');
-      document.getElementById('sidebar-overlay').classList.toggle('open');
-    }
-    function closeMobileSidebar() {
-      document.getElementById('sidebar-wrapper').classList.remove('open');
-      document.getElementById('sidebar-overlay').classList.remove('open');
-    }
-
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.innerText = msg;
-      toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 3000);
-    }
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        db.ref('users/' + user.uid).once('value', snapshot => {
-          let val = snapshot.val();
-          if (!val) {
-            val = { username: user.email.split('@')[0], email: user.email.toLowerCase(), photoUrl: "", wallpaper: "default" };
-            db.ref('users/' + user.uid).set(val);
-          }
-          currentUser = { uid: user.uid, ...val };
-          
-          document.getElementById('auth-screen').style.display = 'none';
-          document.getElementById('devs-screen').style.display = 'flex';
-
-          document.getElementById('current-user-name').innerText = currentUser.username;
-          document.getElementById('settings-username-input').value = currentUser.username;
-          document.getElementById('settings-wallpaper-select').value = currentUser.wallpaper || "default";
-          changeWallpaperTheme(currentUser.wallpaper || "default");
-
-          const avatarEl = document.getElementById('current-user-avatar');
-          if (currentUser.photoUrl) {
-            avatarEl.style.backgroundImage = `url(${currentUser.photoUrl})`;
-            avatarEl.innerText = '';
-            document.getElementById('settings-avatar-preview').style.backgroundImage = `url(${currentUser.photoUrl})`;
-          } else {
-            avatarEl.innerText = currentUser.username[0].toUpperCase();
-          }
-
-          loadServers();
-          openDirectMessages();
-        });
-      } else {
-        document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('devs-screen').style.display = 'none';
-      }
-    });
-
-    function enterApp() {
-      document.getElementById('devs-screen').style.display = 'none';
-    }
-
-    function toggleAuthMode() {
-      isSignUp = !isSignUp;
-      document.getElementById('auth-title').innerText = isSignUp ? "Criar nova conta" : "Entrar na sua conta";
-      document.getElementById('group-username').style.display = isSignUp ? "block" : "none";
-      document.getElementById('group-avatar').style.display = isSignUp ? "flex" : "none";
-      document.getElementById('btn-auth-submit').innerText = isSignUp ? "Cadastrar" : "Entrar";
-      document.getElementById('auth-toggle-text').innerText = isSignUp ? "Já tem uma conta?" : "Não tem uma conta?";
-      document.getElementById('auth-toggle-btn').innerText = isSignUp ? "Entrar" : "Registre-se";
-    }
-
-    function handleAvatarSelect(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        selectedAvatarBase64 = evt.target.result;
-        const preview = document.getElementById('avatar-preview');
-        preview.style.backgroundImage = `url(${selectedAvatarBase64})`;
-        document.getElementById('avatar-icon').style.display = 'none';
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function handleSettingsAvatar(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        currentUser.photoUrl = evt.target.result;
-        document.getElementById('settings-avatar-preview').style.backgroundImage = `url(${currentUser.photoUrl})`;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function changeWallpaperTheme(theme) {
-      const container = document.getElementById('messages-container');
-      if (theme === 'matrix') {
-        container.style.backgroundColor = '#000000';
-        container.style.backgroundImage = 'radial-gradient(#00ff66 1px, transparent 0)';
-      } else if (theme === 'neon') {
-        container.style.backgroundColor = '#130e21';
-        container.style.backgroundImage = 'radial-gradient(#bf00ff 1px, transparent 0)';
-      } else if (theme === 'clean') {
-        container.style.backgroundColor = '#f2f3f5';
-        container.style.backgroundImage = 'none';
-        container.style.color = '#111';
-      } else {
-        container.style.backgroundColor = '#0b141a';
-        container.style.backgroundImage = 'radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 0)';
-      }
-    }
-
-    function openSettingsView() {
-      closeMobileSidebar();
-      document.getElementById('main-chat-area').style.display = 'none';
-      document.getElementById('friends-view').style.display = 'none';
-      document.getElementById('search-servers-view').style.display = 'none';
-      document.getElementById('settings-view').style.display = 'block';
-    }
-
-    function saveUserSettings() {
-      const newUsername = document.getElementById('settings-username-input').value.trim();
-      const newWallpaper = document.getElementById('settings-wallpaper-select').value;
-      if (!newUsername) return alert("O nome de usuário não pode estar vazio!");
-
-      db.ref(`users/${currentUser.uid}`).update({
-        username: newUsername,
-        photoUrl: currentUser.photoUrl || "",
-        wallpaper: newWallpaper
-      }).then(() => {
-        currentUser.username = newUsername;
-        currentUser.wallpaper = newWallpaper;
-        document.getElementById('current-user-name').innerText = newUsername;
-        showToast("Configurações salvas com sucesso!");
-        openDirectMessages();
-      });
-    }
-
-    function handleAuth() {
-      const email = document.getElementById('auth-email').value.trim().toLowerCase();
-      const password = document.getElementById('auth-password').value;
-      const username = document.getElementById('auth-username').value.trim();
-
-      if (!email || !password) return alert("Preencha e-mail e senha!");
-
-      if (isSignUp) {
-        if (!username) return alert("Preencha o nome de usuário!");
-        
-        db.ref('users').once('value', snapshot => {
-          let exists = false;
-          snapshot.forEach(child => {
-            if (child.val().username && child.val().username.toLowerCase() === username.toLowerCase()) {
-              exists = true;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soares Dev - Sala do Futuro</title>
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0b0f19',
+                        cardbg: '#161e2e',
+                        primary: '#6366f1',
+                        accent: '#10b981'
+                    }
+                }
             }
-          });
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f3f4f6; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
 
-          if (exists) {
-            return alert("Este nome de usuário já está em uso! Escolha outro.");
-          }
+    <!-- TELA DE LOGIN -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-darkbg p-4">
+        <div class="bg-cardbg border border-gray-800 p-8 rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-accent"></div>
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/20 text-primary mb-4 text-2xl font-bold">
+                    <i class="fa-solid fa-code"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white tracking-wide">Soares Dev</h1>
+                <p class="text-sm text-gray-400 mt-1">Sala do Futuro • Portal de Ensino</p>
+            </div>
 
-          auth.createUserWithEmailAndPassword(email, password).then(res => {
-            db.ref('users/' + res.user.uid).set({
-              username: username,
-              email: email,
-              photoUrl: selectedAvatarBase64 || "",
-              wallpaper: "default",
-              created_at: Date.now()
+            <form id="form-login" onsubmit="realizarLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">USUÁRIO / LOGIN</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="login-user" required class="w-full bg-darkbg border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-primary text-sm" placeholder="Digite seu usuário">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">SENHA</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="login-pass" required class="w-full bg-darkbg border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-primary text-sm" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white font-semibold rounded-lg shadow-lg transition duration-200 text-sm mt-2">
+                    Entrar na Plataforma
+                </button>
+            </form>
+
+            <div class="mt-6 border-t border-gray-800 pt-4 text-xs text-gray-500 text-center">
+                <p>Acessos de Teste:</p>
+                <p class="mt-1 text-gray-400">Admin: <span class="text-primary font-mono">soares / soares</span> ou <span class="text-primary font-mono">murilo / murilo</span></p>
+                <p class="text-gray-400">Alunos: <span class="text-accent font-mono">gersonteste / gerson</span> ou <span class="text-accent font-mono">convidado teste / convidado</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- APLICAÇÃO PRINCIPAL (OCULTA ATÉ LOGAR) -->
+    <div id="app-screen" class="hidden min-h-screen flex flex-col flex-1">
+        
+        <!-- HEADER -->
+        <header class="bg-cardbg border-b border-gray-800 h-16 flex items-center justify-between px-6 sticky top-0 z-30">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-code"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-white text-lg tracking-wide">Soares Dev</span>
+                    <span class="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded ml-2 font-medium">Sala do Futuro</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <span id="user-greeting" class="text-sm font-medium text-gray-300">Olá, Usuário</span>
+                <button onclick="realizarLogout()" class="bg-gray-800 hover:bg-red-600/20 hover:text-red-400 text-gray-300 px-3 py-1.5 rounded-lg text-xs font-medium transition duration-150 flex items-center space-x-1.5">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- LAYOUT CORPO -->
+        <div class="flex flex-1 flex-col md:flex-row">
+            
+            <!-- MENU LATERAL -->
+            <aside class="w-full md:w-64 bg-cardbg border-r border-gray-800 p-4 flex flex-row md:flex-col justify-between overflow-x-auto">
+                <nav id="sidebar-menu" class="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-1.5 w-full">
+                    <!-- Dinâmico via JS -->
+                </nav>
+            </aside>
+
+            <!-- CONTEÚDO PRINCIPAL -->
+            <main class="flex-1 p-6 overflow-y-auto">
+                
+                <!-- PAINEL: LIÇÕES / TAREFAS -->
+                <div id="tab-licoes" class="tab-content space-y-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xl font-bold text-white">Lições e Atividades</h2>
+                            <p class="text-sm text-gray-400">Acompanhe e envie suas tarefas pedagógicas e de programação.</p>
+                        </div>
+                        <div id="admin-action-btn-container"></div>
+                    </div>
+                    
+                    <div id="lista-licoes" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Renderizado via JS -->
+                    </div>
+                </div>
+
+                <!-- PAINEL: FALTAS (ALUNO) -->
+                <div id="tab-faltas" class="tab-content hidden space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Controle de Frequência e Faltas</h2>
+                        <p class="text-sm text-gray-400">Histórico de presenças e faltas registradas pela administração.</p>
+                    </div>
+
+                    <div class="bg-cardbg border border-gray-800 rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-800">
+                            <div>
+                                <span class="text-xs text-gray-400 uppercase tracking-wider">Total de Faltas Computadas</span>
+                                <div id="total-faltas-num" class="text-3xl font-bold text-red-400 mt-1">0</div>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                        </div>
+
+                        <h3 class="text-sm font-semibold text-gray-300 mb-3">Histórico de Chamadas</h3>
+                        <div id="tabela-historico-faltas" class="space-y-2">
+                            <!-- Renderizado via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAINEL: FAZER CHAMADA (ADMIN) -->
+                <div id="tab-chamada-admin" class="tab-content hidden space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Gerenciar Chamada (Presença / Falta)</h2>
+                        <p class="text-sm text-gray-400">Marque a frequência diária dos alunos cadastrados na turma.</p>
+                    </div>
+
+                    <div class="bg-cardbg border border-gray-800 rounded-xl p-6 shadow-sm">
+                        <div class="mb-4 flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-300">Lista de Alunos Ativos</span>
+                            <span class="text-xs text-gray-500">Data de hoje: <span id="data-atual-chamada"></span></span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-300">
+                                <thead class="bg-darkbg text-gray-400 text-xs uppercase">
+                                    <tr>
+                                        <th class="p-3 rounded-l-lg">Nome do Aluno</th>
+                                        <th class="p-3">Status Atual</th>
+                                        <th class="p-3 rounded-r-lg text-right">Ação / Registrar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lista-alunos-chamada" class="divide-y divide-gray-800">
+                                    <!-- Renderizado via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAINEL: CRIAR LIÇÃO (ADMIN) -->
+                <div id="tab-criar-licao" class="tab-content hidden space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Criar e Enviar Nova Lição</h2>
+                        <p class="text-sm text-gray-400">Publique conteúdos e tarefas que chegarão instantaneamente para os alunos.</p>
+                    </div>
+
+                    <div class="bg-cardbg border border-gray-800 rounded-xl p-6 max-w-2xl shadow-sm">
+                        <form onsubmit="publicarLicao(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">MATÉRIA / DISCIPLINA</label>
+                                <select id="nova-materia" required class="w-full bg-darkbg border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-primary">
+                                    <option value="Programação Web">Programação Web</option>
+                                    <option value="Matemática">Matemática</option>
+                                    <option value="Língua Portuguesa">Língua Portuguesa</option>
+                                    <option value="Ciências">Ciências</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">TÍTULO DA LIÇÃO</label>
+                                <input type="text" id="novo-titulo" required class="w-full bg-darkbg border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-primary" placeholder="Ex: Introdução ao JavaScript">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">DESCRIÇÃO E INSTRUÇÕES</label>
+                                <textarea id="nova-descricao" rows="4" required class="w-full bg-darkbg border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-primary" placeholder="Descreva o que o aluno deve fazer..."></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">PRAZO DE ENTREGA</label>
+                                <input type="date" id="novo-prazo" required class="w-full bg-darkbg border border-gray-700 rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-primary">
+                            </div>
+
+                            <button type="submit" class="w-full py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg shadow transition duration-200 text-sm">
+                                Publicar e Enviar para os Alunos
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE GERENCIAMENTO -->
+    <script>
+        // Contas oficiais solicitadas
+        const usuariosDB = {
+            "soares": { senha: "soares", nome: "Soares", tipo: "admin" },
+            "murilo": { senha: "murilo", nome: "Murilo", tipo: "admin" },
+            "gersonteste": { senha: "gerson", nome: "Gerson", tipo: "aluno", username: "gersonteste" },
+            "convidado teste": { senha: "convidado", nome: "Convidado", tipo: "aluno", username: "convidado teste" }
+        };
+
+        // Dados padrão iniciais no localStorage se não existirem
+        if (!localStorage.getItem('soaresdev_licoes')) {
+            const licoesIniciais = [
+                { id: 1, materia: "Programação Web", titulo: "Criando sua primeira página HTML", descricao: "Estruture uma página web básica utilizando tags semânticas e estilização CSS moderna.", prazo: "2026-04-10" }
+            ];
+            localStorage.setItem('soaresdev_licoes', JSON.stringify(licoesIniciais));
+        }
+
+        if (!localStorage.getItem('soaresdev_faltas')) {
+            localStorage.setItem('soaresdev_faltas', JSON.stringify({})); // ex: { "gersonteste": [{data: "2026-03-30", status: "Falta"}] }
+        }
+
+        let usuarioLogado = JSON.parse(localStorage.getItem('soaresdev_sessao')) || null;
+
+        window.onload = function() {
+            if (usuarioLogado) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                inicializarApp();
+            }
+        };
+
+        function realizarLogin(e) {
+            e.preventDefault();
+            const userIn = document.getElementById('login-user').value.trim().toLowerCase();
+            const passIn = document.getElementById('login-pass').value;
+
+            if (usuariosDB[userIn] && usuariosDB[userIn].senha === passIn) {
+                const dadosUser = usuariosDB[userIn];
+                dadosUser.username = userIn;
+                localStorage.setItem('soaresdev_sessao', JSON.stringify(dadosUser));
+                usuarioLogado = dadosUser;
+
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                inicializarApp();
+            } else {
+                alert("Usuário ou senha inválidos! Verifique suas credenciais.");
+            }
+        }
+
+        function realizarLogout() {
+            localStorage.removeItem('soaresdev_sessao');
+            location.reload();
+        }
+
+        function inicializarApp() {
+            // Saudação personalizada exata
+            document.getElementById('user-greeting').innerText = `Olá, ${usuarioLogado.nome}`;
+            
+            const menu = document.getElementById('sidebar-menu');
+            menu.innerHTML = '';
+
+            if (usuarioLogado.tipo === 'admin') {
+                menu.innerHTML = `
+                    <button onclick="mudarAba('licoes')" id="btn-tab-licoes" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-primary/20 text-primary transition">
+                        <i class="fa-solid fa-book-open w-5"></i><span>Lições Enviadas</span>
+                    </button>
+                    <button onclick="mudarAba('criar-licao')" id="btn-tab-criar-licao" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition">
+                        <i class="fa-solid fa-plus-circle w-5"></i><span>Criar Lição</span>
+                    </button>
+                    <button onclick="mudarAba('chamada-admin')" id="btn-tab-chamada-admin" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition">
+                        <i class="fa-solid fa-clipboard-user w-5"></i><span>Fazer Chamada</span>
+                    </button>
+                `;
+                mudarAba('licoes');
+            } else {
+                menu.innerHTML = `
+                    <button onclick="mudarAba('licoes')" id="btn-tab-licoes" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-primary/20 text-primary transition">
+                        <i class="fa-solid fa-book-open w-5"></i><span>Minhas Lições</span>
+                    </button>
+                    <button onclick="mudarAba('faltas')" id="btn-tab-faltas" class="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition">
+                        <i class="fa-solid fa-user-xmark w-5"></i><span>Minhas Faltas</span>
+                    </button>
+                `;
+                mudarAba('licoes');
+            }
+        }
+
+        function mudarAba(nomeAba) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            if (nomeAba === 'licoes') {
+                document.getElementById('tab-licoes').classList.remove('hidden');
+                carregarLicoes();
+            } else if (nomeAba === 'criar-licao') {
+                document.getElementById('tab-criar-licao').classList.remove('hidden');
+            } else if (nomeAba === 'chamada-admin') {
+                document.getElementById('tab-chamada-admin').classList.remove('hidden');
+                carregarTelaChamada();
+            } else if (nomeAba === 'faltas') {
+                document.getElementById('tab-faltas').classList.remove('hidden');
+                carregarFaltasAluno();
+            }
+
+            // Destacar botão ativo no menu
+            document.querySelectorAll('aside nav button').forEach(btn => {
+                btn.className = "flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 transition";
             });
-            showToast("Conta criada com sucesso!");
-          }).catch(err => alert("Erro ao criar conta: " + err.message));
-        });
-
-      } else {
-        auth.signInWithEmailAndPassword(email, password).catch(err => alert("Erro ao entrar: " + err.message));
-      }
-    }
-
-    function logout() { auth.signOut(); location.reload(); }
-
-    function getDmChannelId(uid1, uid2) {
-      return uid1 < uid2 ? `dm_${uid1}_${uid2}` : `dm_${uid2}_${uid1}`;
-    }
-
-    function openDirectMessages() {
-      closeMobileSidebar();
-      currentServerId = null;
-      currentTargetDmUid = null;
-      document.getElementById('sidebar-header-title').innerText = "Mensagens Diretas";
-      document.getElementById('main-chat-area').style.display = 'none';
-      document.getElementById('search-servers-view').style.display = 'none';
-      document.getElementById('settings-view').style.display = 'none';
-      document.getElementById('friends-view').style.display = 'block';
-      loadFriends();
-    }
-
-    function addFriendPrompt() {
-      const targetUsername = prompt("Digite o nome de usuário exato do seu amigo:");
-      if (!targetUsername) return;
-
-      const cleanUsername = targetUsername.trim().toLowerCase();
-
-      db.ref('users').once('value', snapshot => {
-        let foundUid = null;
-        let foundData = null;
-
-        snapshot.forEach(child => {
-          const u = child.val();
-          if (u.username && u.username.toLowerCase() === cleanUsername) {
-            foundUid = child.key;
-            foundData = u;
-          }
-        });
-
-        if (foundUid) {
-          if (foundUid === currentUser.uid) return alert("Você não pode adicionar a si mesmo!");
-
-          db.ref(`friends/${currentUser.uid}/${foundUid}`).set(true);
-          db.ref(`friends/${foundUid}/${currentUser.uid}`).set(true);
-
-          showToast(`Você e ${foundData.username} agora são amigos!`);
-          loadFriends();
-        } else {
-          alert("Nenhum usuário encontrado com esse Nome de Usuário.");
-        }
-      });
-    }
-
-    function loadFriends() {
-      db.ref(`friends/${currentUser.uid}`).on('value', snapshot => {
-        const list = document.getElementById('friends-list');
-        list.innerHTML = '';
-
-        if (!snapshot.exists()) {
-          list.innerHTML = '<p style="color:#949ba4; font-size: 13px;">Nenhum amigo adicionado ainda.</p>';
-          return;
+            const btnAtivo = document.getElementById('btn-tab-' + nomeAba);
+            if(btnAtivo) btnAtivo.className = "flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-primary/20 text-primary transition";
         }
 
-        snapshot.forEach(child => {
-          const friendUid = child.key;
-          db.ref(`users/${friendUid}`).once('value', uSnap => {
-            const friend = uSnap.val();
-            if (!friend) return;
+        function carregarLicoes() {
+            const container = document.getElementById('lista-licoes');
+            const licoes = JSON.parse(localStorage.getItem('soaresdev_licoes')) || [];
+            
+            const btnContainer = document.getElementById('admin-action-btn-container');
+            if (usuarioLogado.tipo === 'admin') {
+                btnContainer.innerHTML = `<button onclick="mudarAba('criar-licao')" class="bg-primary hover:bg-primary/90 text-white text-xs font-semibold px-4 py-2 rounded-lg transition"><i class="fa-solid fa-plus mr-1"></i> Nova Lição</button>`;
+            } else {
+                btnContainer.innerHTML = '';
+            }
 
-            const avatarStyle = friend.photoUrl ? `background-image: url(${friend.photoUrl});` : '';
-            const avatarChar = friend.photoUrl ? '' : (friend.username || 'U')[0].toUpperCase();
+            if (licoes.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 text-sm col-span-2">Nenhuma lição postada no momento.</p>`;
+                return;
+            }
 
-            const div = document.createElement('div');
-            div.className = 'card-item';
-            div.innerHTML = `
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="avatar" style="${avatarStyle}">${avatarChar}</div>
-                <span style="color: white; font-weight: bold; font-size: 14px;">${friend.username}</span>
-              </div>
-              <button class="btn-auth" style="width: auto; padding: 6px 12px; margin: 0; font-size: 12px;" onclick="startDm('${friendUid}', '${friend.username}')">Mensagem</button>
-            `;
-            list.appendChild(div);
-          });
-        });
-      });
-    }
-
-    function startDm(friendUid, friendName) {
-      currentTargetDmUid = friendUid;
-      currentChannelId = getDmChannelId(currentUser.uid, friendUid);
-      currentServerId = 'DIRECT_MESSAGES';
-
-      document.getElementById('friends-view').style.display = 'none';
-      document.getElementById('main-chat-area').style.display = 'flex';
-      document.getElementById('chat-title').innerText = `@ ${friendName}`;
-
-      loadMessages();
-    }
-
-    function loadServers() {
-      db.ref('servers').on('value', snapshot => {
-        const list = document.getElementById('servers-list');
-        list.innerHTML = '';
-        if (!snapshot.exists()) return;
-
-        snapshot.forEach(child => {
-          const sId = child.key;
-          const sData = child.val();
-
-          const icon = document.createElement('div');
-          icon.className = 'server-icon';
-          icon.title = sData.name;
-          if (sData.iconUrl) {
-            icon.style.backgroundImage = `url(${sData.iconUrl})`;
-          } else {
-            icon.innerText = sData.name[0].toUpperCase();
-          }
-          icon.onclick = () => openServer(sId);
-          list.appendChild(icon);
-        });
-      });
-    }
-
-    function openServer(serverId) {
-      closeMobileSidebar();
-      currentServerId = serverId;
-      currentTargetDmUid = null;
-
-      document.getElementById('friends-view').style.display = 'none';
-      document.getElementById('settings-view').style.display = 'none';
-      document.getElementById('search-servers-view').style.display = 'none';
-      document.getElementById('main-chat-area').style.display = 'flex';
-
-      db.ref(`servers/${serverId}`).once('value', sSnap => {
-        const s = sSnap.val();
-        if (s) {
-          document.getElementById('sidebar-header-title').innerText = s.name;
+            container.innerHTML = licoes.map(l => `
+                <div class="bg-cardbg border border-gray-800 rounded-xl p-5 flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs bg-primary/20 text-primary px-2.5 py-1 rounded font-medium">${l.materia}</span>
+                            <span class="text-xs text-gray-400"><i class="fa-regular fa-calendar mr-1"></i> Prazo: ${l.prazo}</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white mb-2">${l.titulo}</h3>
+                        <p class="text-sm text-gray-300 leading-relaxed">${l.descricao}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-800 flex justify-end">
+                        ${usuarioLogado.tipo === 'aluno' ? `
+                            <button onclick="alert('Lição enviada com sucesso para o professor Soares/Murilo!')" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                                <i class="fa-solid fa-upload mr-1"></i> Entregar Tarefa
+                            </button>
+                        ` : `
+                            <button onclick="deletarLicao(${l.id})" class="text-red-400 hover:text-red-300 text-xs font-semibold">
+                                <i class="fa-solid fa-trash mr-1"></i> Excluir Lição
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `).join('');
         }
-      });
 
-      const channelsList = document.getElementById('channels-list');
-      channelsList.innerHTML = `
-        <div style="font-size: 11px; font-weight: bold; color: #949ba4; text-transform: uppercase; margin-bottom: 6px;">Canais de Texto</div>
-        <div class="channel-item active" onclick="switchChannel('geral', this)"># geral</div>
-        <div class="channel-item" onclick="switchChannel('anuncios', this)"># anúncios</div>
-      `;
+        function publicarLicao(e) {
+            e.preventDefault();
+            const materia = document.getElementById('nova-materia').value;
+            const titulo = document.getElementById('novo-titulo').value;
+            const descricao = document.getElementById('nova-descricao').value;
+            const prazo = document.getElementById('novo-prazo').value;
 
-      currentChannelId = 'geral';
-      document.getElementById('chat-title').innerText = '# geral';
-      loadMessages();
-    }
+            const licoes = JSON.parse(localStorage.getItem('soaresdev_licoes')) || [];
+            const novaLicao = { id: Date.now(), materia, titulo, descricao, prazo };
+            
+            licoes.unshift(novaLicao);
+            localStorage.setItem('soaresdev_licoes', JSON.stringify(licoes));
 
-    function switchChannel(channelId, el) {
-      document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
-      if (el) el.classList.add('active');
-      currentChannelId = channelId;
-      document.getElementById('chat-title').innerText = `# ${channelId}`;
-      loadMessages();
-    }
+            alert("Lição criada e enviada com sucesso para os alunos em tempo real!");
+            document.getElementById('novo-titulo').value = '';
+            document.getElementById('nova-descricao').value = '';
+            document.getElementById('novo-prazo').value = '';
+            mudarAba('licoes');
+        }
 
-    function loadMessages() {
-      const container = document.getElementById('messages-container');
-      container.innerHTML = '';
+        function deletarLicao(id) {
+            let licoes = JSON.parse(localStorage.getItem('soaresdev_licoes')) || [];
+            licoes = licoes.filter(l => l.id !== id);
+            localStorage.setItem('soaresdev_licoes', JSON.stringify(licoes));
+            carregarLicoes();
+        }
 
-      const path = currentServerId === 'DIRECT_MESSAGES' || !currentServerId
-        ? `dm_messages/${currentChannelId}` 
-        : `messages/${currentServerId}/${currentChannelId}`;
+        // Sistema de Faltas e Chamada
+        const alunosLista = [
+            { username: "gersonteste", nome: "Gerson" },
+            { username: "convidado teste", nome: "Convidado" }
+        ];
 
-      db.ref(path).off(); // Remove listeners anteriores
-      db.ref(path).on('child_added', snapshot => {
-        const msgId = snapshot.key;
-        const msg = snapshot.val();
-        if (!msg) return;
+        function carregarTelaChamada() {
+            const dataHoje = new Date().toISOString().split('T')[0];
+            document.getElementById('data-atual-chamada').innerText = dataHoje;
 
-        const timeString = new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const avatarStyle = msg.senderPhoto ? `background-image: url(${msg.senderPhoto});` : '';
-        const avatarChar = msg.senderPhoto ? '' : (msg.senderName || 'U')[0].toUpperCase();
+            const tbody = document.getElementById('lista-alunos-chamada');
+            const faltasObj = JSON.parse(localStorage.getItem('soaresdev_faltas')) || {};
 
-        const div = document.createElement('div');
-        div.className = 'message';
-        
-        // AQUI ESTÁ O PASSO 4 APLICADO: O onclick chama a função que abre o menu flutuante passando os dados da mensagem
-        const safeText = (msg.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        
-        div.innerHTML = `
-          <div class="avatar" style="${avatarStyle}">${avatarChar}</div>
-          <div class="message-content" onclick="openMessageMenu(event, '${msgId}', '${safeText}', '${msg.senderName}')">
-            <h4>${msg.senderName} <span>${timeString}</span></h4>
-            <p>${msg.text || ''}</p>
-            ${msg.imageUrl ? `<img src="${msg.imageUrl}" class="message-img">` : ''}
-          </div>
-        `;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-      });
-    }
+            tbody.innerHTML = alunosLista.map(aluno => {
+                const historicoAluno = faltasObj[aluno.username] || [];
+                const faltaHoje = historicoAluno.find(f => f.data === dataHoje && f.status === 'Falta');
 
-    function sendMessage() {
-      const input = document.getElementById('chat-message-input');
-      const text = input.value.trim();
-      if (!text) return;
+                return `
+                    <tr class="hover:bg-darkbg/50">
+                        <td class="p-3 font-medium text-white">${aluno.nome} <span class="text-xs text-gray-500">(${aluno.username})</span></td>
+                        <td class="p-3">
+                            ${faltaHoje ? '<span class="px-2 py-1 bg-red-500/20 text-red-400 rounded text-xs font-semibold">Faltou Hoje</span>' : '<span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs font-semibold">Presente / Sem Falta</span>'}
+                        </td>
+                        <td class="p-3 text-right space-x-2">
+                            <button onclick="registrarFrequencia('${aluno.username}', 'Presente')" class="px-3 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 rounded text-xs font-medium">Presença</button>
+                            <button onclick="registrarFrequencia('${aluno.username}', 'Falta')" class="px-3 py-1 bg-red-600/20 text-red-400 hover:bg-red-600/30 rounded text-xs font-medium">Dar Falta</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
 
-      const path = currentServerId === 'DIRECT_MESSAGES' || !currentServerId
-        ? `dm_messages/${currentChannelId}` 
-        : `messages/${currentServerId}/${currentChannelId}`;
+        function registrarFrequencia(usernameAluno, status) {
+            const dataHoje = new Date().toISOString().split('T')[0];
+            let faltasObj = JSON.parse(localStorage.getItem('soaresdev_faltas')) || {};
 
-      db.ref(path).push({
-        senderId: currentUser.uid,
-        senderName: currentUser.username,
-        senderPhoto: currentUser.photoUrl || "",
-        text: text,
-        timestamp: Date.now()
-      });
+            if (!faltasObj[usernameAluno]) {
+                faltasObj[usernameAluno] = [];
+            }
 
-      input.value = '';
-    }
+            // Remove registro anterior do mesmo dia para evitar duplicidade
+            faltasObj[usernameAluno] = faltasObj[usernameAluno].filter(f => f.data !== dataHoje);
 
-    function handleImageUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const imageUrl = evt.target.result;
-        const path = currentServerId === 'DIRECT_MESSAGES' || !currentServerId
-          ? `dm_messages/${currentChannelId}` 
-          : `messages/${currentServerId}/${currentChannelId}`;
+            // Adiciona novo status
+            faltasObj[usernameAluno].push({ data: dataHoje, status: status });
+            localStorage.setItem('soaresdev_faltas', JSON.stringify(faltasObj));
 
-        db.ref(path).push({
-          senderId: currentUser.uid,
-          senderName: currentUser.username,
-          senderPhoto: currentUser.photoUrl || "",
-          text: "[Imagem]",
-          imageUrl: imageUrl,
-          timestamp: Date.now()
-        });
-      };
-      reader.readAsDataURL(file);
-    }
+            alert(`Frequência de ${usernameAluno} atualizada para: ${status}`);
+            carregarTelaChamada();
+        }
 
-    function openSearchServers() { showToast("Funcionalidade em desenvolvimento!"); }
-    function createServerPrompt() { showToast("Funcionalidade em desenvolvimento!"); }
-    function startVoiceCall() { showToast("Chamada de voz iniciada!"); }
-    function startScreenShare() { showToast("Compartilhamento de tela iniciado!"); }
-    function toggleAudioRecord() { showToast("Gravação de áudio simulada!"); }
-    function toggleVideoCamera() { showToast("Câmera alternada!"); }
-    function endCall() { showToast("Chamada encerrada!"); }
-  </script>
+        function carregarFaltasAluno() {
+            const username = usuarioLogado.username;
+            const faltasObj = JSON.parse(localStorage.getItem('soaresdev_faltas')) || {};
+            const historico = faltasObj[username] || [];
+
+            const apenasFaltas = historico.filter(h => h.status === 'Falta');
+            document.getElementById('total-faltas-num').innerText = apenasFaltas.length;
+
+            const container = document.getElementById('tabela-historico-faltas');
+            if (historico.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500">Nenhum registro de chamada encontrado para você.</p>`;
+                return;
+            }
+
+            container.innerHTML = historico.map(h => `
+                <div class="flex items-center justify-between p-3 rounded-lg bg-darkbg border border-gray-800 text-sm">
+                    <span class="text-gray-300">Data: ${h.data}</span>
+                    <span class="px-2.5 py-0.5 rounded text-xs font-semibold ${h.status === 'Falta' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}">${h.status}</span>
+                </div>
+            `).join('');
+        }
+    </script>
 </body>
 </html>
