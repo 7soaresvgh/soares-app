@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Soares Zap - Conexão em Tempo Real</title>
 
   <!-- Font Awesome Icons -->
@@ -14,102 +14,154 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #111214; color: #dbdee1; height: 100vh; display: flex; overflow: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: #111214; color: #dbdee1; height: 100vh; height: 100dvh; display: flex; overflow: hidden; }
 
-    /* TELAS DE AUTENTICAÇÃO */
-    #auth-screen {
+    /* TELAS DE AUTENTICAÇÃO E DEVS */
+    .overlay-screen {
       position: fixed; inset: 0; background: radial-gradient(circle at center, #2b2d31 0%, #111214 100%);
-      display: flex; justify-content: center; align-items: center; z-index: 10000;
+      display: flex; justify-content: center; align-items: center; z-index: 10000; flex-direction: column; padding: 16px;
     }
     .auth-box {
-      background: #313338; width: 420px; max-width: 90%; padding: 32px; border-radius: 12px;
+      background: #313338; width: 420px; max-width: 100%; padding: 24px; border-radius: 12px;
       box-shadow: 0 12px 32px rgba(0,0,0,0.7); text-align: center; border: 1px solid #3f4147;
+      max-height: 90vh; overflow-y: auto;
     }
     .auth-logo { 
-      font-size: 32px; color: #f2a900; margin-bottom: 8px; font-weight: 800; 
+      font-size: 28px; color: #f2a900; margin-bottom: 8px; font-weight: 800; 
       display: flex; align-items: center; justify-content: center; gap: 12px; 
       text-shadow: 0 0 15px rgba(242, 169, 0, 0.6); 
     }
-    .auth-box h2 { color: #f2f3f5; font-size: 20px; margin-bottom: 20px; }
-    .input-group { margin-bottom: 16px; text-align: left; }
+    .auth-box h2 { color: #f2f3f5; font-size: 18px; margin-bottom: 16px; }
+    .input-group { margin-bottom: 14px; text-align: left; }
     .input-group label { display: block; color: #b5bac1; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
     .input-group input {
       width: 100%; padding: 12px; background: #1e1f22; border: 1px solid #111214; border-radius: 6px;
-      color: #f2f3f5; font-size: 14px; outline: none; transition: border 0.2s;
+      color: #f2f3f5; font-size: 15px; outline: none; transition: border 0.2s;
     }
     .input-group input:focus { border-color: #5865f2; }
     .btn-auth {
       width: 100%; padding: 12px; background: #5865f2; color: white; border: none; border-radius: 6px;
       font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 8px; transition: all 0.2s;
     }
-    .btn-auth:hover { background: #4752c4; box-shadow: 0 4px 12px rgba(88,101,242,0.4); }
+    .btn-auth:hover { background: #4752c4; }
     .auth-switch { margin-top: 16px; font-size: 13px; color: #949ba4; }
     .auth-switch span { color: #00a8fc; cursor: pointer; text-decoration: underline; }
 
-    /* LAYOUT DA APLICAÇÃO */
-    #app-container { display: flex; width: 100vw; height: 100vh; }
+    /* SELEÇÃO DE FOTO DE PERFIL */
+    .avatar-picker {
+      display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 16px;
+    }
+    .avatar-preview {
+      width: 76px; height: 76px; border-radius: 50%; background: #1e1f22; border: 2px dashed #5865f2;
+      display: flex; align-items: center; justify-content: center; color: #b5bac1; font-size: 24px;
+      cursor: pointer; overflow: hidden; background-size: cover; background-position: center;
+    }
 
-    /* BARRA DE SERVIDORES (ESQUERDA) */
-    .servers-bar { width: 72px; background: #1e1f22; display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 8px; z-index: 2; }
+    /* TELA INSTAGRAM DOS DEVS */
+    .devs-container {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 16px 0;
+    }
+    .dev-card {
+      background: #2b2d31; border: 1px solid #3f4147; border-radius: 12px; padding: 16px;
+      width: 100%; max-width: 200px; text-align: center; display: flex; flex-direction: column; align-items: center;
+    }
+    .dev-card img { width: 64px; height: 64px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #e1306c; }
+    .dev-card h3 { font-size: 15px; color: #f2f3f5; margin-bottom: 2px; }
+    .dev-card p { font-size: 12px; color: #949ba4; margin-bottom: 10px; }
+    .btn-insta {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      color: white; padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 12px; font-weight: bold;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* LAYOUT DA APLICAÇÃO */
+    #app-container { display: flex; width: 100vw; height: 100vh; height: 100dvh; position: relative; overflow: hidden; }
+
+    /* MASCARA E CONTAINER DA SIDEBAR PARA CELULAR */
+    .sidebar-wrapper {
+      display: flex; z-index: 100; height: 100%; transition: transform 0.3s ease-in-out;
+    }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90;
+    }
+
+    /* BARRA DE SERVIDORES */
+    .servers-bar { width: 72px; background: #1e1f22; display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 8px; flex-shrink: 0; }
     .server-icon {
       width: 48px; height: 48px; border-radius: 50%; background: #313338; display: flex; align-items: center;
       justify-content: center; cursor: pointer; color: #dbdee1; transition: all 0.2s; font-weight: bold; font-size: 18px;
     }
-    .server-icon:hover, .server-icon.active { border-radius: 16px; background: #5865f2; color: white; }
+    .server-icon:hover, .server-icon.active { border-radius: 16px; background-color: #5865f2; color: white; }
     .server-divider { width: 32px; height: 2px; background: #35363c; margin: 4px 0; }
 
-    /* SUB-BARRA LATERAL (CANAIS / AMIGOS) */
-    .sub-sidebar { width: 240px; background: #2b2d31; display: flex; flex-direction: column; }
+    /* SUB-BARRA LATERAL */
+    .sub-sidebar { width: 220px; background: #2b2d31; display: flex; flex-direction: column; flex-shrink: 0; }
     .sidebar-header { height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1f2023; font-weight: bold; color: #f2f3f5; }
     .channels-list { flex: 1; padding: 12px; overflow-y: auto; }
-    .channel-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 4px; cursor: pointer; color: #949ba4; margin-bottom: 2px; font-size: 14px; }
+    .channel-item { display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 6px; cursor: pointer; color: #949ba4; margin-bottom: 2px; font-size: 14px; }
     .channel-item:hover, .channel-item.active { background: #35373c; color: #f2f3f5; }
 
     /* PAINEL DO USUÁRIO */
     .user-panel { height: 54px; background: #232428; padding: 0 10px; display: flex; align-items: center; justify-content: space-between; }
-    .user-info { display: flex; align-items: center; gap: 8px; }
-    .avatar { width: 34px; height: 34px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; text-transform: uppercase; }
+    .user-info { display: flex; align-items: center; gap: 8px; overflow: hidden; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: #5865f2; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; flex-shrink: 0; background-size: cover; background-position: center; overflow: hidden; }
 
     /* ÁREA PRINCIPAL DO CHAT */
-    .chat-area { flex: 1; background: #313338; display: flex; flex-direction: column; position: relative; }
-    .chat-header { height: 48px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2b2d31; font-weight: bold; color: #f2f3f5; background: #313338; }
+    .chat-area { flex: 1; background: #313338; display: flex; flex-direction: column; position: relative; height: 100%; width: 100%; }
+    .chat-header { height: 48px; padding: 0 12px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2b2d31; font-weight: bold; color: #f2f3f5; background: #313338; }
+    .menu-toggle-btn { display: none; font-size: 20px; color: #b5bac1; cursor: pointer; padding: 4px; }
 
-    /* PAPEL DE PAREDE DO CHAT (DOODLE PATTERN) */
+    /* PAPEL DE PAREDE DO CHAT */
     .messages-container {
-      flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
+      flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
       background-color: #0b141a;
       background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 0);
       background-size: 24px 24px;
     }
-    .message { display: flex; gap: 12px; animation: fadeIn 0.15s ease-in; }
+    .message { display: flex; gap: 10px; }
     .message-content { flex: 1; }
-    .message-content h4 { color: #f2f3f5; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-    .message-content h4 span { font-size: 11px; color: #949ba4; font-weight: normal; }
-    .message-content p { color: #dbdee1; font-size: 14px; line-height: 1.4; word-break: break-word; background: #111b21; padding: 8px 12px; border-radius: 0 8px 8px 8px; display: inline-block; max-width: 85%; border: 1px solid #202c33; }
-    .message-img { max-width: 300px; max-height: 220px; border-radius: 8px; margin-top: 6px; display: block; border: 1px solid #3f4147; }
+    .message-content h4 { color: #f2f3f5; font-size: 13px; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+    .message-content h4 span { font-size: 10px; color: #949ba4; font-weight: normal; }
+    .message-content p { color: #dbdee1; font-size: 14px; line-height: 1.4; word-break: break-word; background: #111b21; padding: 8px 12px; border-radius: 0 8px 8px 8px; display: inline-block; max-width: 90%; border: 1px solid #202c33; }
+    .message-img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 6px; display: block; }
 
-    /* BARRA DE ENTRADA DO CHAT */
-    .chat-input-area { padding: 0 16px 20px 16px; background: #111b21; }
-    .input-wrapper { background: #202c33; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
-    .input-wrapper input { flex: 1; background: transparent; border: none; outline: none; color: #f2f3f5; font-size: 15px; }
-    .input-btn { color: #8696a0; cursor: pointer; font-size: 18px; transition: color 0.2s; }
-    .input-btn:hover { color: #f2f3f5; }
+    /* BARRA DE DIGITAÇÃO */
+    .chat-input-area { padding: 8px 12px 12px 12px; background: #111b21; }
+    .input-wrapper { background: #202c33; border-radius: 20px; padding: 6px 12px; display: flex; align-items: center; gap: 10px; }
+    .input-wrapper input { flex: 1; background: transparent; border: none; outline: none; color: #f2f3f5; font-size: 15px; height: 36px; }
+    .input-btn { color: #8696a0; cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
 
-    /* TELAS ALTERNATIVAS (AMIGOS / SERVIDORES) */
-    .view-container { flex: 1; padding: 24px; overflow-y: auto; display: none; background: #313338; }
-    .friends-header { display: flex; gap: 16px; border-bottom: 1px solid #3f4147; padding-bottom: 12px; margin-bottom: 16px; }
-    .friend-tab { padding: 8px 16px; border-radius: 4px; cursor: pointer; color: #b5bac1; font-weight: bold; font-size: 14px; }
+    /* TELAS ALTERNATIVAS */
+    .view-container { flex: 1; padding: 16px; overflow-y: auto; display: none; background: #313338; height: 100%; }
+    .friends-header { display: flex; gap: 8px; border-bottom: 1px solid #3f4147; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .friend-tab { padding: 8px 12px; border-radius: 4px; cursor: pointer; color: #b5bac1; font-weight: bold; font-size: 13px; }
     .friend-tab.active { background: #3f4147; color: white; }
-    .card-item { background: #2b2d31; border-radius: 8px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid #3f4147; }
+    .card-item { background: #2b2d31; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid #3f4147; gap: 8px; }
 
-    /* TOAST DE NOTIFICAÇÃO */
+    /* TOAST */
     #toast {
-      position: fixed; bottom: 20px; right: 20px; background: #5865f2; color: white; padding: 12px 20px;
-      border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: none; z-index: 20000; font-weight: bold;
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #5865f2; color: white; padding: 10px 20px;
+      border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: none; z-index: 20000; font-weight: bold; font-size: 13px; text-align: center; white-space: nowrap;
     }
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    /* REGRAS DE RESPONSIVIDADE PARA CELULAR */
+    @media (max-width: 768px) {
+      .sidebar-wrapper {
+        position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%);
+      }
+      .sidebar-wrapper.open {
+        transform: translateX(0);
+      }
+      .sidebar-overlay.open {
+        display: block;
+      }
+      .menu-toggle-btn {
+        display: block;
+      }
+      .sub-sidebar { width: 200px; }
+      .servers-bar { width: 64px; }
+    }
   </style>
 </head>
 <body>
@@ -117,14 +169,22 @@
   <div id="toast">Notificação</div>
 
   <!-- TELA DE AUTENTICAÇÃO -->
-  <div id="auth-screen">
+  <div id="auth-screen" class="overlay-screen">
     <div class="auth-box">
       <div class="auth-logo"><i class="fa-solid fa-bolt"></i> Soares Zap</div>
       <h2 id="auth-title">Entrar na sua conta</h2>
 
+      <div class="avatar-picker" id="group-avatar" style="display: none;">
+        <label style="color: #b5bac1; font-size: 11px; font-weight: 700; text-transform: uppercase;">Foto de Perfil</label>
+        <div class="avatar-preview" id="avatar-preview" onclick="document.getElementById('avatar-input').click()">
+          <i class="fa-solid fa-camera" id="avatar-icon"></i>
+        </div>
+        <input type="file" id="avatar-input" accept="image/*" style="display: none;" onchange="handleAvatarSelect(event)">
+      </div>
+
       <div class="input-group" id="group-username" style="display: none;">
-        <label>Nome de Usuário</label>
-        <input type="text" id="auth-username" placeholder="Como quer ser chamado?">
+        <label>Nome de Usuário (Username)</label>
+        <input type="text" id="auth-username" placeholder="Ex: soares_dev">
       </div>
       <div class="input-group">
         <label>E-mail</label>
@@ -143,45 +203,76 @@
     </div>
   </div>
 
+  <!-- TELA INSTAGRAM DOS DEVS (APÓS O LOGIN) -->
+  <div id="devs-screen" class="overlay-screen" style="display: none;">
+    <div class="auth-box" style="width: 520px;">
+      <div class="auth-logo"><i class="fa-solid fa-code"></i> Desenvolvedores</div>
+      <p style="color: #b5bac1; font-size: 13px; margin-bottom: 12px;">Conheça a equipe por trás do Soares Zap!</p>
+
+      <div class="devs-container">
+        <div class="dev-card">
+          <img src="https://ui-avatars.com/api/?name=Soares&background=5865f2&color=fff" alt="Dev 1">
+          <h3>Soares</h3>
+          <p>Lead Developer</p>
+          <a href="https://instagram.com/" target="_blank" class="btn-insta"><i class="fa-brands fa-instagram"></i> Instagram</a>
+        </div>
+        <div class="dev-card">
+          <img src="https://ui-avatars.com/api/?name=Dev2&background=23a55a&color=fff" alt="Dev 2">
+          <h3>Equipe Soares</h3>
+          <p>UI/UX & Database</p>
+          <a href="https://instagram.com/" target="_blank" class="btn-insta"><i class="fa-brands fa-instagram"></i> Instagram</a>
+        </div>
+      </div>
+
+      <button class="btn-auth" onclick="enterApp()">Continuar para o App <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+
   <!-- APLICAÇÃO PRINCIPAL -->
   <div id="app-container">
 
-    <!-- BARRA LATERAL DE SERVIDORES -->
-    <div class="servers-bar">
-      <div class="server-icon active" id="btn-dm" onclick="openDirectMessages()" title="Mensagens Diretas">
-        <i class="fa-solid fa-comments"></i>
-      </div>
-      <div class="server-divider"></div>
+    <!-- OVERLAY ESCURO PARA CELULAR -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
 
-      <div id="servers-list"></div>
-
-      <div class="server-icon" onclick="openSearchServers()" title="Explorar Servidores Públicos" style="color: #23a55a;">
-        <i class="fa-solid fa-compass"></i>
-      </div>
-      <div class="server-icon" onclick="createServerPrompt()" title="Criar Servidor" style="color: #23a55a;">
-        <i class="fa-solid fa-plus"></i>
-      </div>
-    </div>
-
-    <!-- SUB-BARRA LATERAL (AMIGOS / CANAIS) -->
-    <div class="sub-sidebar">
-      <div class="sidebar-header" id="sidebar-header-title">
-        <span>Soares Zap</span>
-      </div>
-
-      <div class="channels-list" id="channels-list"></div>
-
-      <!-- PAINEL DO USUÁRIO -->
-      <div class="user-panel">
-        <div class="user-info">
-          <div class="avatar" id="current-user-avatar">?</div>
-          <div>
-            <div style="font-size: 13px; font-weight: bold; color: white;" id="current-user-name">Carregando...</div>
-            <div style="font-size: 10px; color: #23a55a;">● Online na Nuvem</div>
-          </div>
+    <!-- WRAPPER DAS BARRAS LATERAIS -->
+    <div class="sidebar-wrapper" id="sidebar-wrapper">
+      <!-- BARRA LATERAL DE SERVIDORES -->
+      <div class="servers-bar">
+        <div class="server-icon active" id="btn-dm" onclick="openDirectMessages()" title="Mensagens Diretas">
+          <i class="fa-solid fa-comments"></i>
         </div>
-        <div>
-          <i class="fa-solid fa-arrow-right-from-bracket input-btn" onclick="logout()" title="Sair da Conta"></i>
+        <div class="server-divider"></div>
+
+        <div id="servers-list"></div>
+
+        <div class="server-icon" onclick="openSearchServers()" title="Explorar Servidores Públicos" style="color: #23a55a;">
+          <i class="fa-solid fa-compass"></i>
+        </div>
+        <div class="server-icon" onclick="createServerPrompt()" title="Criar Servidor" style="color: #23a55a;">
+          <i class="fa-solid fa-plus"></i>
+        </div>
+      </div>
+
+      <!-- SUB-BARRA LATERAL (AMIGOS / CANAIS) -->
+      <div class="sub-sidebar">
+        <div class="sidebar-header" id="sidebar-header-title">
+          <span>Soares Zap</span>
+        </div>
+
+        <div class="channels-list" id="channels-list"></div>
+
+        <!-- PAINEL DO USUÁRIO -->
+        <div class="user-panel">
+          <div class="user-info">
+            <div class="avatar" id="current-user-avatar">?</div>
+            <div style="overflow: hidden;">
+              <div style="font-size: 13px; font-weight: bold; color: white; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;" id="current-user-name">Carregando...</div>
+              <div style="font-size: 10px; color: #23a55a;">● Online</div>
+            </div>
+          </div>
+          <div>
+            <i class="fa-solid fa-arrow-right-from-bracket input-btn" onclick="logout()" title="Sair da Conta"></i>
+          </div>
         </div>
       </div>
     </div>
@@ -189,6 +280,7 @@
     <!-- TELA PRINCIPAL DE CHAT -->
     <div class="chat-area" id="main-chat-area">
       <div class="chat-header">
+        <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
         <span id="chat-title"># geral</span>
       </div>
 
@@ -202,9 +294,9 @@
           </label>
           <input type="file" id="img-upload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
 
-          <input type="text" id="chat-message-input" placeholder="Digite sua mensagem em tempo real..." onkeypress="if(event.key==='Enter') sendMessage()">
+          <input type="text" id="chat-message-input" placeholder="Digite sua mensagem..." onkeypress="if(event.key==='Enter') sendMessage()">
 
-          <i class="fa-solid fa-microphone input-btn" id="mic-btn" onclick="toggleAudioRecord()" title="Gravar Nota de Voz"></i>
+          <i class="fa-solid fa-microphone input-btn" id="mic-btn" onclick="toggleAudioRecord()" title="Gravar Voz"></i>
           <i class="fa-solid fa-paper-plane input-btn" onclick="sendMessage()" style="color: #5865f2;"></i>
         </div>
       </div>
@@ -212,24 +304,31 @@
 
     <!-- TELA DE AMIGOS E DMs -->
     <div class="view-container" id="friends-view">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
+        <h2 style="color: white; font-size: 18px;">Mensagens Diretas</h2>
+      </div>
       <div class="friends-header">
         <div class="friend-tab active">Seus Amigos</div>
-        <div class="friend-tab" onclick="addFriendPrompt()" style="background: #23a55a; color: white;">+ Adicionar Amigo por E-mail</div>
+        <div class="friend-tab" onclick="addFriendPrompt()" style="background: #23a55a; color: white;">+ Adicionar Amigo</div>
       </div>
-      <h3 style="color: #f2f3f5; margin-bottom: 12px; font-size: 16px;">Amigos Adicionados</h3>
+      <h3 style="color: #f2f3f5; margin-bottom: 12px; font-size: 15px;">Amigos Adicionados</h3>
       <div id="friends-list"></div>
     </div>
 
     <!-- TELA DE EXPLORAR SERVIDORES -->
     <div class="view-container" id="search-servers-view">
-      <h2 style="color: white; margin-bottom: 16px;">Explorar Servidores Públicos</h2>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <i class="fa-solid fa-bars menu-toggle-btn" onclick="toggleMobileSidebar()"></i>
+        <h2 style="color: white; font-size: 18px;">Explorar Servidores</h2>
+      </div>
       <div id="public-servers-list"></div>
     </div>
 
   </div>
 
   <script>
-    // Configurações apontando exatamente para o projeto soares-app (soares-app-61b17)
+    // Configurações do projeto soares-app (soares-app-61b17)
     const firebaseConfig = {
       apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
       authDomain: "soares-app-61b17.firebaseapp.com",
@@ -246,12 +345,23 @@
 
     let currentUser = null;
     let isSignUp = false;
+    let selectedAvatarBase64 = "";
     let currentServerId = null;
     let currentChannelId = 'geral';
     let currentTargetDmUid = null;
     let mediaRecorder = null;
     let audioChunks = [];
     let isRecording = false;
+
+    // CONTROLE DO MENU LATERAL MOBILE
+    function toggleMobileSidebar() {
+      document.getElementById('sidebar-wrapper').classList.toggle('open');
+      document.getElementById('sidebar-overlay').classList.toggle('open');
+    }
+    function closeMobileSidebar() {
+      document.getElementById('sidebar-wrapper').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('open');
+    }
 
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -265,29 +375,57 @@
         db.ref('users/' + user.uid).once('value', snapshot => {
           let val = snapshot.val();
           if (!val) {
-            val = { username: user.email.split('@')[0], email: user.email.toLowerCase() };
+            val = { username: user.email.split('@')[0], email: user.email.toLowerCase(), photoUrl: "" };
             db.ref('users/' + user.uid).set(val);
           }
           currentUser = { uid: user.uid, ...val };
+          
           document.getElementById('auth-screen').style.display = 'none';
+          document.getElementById('devs-screen').style.display = 'flex';
+
           document.getElementById('current-user-name').innerText = currentUser.username;
-          document.getElementById('current-user-avatar').innerText = currentUser.username[0].toUpperCase();
+          const avatarEl = document.getElementById('current-user-avatar');
+          if (currentUser.photoUrl) {
+            avatarEl.style.backgroundImage = `url(${currentUser.photoUrl})`;
+            avatarEl.innerText = '';
+          } else {
+            avatarEl.innerText = currentUser.username[0].toUpperCase();
+          }
 
           loadServers();
           openDirectMessages();
         });
       } else {
         document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('devs-screen').style.display = 'none';
       }
     });
+
+    function enterApp() {
+      document.getElementById('devs-screen').style.display = 'none';
+    }
 
     function toggleAuthMode() {
       isSignUp = !isSignUp;
       document.getElementById('auth-title').innerText = isSignUp ? "Criar nova conta" : "Entrar na sua conta";
       document.getElementById('group-username').style.display = isSignUp ? "block" : "none";
+      document.getElementById('group-avatar').style.display = isSignUp ? "flex" : "none";
       document.getElementById('btn-auth-submit').innerText = isSignUp ? "Cadastrar" : "Entrar";
       document.getElementById('auth-toggle-text').innerText = isSignUp ? "Já tem uma conta?" : "Não tem uma conta?";
       document.getElementById('auth-toggle-btn').innerText = isSignUp ? "Entrar" : "Registre-se";
+    }
+
+    function handleAvatarSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        selectedAvatarBase64 = evt.target.result;
+        const preview = document.getElementById('avatar-preview');
+        preview.style.backgroundImage = `url(${selectedAvatarBase64})`;
+        document.getElementById('avatar-icon').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
     }
 
     function handleAuth() {
@@ -299,14 +437,30 @@
 
       if (isSignUp) {
         if (!username) return alert("Preencha o nome de usuário!");
-        auth.createUserWithEmailAndPassword(email, password).then(res => {
-          db.ref('users/' + res.user.uid).set({
-            username: username,
-            email: email,
-            created_at: Date.now()
+        
+        db.ref('users').once('value', snapshot => {
+          let exists = false;
+          snapshot.forEach(child => {
+            if (child.val().username && child.val().username.toLowerCase() === username.toLowerCase()) {
+              exists = true;
+            }
           });
-          showToast("Conta criada com sucesso!");
-        }).catch(err => alert("Erro ao criar conta: " + err.message));
+
+          if (exists) {
+            return alert("Este nome de usuário já está em uso! Escolha outro.");
+          }
+
+          auth.createUserWithEmailAndPassword(email, password).then(res => {
+            db.ref('users/' + res.user.uid).set({
+              username: username,
+              email: email,
+              photoUrl: selectedAvatarBase64 || "",
+              created_at: Date.now()
+            });
+            showToast("Conta criada com sucesso!");
+          }).catch(err => alert("Erro ao criar conta: " + err.message));
+        });
+
       } else {
         auth.signInWithEmailAndPassword(email, password).catch(err => alert("Erro ao entrar: " + err.message));
       }
@@ -319,6 +473,7 @@
     }
 
     function openDirectMessages() {
+      closeMobileSidebar();
       currentServerId = null;
       currentTargetDmUid = null;
       document.getElementById('sidebar-header-title').innerText = "Mensagens Diretas";
@@ -329,10 +484,10 @@
     }
 
     function addFriendPrompt() {
-      const targetEmail = prompt("Digite o e-mail do seu amigo:");
-      if (!targetEmail) return;
+      const targetUsername = prompt("Digite o nome de usuário (Username) do seu amigo:");
+      if (!targetUsername) return;
 
-      const cleanEmail = targetEmail.trim().toLowerCase();
+      const cleanUsername = targetUsername.trim().toLowerCase();
 
       db.ref('users').once('value', snapshot => {
         let foundUid = null;
@@ -340,7 +495,7 @@
 
         snapshot.forEach(child => {
           const u = child.val();
-          if (u.email && u.email.toLowerCase() === cleanEmail) {
+          if (u.username && u.username.toLowerCase() === cleanUsername) {
             foundUid = child.key;
             foundData = u;
           }
@@ -355,7 +510,7 @@
           showToast(`Você e ${foundData.username} agora são amigos!`);
           loadFriends();
         } else {
-          alert("Nenhum usuário encontrado com esse e-mail.");
+          alert("Nenhum usuário encontrado com esse Nome de Usuário.");
         }
       });
     }
@@ -366,7 +521,7 @@
         list.innerHTML = '';
 
         if (!snapshot.exists()) {
-          list.innerHTML = '<p style="color:#949ba4;">Você ainda não possui amigos. Adicione alguém digitando o e-mail no botão acima.</p>';
+          list.innerHTML = '<p style="color:#949ba4; font-size: 13px;">Nenhum amigo adicionado ainda.</p>';
           return;
         }
 
@@ -376,18 +531,18 @@
             const friend = uSnap.val();
             if (!friend) return;
 
+            const avatarStyle = friend.photoUrl ? `background-image: url(${friend.photoUrl});` : '';
+            const avatarChar = friend.photoUrl ? '' : (friend.username || 'U')[0].toUpperCase();
+
             const div = document.createElement('div');
             div.className = 'card-item';
             div.innerHTML = `
-              <div style="display:flex; align-items:center; gap:12px;">
-                <div class="avatar">${(friend.username || 'U')[0].toUpperCase()}</div>
-                <div>
-                  <strong style="color:white;">${friend.username}</strong><br>
-                  <small style="color:#949ba4">${friend.email}</small>
-                </div>
+              <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+                <div class="avatar" style="${avatarStyle}">${avatarChar}</div>
+                <strong style="color:white; font-size: 14px; text-overflow:ellipsis; overflow:hidden;">@${friend.username}</strong>
               </div>
-              <button class="btn-auth" style="width:auto; padding:6px 14px;" onclick="startPrivateChat('${friendUid}', '${friend.username}')">
-                <i class="fa-solid fa-message"></i> Conversar
+              <button class="btn-auth" style="width:auto; padding:6px 12px; font-size: 12px;" onclick="startPrivateChat('${friendUid}', '${friend.username}')">
+                Conversar
               </button>
             `;
             list.appendChild(div);
@@ -397,6 +552,7 @@
     }
 
     function startPrivateChat(friendUid, friendUsername) {
+      closeMobileSidebar();
       currentServerId = 'DIRECT_MESSAGES';
       currentTargetDmUid = friendUid;
       currentChannelId = getDmChannelId(currentUser.uid, friendUid);
@@ -429,10 +585,13 @@
 
           let bodyHtml = `<p>${msg.text || ''}</p>`;
           if (msg.image) bodyHtml += `<img src="${msg.image}" class="message-img">`;
-          if (msg.audio) bodyHtml += `<audio controls src="${msg.audio}" style="margin-top:6px; display:block;"></audio>`;
+          if (msg.audio) bodyHtml += `<audio controls src="${msg.audio}" style="margin-top:6px; max-width: 100%; display:block;"></audio>`;
+
+          const avatarStyle = msg.senderPhoto ? `background-image: url(${msg.senderPhoto});` : '';
+          const avatarChar = msg.senderPhoto ? '' : (msg.senderName || 'U')[0].toUpperCase();
 
           div.innerHTML = `
-            <div class="avatar">${(msg.senderName || 'U')[0].toUpperCase()}</div>
+            <div class="avatar" style="${avatarStyle}">${avatarChar}</div>
             <div class="message-content">
               <h4>${msg.senderName || 'Usuário'} <span>${new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></h4>
               ${bodyHtml}
@@ -458,6 +617,7 @@
       db.ref(path).push({
         senderId: currentUser.uid,
         senderName: currentUser.username,
+        senderPhoto: currentUser.photoUrl || "",
         text: text,
         timestamp: Date.now(),
         ...extraData
@@ -495,7 +655,7 @@
           micBtn.style.color = '#f23f43';
           showToast("Gravando áudio...");
         } catch(err) {
-          alert("Permissão do microfone é necessária para gravar áudio.");
+          alert("Permissão de microfone necessária para gravar.");
         }
       } else {
         mediaRecorder.stop();
@@ -536,6 +696,7 @@
     }
 
     function selectServer(serverId, server) {
+      closeMobileSidebar();
       currentServerId = serverId;
       document.getElementById('sidebar-header-title').innerText = server.name;
       document.getElementById('main-chat-area').style.display = 'flex';
@@ -551,6 +712,7 @@
         item.className = 'channel-item';
         item.innerHTML = `<i class="fa-solid fa-hashtag"></i> ${ch.name}`;
         item.onclick = () => {
+          closeMobileSidebar();
           currentChannelId = cId;
           document.getElementById('chat-title').innerText = `# ${ch.name}`;
           listenMessages();
@@ -564,6 +726,7 @@
     }
 
     function openSearchServers() {
+      closeMobileSidebar();
       document.getElementById('main-chat-area').style.display = 'none';
       document.getElementById('friends-view').style.display = 'none';
       document.getElementById('search-servers-view').style.display = 'block';
@@ -576,8 +739,8 @@
           const div = document.createElement('div');
           div.className = 'card-item';
           div.innerHTML = `
-            <div><strong style="color:white;">${s.name}</strong></div>
-            <button class="btn-auth" style="width:auto; padding:6px 16px;" onclick="joinServer('${child.key}')">Entrar no Servidor</button>
+            <div><strong style="color:white; font-size:14px;">${s.name}</strong></div>
+            <button class="btn-auth" style="width:auto; padding:6px 12px; font-size:12px;" onclick="joinServer('${child.key}')">Entrar</button>
           `;
           list.appendChild(div);
         });
