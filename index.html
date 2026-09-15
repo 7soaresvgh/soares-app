@@ -9,7 +9,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=GG+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -40,7 +40,6 @@
             color: #dbdee1;
         }
 
-        /* Custom Scrollbars */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -56,21 +55,10 @@
             background: #5865f2;
         }
 
-        /* Glassmorphism & Animations */
         .glass-panel {
-            background: rgba(43, 45, 49, 0.9);
+            background: rgba(43, 45, 49, 0.95);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .speaking-ring {
-            box-shadow: 0 0 0 3px #23a55a;
-            animation: pulse-ring 1.2s infinite ease-in-out;
-        }
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0px rgba(35, 165, 90, 0.7); }
-            50% { box-shadow: 0 0 0 6px rgba(35, 165, 90, 0.2); }
-            100% { box-shadow: 0 0 0 0px rgba(35, 165, 90, 0); }
         }
 
         .wave-bar {
@@ -96,34 +84,32 @@
     <audio id="audio-message" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
     <audio id="audio-call" src="https://assets.mixkit.co/active_storage/sfx/1350/1350-preview.mp3" preload="auto"></audio>
 
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col space-y-2 pointer-events-none"></div>
+
     <!-- AUTHENTICATION SCREEN -->
     <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1e1f22] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#5865f2]/20 via-[#1e1f22] to-[#111214]">
         <div class="w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border border-white/10 text-white relative overflow-hidden">
-            <!-- Decorative Glow -->
             <div class="absolute -top-12 -right-12 w-32 h-32 bg-[#5865f2]/30 rounded-full blur-2xl pointer-events-none"></div>
             
-            <!-- Logo Header -->
             <div class="text-center mb-6">
                 <div class="inline-flex p-4 bg-[#5865f2] rounded-2xl mb-3 shadow-lg shadow-[#5865f2]/40">
                     <i data-lucide="zap" class="w-10 h-10 text-white stroke-[2.5]"></i>
                 </div>
                 <h1 class="text-3xl font-extrabold tracking-tight text-white">Soares Zap</h1>
-                <p class="text-xs text-discord-muted mt-1.5 font-medium" id="auth-subtitle">Estamos muito animados em ver você novamente!</p>
+                <p class="text-xs text-discord-muted mt-1.5 font-medium" id="auth-subtitle">Sua comunidade realtime Discord / WhatsApp!</p>
             </div>
 
-            <!-- Auth Tabs -->
             <div class="flex border-b border-white/10 mb-6">
                 <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 pb-3 font-bold text-center border-b-2 border-[#5865f2] text-white transition-all">Entrar</button>
                 <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 pb-3 font-bold text-center border-b-2 border-transparent text-discord-muted hover:text-white transition-all">Criar Conta</button>
             </div>
 
-            <!-- Auth Error Message Alert Banner -->
-            <div id="auth-error" class="hidden mb-4 p-3.5 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-medium flex items-start space-x-2 animate-in fade-in zoom-in duration-200">
+            <div id="auth-error" class="hidden mb-4 p-3.5 rounded-xl bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-medium flex items-start space-x-2">
                 <i data-lucide="alert-circle" class="w-4 h-4 text-red-400 shrink-0 mt-0.5"></i>
                 <span id="auth-error-text" class="flex-1"></span>
             </div>
 
-            <!-- Auth Form -->
             <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
                 <div id="field-username" class="hidden">
                     <label class="block text-xs font-bold text-discord-muted uppercase tracking-wider mb-1.5">Nome de Usuário <span class="text-red-400">*</span></label>
@@ -147,14 +133,14 @@
             </form>
 
             <div class="mt-6 text-center">
-                <button onclick="guestLogin()" class="text-xs text-discord-muted hover:text-white transition-all underline">Entrar no Modo Demo de Teste</button>
+                <button onclick="guestLogin()" class="text-xs text-discord-muted hover:text-white transition-all underline">Entrar como Convidado Demo</button>
             </div>
         </div>
     </div>
 
     <!-- INSTAGRAM FOLLOW POPUP MODAL -->
     <div id="insta-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
-        <div class="w-full max-w-sm glass-panel p-6 rounded-2xl shadow-2xl border border-white/20 text-center relative animate-in fade-in zoom-in duration-200">
+        <div class="w-full max-w-sm glass-panel p-6 rounded-2xl shadow-2xl border border-white/20 text-center relative">
             <button onclick="closeInstaModal()" class="absolute top-4 right-4 p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-all">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
@@ -164,7 +150,7 @@
             </div>
 
             <h2 class="text-xl font-extrabold text-white mb-1">Me siga no Instagram!</h2>
-            <p class="text-xs text-discord-muted mb-6">Fique por dentro das atualizações do Soares Zap!</p>
+            <p class="text-xs text-discord-muted mb-6">Fique por dentro das novidades do Soares Zap!</p>
 
             <div class="space-y-3 mb-6">
                 <a href="https://instagram.com/7soaresvgh" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-pink-500/10 to-purple-500/10 hover:from-pink-500/20 hover:to-purple-500/20 border border-pink-500/30 transition-all text-white font-semibold">
@@ -416,11 +402,35 @@
                     <i data-lucide="user-plus" class="w-5 h-5 text-[#5865f2]"></i>
                     <span>Adicionar Amigo</span>
                 </h2>
-                <p class="text-xs text-discord-muted mb-4">Digite o e-mail ou nome de usuário exato.</p>
-                <input id="friend-input" type="text" placeholder="Nome de usuário ou e-mail..." class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-[#5865f2] mb-4">
-                <div class="flex justify-end space-x-3">
-                    <button onclick="closeModal('add-friend-modal')" class="text-sm text-discord-muted hover:text-white px-4 py-2">Cancelar</button>
-                    <button onclick="submitAddFriend()" class="bg-[#5865f2] hover:bg-[#4752c4] text-white font-bold px-5 py-2 rounded-xl transition-all">Enviar Pedido</button>
+                <p class="text-xs text-discord-muted mb-4">Digite o e-mail exato ou nome do usuário cadastrado.</p>
+                
+                <div class="space-y-3 mb-4">
+                    <input id="friend-input" type="text" placeholder="seuamigo@email.com ou nome..." class="w-full bg-[#1e1f22] p-3 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-[#5865f2]">
+                    
+                    <div id="add-friend-status" class="hidden p-3 rounded-xl text-xs flex flex-col space-y-1"></div>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <button onclick="toggleRegisteredUsersList()" class="text-xs text-[#5865f2] hover:underline flex items-center space-x-1">
+                        <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                        <span>Ver usuários disponíveis</span>
+                    </button>
+
+                    <div class="flex space-x-2">
+                        <button onclick="closeModal('add-friend-modal')" class="text-sm text-discord-muted hover:text-white px-3 py-2">Cancelar</button>
+                        <button id="btn-submit-friend" onclick="submitAddFriend()" class="bg-[#5865f2] hover:bg-[#4752c4] text-white font-bold px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5">
+                            <span>Adicionar</span>
+                            <i id="friend-spinner" data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin hidden"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Debug/Registered Users Box -->
+                <div id="registered-users-box" class="hidden mt-4 pt-3 border-t border-white/10">
+                    <span class="text-[11px] font-bold text-discord-muted uppercase tracking-wider block mb-2">Usuários Cadastrados no Sistema:</span>
+                    <div id="registered-users-list" class="max-h-36 overflow-y-auto space-y-1.5 pr-1 text-xs">
+                        <!-- Populated dynamically -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -466,13 +476,28 @@
         <img id="lightbox-img" src="" class="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain border border-white/10">
     </div>
 
-    <!-- FIREBASE MODULE & REALTIME BACKEND HANDLERS -->
+    <!-- FIREBASE REALTIME DATABASE & AUTH BACKEND SCRIPT -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, child, push, onValue, off, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Global Application State
+        // Firebase Configuration using Realtime Database
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6tML_eBulEANeWXNnD87kVbBMEVMW1wU",
+            authDomain: "soares-zap.firebaseapp.com",
+            databaseURL: "https://soares-zap-default-rtdb.firebaseio.com",
+            projectId: "soares-zap",
+            storageBucket: "soares-zap.firebasestorage.app",
+            messagingSenderId: "19280861322",
+            appId: "1:19280861322:web:a8209a4aa491f7c0eb7573"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const rtdb = getDatabase(app);
+
+        // Global State Manager
         window.appState = {
             currentUser: null,
             activeAuthTab: 'login',
@@ -480,6 +505,7 @@
             activeServerId: null,
             activeChannelId: null,
             activeDmUserId: null,
+            activeDmChannelId: null,
             inVoiceChannel: false,
             voiceChannelId: null,
             servers: [
@@ -499,164 +525,123 @@
                 { id: 'pub_1', name: 'Comunidade Soares Zap', icon: '⚡', description: 'Servidor oficial para todos os membros!', membersCount: 15 },
                 { id: 'pub_2', name: 'Games & Calls', icon: '🎮', description: 'Encontre uma sala de voz para jogar!', membersCount: 8 }
             ],
-            friends: [],
-            dmMessages: {}
+            friendsList: [],
+            dmMessages: {},
+            unsubscribers: []
         };
-
-        // Explicit Firebase Configuration as requested
-        const firebaseConfig = {
-            apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
-            authDomain: "soares-zap.firebaseapp.com",
-            projectId: "soares-zap",
-            storageBucket: "soares-zap.firebasestorage.app",
-            messagingSenderId: "19280861322",
-            appId: "1:19280861322:web:a8209a4aa491f7c0eb7573",
-            measurementId: "G-RCKF3Y8EZR"
-        };
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'soares-zap-app';
-
-        let app, auth, db;
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-        } catch (e) {
-            console.warn("Firebase initialization warning:", e);
-        }
 
         window.firebaseServices = {
-            app, auth, db, appId,
+            app, auth, rtdb,
             createUserWithEmailAndPassword,
             signInWithEmailAndPassword,
-            signOut
+            signOut,
+            ref, set, get, child, push, onValue, off, update
         };
 
-        // Map Firebase Auth Errors to Friendly Messages
-        window.getFriendlyAuthErrorMessage = function(errorCode) {
-            switch (errorCode) {
-                case 'auth/invalid-email':
-                    return 'O endereço de e-mail inserido é inválido. Verifique se digitou corretamente.';
-                case 'auth/user-not-found':
-                    return 'Nenhuma conta foi encontrada com este e-mail. Crie uma conta para continuar.';
-                case 'auth/wrong-password':
-                    return 'Senha incorreta. Verifique suas credenciais e tente novamente.';
-                case 'auth/invalid-credential':
-                    return 'E-mail ou senha incorretos. Confira seus dados.';
-                case 'auth/email-already-in-use':
-                    return 'Este e-mail já está em uso por outro usuário. Tente fazer login.';
-                case 'auth/weak-password':
-                    return 'Sua senha é muito fraca. Digite pelo menos 6 caracteres.';
-                case 'auth/operation-not-allowed':
-                    return 'O login por e-mail e senha não está ativado no Firebase Console.';
-                case 'auth/user-disabled':
-                    return 'Esta conta de usuário foi desativada.';
-                case 'auth/too-many-requests':
-                    return 'Muitas tentativas malsucedidas. Aguarde um instante e tente novamente.';
-                default:
-                    return 'Ocorreu um erro ao processar a solicitação. Tente novamente mais tarde.';
-            }
+        // Helper to generate deterministic DM ID for two users
+        window.getDeterministicDmId = function(uid1, uid2) {
+            return uid1 < uid2 ? `dm_${uid1}_${uid2}` : `dm_${uid2}_${uid1}`;
         };
 
-        // Load or initialize fallback user profile safely in Firestore
-        async function ensureUserProfileExists(user, defaultUsername = '') {
-            if (!db || !user) return;
+        // Ensure user profile is safely saved in RTDB at `users/{uid}`
+        async function syncUserProfileRTDB(user, customName = '') {
+            if (!rtdb || !user) return null;
+            const userRef = ref(rtdb, `users/${user.uid}`);
+            
             try {
-                // RULE 1 Strict Path: /artifacts/{appId}/users/{userId}/profile/user_doc
-                const userDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data');
-                const docSnap = await getDoc(userDocRef);
+                const snapshot = await get(userRef);
+                const normalizedEmail = (user.email || '').toLowerCase().trim();
+                let profile = {};
 
-                let profileData;
-                if (!docSnap.exists()) {
-                    profileData = {
+                if (snapshot.exists()) {
+                    profile = snapshot.val();
+                    // Always guarantee email is saved as lowercase
+                    if (!profile.email || profile.email !== normalizedEmail) {
+                        profile.email = normalizedEmail;
+                        await update(userRef, { email: normalizedEmail });
+                    }
+                } else {
+                    profile = {
                         uid: user.uid,
-                        name: defaultUsername || user.displayName || user.email.split('@')[0],
-                        email: user.email,
+                        name: customName || user.displayName || normalizedEmail.split('@')[0],
+                        email: normalizedEmail,
                         avatar: user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
                         status: 'online',
-                        createdAt: new Date().toISOString()
+                        createdAt: Date.now()
                     };
-                    await setDoc(userDocRef, profileData);
-                } else {
-                    profileData = docSnap.data();
+                    await set(userRef, profile);
                 }
-                return profileData;
+                return profile;
             } catch (err) {
-                console.warn("User profile fetch/fallback notice:", err);
+                console.error("RTDB Profile sync error:", err);
                 return {
                     uid: user.uid,
-                    name: defaultUsername || user.email.split('@')[0],
-                    email: user.email,
+                    name: customName || user.email.split('@')[0],
+                    email: (user.email || '').toLowerCase(),
                     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
                     status: 'online'
                 };
             }
         }
 
-        // Firebase Auth State Observer
-        if (auth) {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    const profile = await ensureUserProfileExists(user);
-                    window.appState.currentUser = {
-                        id: user.uid,
-                        name: profile?.name || user.email.split('@')[0],
-                        email: user.email,
-                        avatar: profile?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
-                        status: profile?.status || 'online'
-                    };
-                    setupRealtimeSync();
-                    showMainApp();
+        // Setup realtime listeners for user friends and DM messages
+        function setupRealtimeListeners(currentUser) {
+            // Clean up existing listeners
+            window.appState.unsubscribers.forEach(unsub => unsub());
+            window.appState.unsubscribers = [];
+
+            // 1. Listen for user friends at `friends/{uid}`
+            const friendsRef = ref(rtdb, `friends/${currentUser.uid}`);
+            const unsubFriends = onValue(friendsRef, async (snapshot) => {
+                if (snapshot.exists()) {
+                    const friendIds = Object.keys(snapshot.val());
+                    
+                    // Fetch profile details for each friend client-side
+                    const friendsProfiles = [];
+                    for (const fUid of friendIds) {
+                        try {
+                            const fSnap = await get(ref(rtdb, `users/${fUid}`));
+                            if (fSnap.exists()) {
+                                friendsProfiles.push(fSnap.val());
+                            }
+                        } catch (e) {
+                            console.warn("Could not fetch friend profile:", fUid);
+                        }
+                    }
+                    window.appState.friendsList = friendsProfiles;
                 } else {
-                    window.appState.currentUser = null;
-                    showAuthScreen();
+                    window.appState.friendsList = [];
+                }
+                if (window.appState.activeView === 'dms') {
+                    window.renderFriendsList();
                 }
             });
+            window.appState.unsubscribers.push(() => off(friendsRef));
         }
 
-        // Safe Firestore Stream with Simple Queries (No Complex Indexes Required)
-        function setupRealtimeSync() {
-            if (!db || !window.appState.currentUser) return;
-            try {
-                // RULE 1 Path for Public Messages
-                const msgsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
-                
-                // RULE 2: Simple query without complex orderBy/where to prevent index failures
-                onSnapshot(msgsCollection, (snapshot) => {
-                    snapshot.docChanges().forEach((change) => {
-                        if (change.type === "added") {
-                            const data = change.doc.data();
-                            if (data.channelId && data.serverId) {
-                                const server = window.appState.servers.find(s => s.id === data.serverId);
-                                if (server) {
-                                    if (!server.messages) server.messages = {};
-                                    if (!server.messages[data.channelId]) server.messages[data.channelId] = [];
-                                    if (!server.messages[data.channelId].some(m => m.id === data.id)) {
-                                        server.messages[data.channelId].push(data);
-                                        if (window.appState.activeServerId === data.serverId && window.appState.activeChannelId === data.channelId) {
-                                            window.renderMessages();
-                                            playAudioNotification('audio-message');
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
-                }, (err) => console.log("Realtime stream fallback active:", err));
-            } catch (err) {
-                console.warn("Realtime sync fallback:", err);
+        // Firebase Auth State Observer
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const profile = await syncUserProfileRTDB(user);
+                window.appState.currentUser = profile;
+                setupRealtimeListeners(profile);
+                window.showMainApp();
+            } else {
+                window.appState.currentUser = null;
+                window.showAuthScreen();
             }
-        }
+        });
 
-        window.ensureUserProfileExists = ensureUserProfileExists;
+        window.syncUserProfileRTDB = syncUserProfileRTDB;
     </script>
 
-    <!-- UI INTERACTION HANDLERS -->
+    <!-- UI & BUSINESS LOGIC SCRIPT -->
     <script>
         let mediaRecorder = null;
         let audioChunks = [];
         let recordTimerInterval = null;
         let recordSeconds = 0;
+        let activeDmListenerRef = null;
 
         window.onload = function() {
             lucide.createIcons();
@@ -664,10 +649,27 @@
             if (savedUser && (!window.firebaseServices || !window.firebaseServices.auth.currentUser)) {
                 window.appState.currentUser = JSON.parse(savedUser);
                 showMainApp();
-            } else if (!window.firebaseServices || !window.firebaseServices.auth.currentUser) {
-                showAuthScreen();
             }
         };
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClass = type === 'error' ? 'bg-red-600' : type === 'success' ? 'bg-brand-green' : 'bg-[#5865f2]';
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in zoom-in duration-200 pointer-events-auto border border-white/20`;
+            toast.innerHTML = `
+                <i data-lucide="${type === 'error' ? 'alert-triangle' : type === 'success' ? 'check-circle' : 'info'}" class="w-4 h-4 shrink-0"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
 
         function switchAuthTab(tab) {
             window.appState.activeAuthTab = tab;
@@ -716,7 +718,6 @@
                 return;
             }
 
-            // Visual Loading Indicator
             spinner.classList.remove('hidden');
             submitBtn.disabled = true;
 
@@ -726,22 +727,20 @@
                 if (auth && createUserWithEmailAndPassword && signInWithEmailAndPassword) {
                     if (window.appState.activeAuthTab === 'register') {
                         const userCred = await createUserWithEmailAndPassword(auth, email, password);
-                        if (window.ensureUserProfileExists) {
-                            await window.ensureUserProfileExists(userCred.user, username);
-                        }
+                        await window.syncUserProfileRTDB(userCred.user, username);
+                        showToast("Conta criada com sucesso!", "success");
                     } else {
                         const userCred = await signInWithEmailAndPassword(auth, email, password);
-                        if (window.ensureUserProfileExists) {
-                            await window.ensureUserProfileExists(userCred.user);
-                        }
+                        await window.syncUserProfileRTDB(userCred.user);
+                        showToast("Bem-vindo de volta!", "success");
                     }
                 } else {
-                    // Local State Demo Mode Fallback
+                    // Fallback local mode
                     setTimeout(() => {
                         const newUser = {
-                            id: 'usr_' + Date.now(),
+                            uid: 'usr_' + Date.now(),
                             name: username || email.split('@')[0],
-                            email: email,
+                            email: email.toLowerCase(),
                             avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
                             status: 'online'
                         };
@@ -750,21 +749,23 @@
                         spinner.classList.add('hidden');
                         submitBtn.disabled = false;
                         showMainApp();
-                    }, 600);
+                    }, 500);
                 }
             } catch (err) {
                 spinner.classList.add('hidden');
                 submitBtn.disabled = false;
                 
-                const errorCode = err.code || 'auth/unknown';
-                const friendlyMsg = window.getFriendlyAuthErrorMessage ? window.getFriendlyAuthErrorMessage(errorCode) : err.message;
-                showAuthError(friendlyMsg);
+                let msg = err.message;
+                if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') msg = "E-mail ou senha incorretos.";
+                if (err.code === 'auth/email-already-in-use') msg = "Este e-mail já está em uso.";
+                if (err.code === 'auth/weak-password') msg = "A senha deve ter pelo menos 6 caracteres.";
+                showAuthError(msg);
             }
         }
 
         function guestLogin() {
             const guestUser = {
-                id: 'guest_' + Math.floor(Math.random() * 10000),
+                uid: 'guest_' + Math.floor(Math.random() * 10000),
                 name: 'Visitante_' + Math.floor(Math.random() * 1000),
                 email: 'convidado@soareszap.com',
                 avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop',
@@ -773,6 +774,7 @@
             window.appState.currentUser = guestUser;
             localStorage.setItem('soares_zap_user', JSON.stringify(guestUser));
             showMainApp();
+            showToast("Entrou no Modo Convidado", "info");
         }
 
         function handleLogout() {
@@ -794,12 +796,11 @@
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
             
-            // Show Instagram Follow Modal right after login
             document.getElementById('insta-modal').classList.remove('hidden');
 
             if (window.appState.currentUser) {
                 document.getElementById('user-name').innerText = window.appState.currentUser.name;
-                document.getElementById('user-avatar').src = window.appState.currentUser.avatar;
+                document.getElementById('user-avatar').src = window.appState.currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop';
                 document.getElementById('user-status-text').innerText = (window.appState.currentUser.status || 'online').toUpperCase();
             }
 
@@ -880,9 +881,10 @@
             lucide.createIcons();
         }
 
-        function renderFriendsList() {
+        window.renderFriendsList = function() {
             document.getElementById('header-title').innerText = 'Soares Zap';
             const content = document.getElementById('sidebar-content');
+            const friends = window.appState.friendsList || [];
 
             content.innerHTML = `
                 <button onclick="openModal('add-friend-modal')" class="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded bg-[#5865f2] hover:bg-[#4752c4] text-white mb-3 font-bold text-xs transition-all shadow">
@@ -891,27 +893,37 @@
                 </button>
                 
                 <div class="text-[11px] font-bold text-discord-muted uppercase px-2 py-1 tracking-wider">
-                    Amigos (${window.appState.friends.length})
+                    Amigos (${friends.length})
                 </div>
 
-                ${window.appState.friends.length === 0 ? `
-                    <p class="text-xs text-discord-muted px-2 py-3 italic">Nenhum amigo adicionado ainda. Adicione amigos para conversar!</p>
-                ` : window.appState.friends.map(f => `
-                    <button onclick="selectDM('${f.id}')" class="w-full flex items-center space-x-2.5 px-2.5 py-2 rounded hover:bg-white/5 text-discord-muted hover:text-white transition-all ${window.appState.activeDmUserId === f.id ? 'bg-white/10 !text-white' : ''}">
+                ${friends.length === 0 ? `
+                    <p class="text-xs text-discord-muted px-2 py-3 italic">Nenhum amigo adicionado ainda. Clique acima para adicionar!</p>
+                ` : friends.map(f => `
+                    <button onclick="selectDM('${f.uid}')" class="w-full flex items-center space-x-2.5 px-2.5 py-2 rounded hover:bg-white/5 text-discord-muted hover:text-white transition-all ${window.appState.activeDmUserId === f.uid ? 'bg-white/10 !text-white' : ''}">
                         <div class="relative shrink-0">
-                            <img src="${f.avatar}" class="w-8 h-8 rounded-full object-cover">
+                            <img src="${f.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}" class="w-8 h-8 rounded-full object-cover">
                             <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-green border-2 border-[#2b2d31]"></div>
                         </div>
-                        <span class="text-sm font-medium truncate">${f.name}</span>
+                        <div class="flex flex-col min-w-0 text-left">
+                            <span class="text-sm font-semibold truncate leading-tight">${f.name}</span>
+                            <span class="text-[10px] text-discord-muted truncate">${f.email}</span>
+                        </div>
                     </button>
                 `).join('')}
             `;
             lucide.createIcons();
-        }
+        };
 
         function selectChannel(channelId) {
             window.appState.activeChannelId = channelId;
             window.appState.activeDmUserId = null;
+            window.appState.activeDmChannelId = null;
+
+            if (activeDmListenerRef && window.firebaseServices) {
+                window.firebaseServices.off(activeDmListenerRef);
+                activeDmListenerRef = null;
+            }
+
             const server = window.appState.servers.find(s => s.id === window.appState.activeServerId);
             const channel = server ? server.channels.find(c => c.id === channelId) : null;
 
@@ -924,16 +936,43 @@
             if (server) renderChannelsList(server);
         }
 
-        function selectDM(friendId) {
-            window.appState.activeDmUserId = friendId;
-            const friend = window.appState.friends.find(f => f.id === friendId);
+        // Direct Messaging Session Initialization with Deterministic DM ID
+        function selectDM(friendUid) {
+            const currentUid = window.appState.currentUser?.uid;
+            if (!currentUid || !friendUid) return;
+
+            window.appState.activeDmUserId = friendUid;
+            const dmId = window.getDeterministicDmId(currentUid, friendUid);
+            window.appState.activeDmChannelId = dmId;
+
+            const friend = window.appState.friendsList.find(f => f.uid === friendUid);
 
             document.getElementById('main-header-icon').setAttribute('data-lucide', 'at-sign');
             document.getElementById('main-header-title').innerText = friend ? friend.name : 'Amigo';
-            document.getElementById('main-header-desc').innerText = `Mensagens diretas com @${friend ? friend.name : ''}`;
+            document.getElementById('main-header-desc').innerText = `Mensagens diretas com ${friend ? friend.email : ''}`;
             document.getElementById('chat-input').placeholder = `Mensagem para @${friend ? friend.name : ''}...`;
             
             document.getElementById('btn-dm-call').classList.remove('hidden');
+
+            // Listen in real-time to DM channel at `direct_messages/{dmId}`
+            if (window.firebaseServices && window.firebaseServices.rtdb) {
+                const { rtdb, ref, onValue, off } = window.firebaseServices;
+                
+                if (activeDmListenerRef) off(activeDmListenerRef);
+
+                activeDmListenerRef = ref(rtdb, `direct_messages/${dmId}`);
+                onValue(activeDmListenerRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const msgsObj = snapshot.val();
+                        window.appState.dmMessages[dmId] = Object.values(msgsObj);
+                    } else {
+                        window.appState.dmMessages[dmId] = [];
+                    }
+                    if (window.appState.activeDmChannelId === dmId) {
+                        renderMessages();
+                    }
+                });
+            }
 
             renderMessages();
             renderFriendsList();
@@ -946,8 +985,8 @@
             if (window.appState.activeView === 'server') {
                 const server = window.appState.servers.find(s => s.id === window.appState.activeServerId);
                 messages = (server && server.messages && server.messages[window.appState.activeChannelId]) || [];
-            } else if (window.appState.activeDmUserId) {
-                messages = window.appState.dmMessages[window.appState.activeDmUserId] || [];
+            } else if (window.appState.activeDmChannelId) {
+                messages = window.appState.dmMessages[window.appState.activeDmChannelId] || [];
             }
 
             if (messages.length === 0) {
@@ -955,7 +994,7 @@
                     <div class="flex flex-col items-center justify-center h-full text-center text-discord-muted">
                         <i data-lucide="message-square" class="w-12 h-12 mb-3 text-[#5865f2] stroke-1"></i>
                         <p class="font-bold text-white text-base">Nenhuma mensagem por aqui!</p>
-                        <p class="text-xs mt-1">Envie uma mensagem para começar no Soares Zap.</p>
+                        <p class="text-xs mt-1">Envie uma mensagem para começar a conversar.</p>
                     </div>
                 `;
                 lucide.createIcons();
@@ -964,7 +1003,7 @@
 
             container.innerHTML = messages.map(m => `
                 <div class="flex space-x-3 group hover:bg-white/[0.02] -mx-4 px-4 py-1.5 rounded transition-all relative">
-                    <img src="${m.avatar}" class="w-9 h-9 rounded-full object-cover mt-0.5 shrink-0">
+                    <img src="${m.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}" class="w-9 h-9 rounded-full object-cover mt-0.5 shrink-0">
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center space-x-2">
                             <span class="font-bold text-white text-sm hover:underline cursor-pointer">${m.senderName}</span>
@@ -1009,17 +1048,15 @@
             }
         }
 
-        function addMessageToCurrentStore(payload) {
+        async function addMessageToCurrentStore(payload) {
             if (!window.appState.currentUser) return;
 
             const newMsg = {
                 id: 'm_' + Date.now(),
-                senderId: window.appState.currentUser.id,
+                senderId: window.appState.currentUser.uid,
                 senderName: window.appState.currentUser.name,
                 avatar: window.appState.currentUser.avatar,
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                serverId: window.appState.activeServerId,
-                channelId: window.appState.activeChannelId,
                 ...payload
             };
 
@@ -1029,22 +1066,174 @@
                     if (!server.messages) server.messages = {};
                     if (!server.messages[window.appState.activeChannelId]) server.messages[window.appState.activeChannelId] = [];
                     server.messages[window.appState.activeChannelId].push(newMsg);
-                    
-                    const { db, appId } = window.firebaseServices || {};
-                    if (db) {
-                        try {
-                            const msgsRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
-                            addDoc(msgsRef, newMsg);
-                        } catch(e) {}
+                }
+            } else if (window.appState.activeDmChannelId) {
+                const dmId = window.appState.activeDmChannelId;
+                if (!window.appState.dmMessages[dmId]) window.appState.dmMessages[dmId] = [];
+                window.appState.dmMessages[dmId].push(newMsg);
+
+                // Persist to RTDB at `direct_messages/{dmId}`
+                if (window.firebaseServices && window.firebaseServices.rtdb) {
+                    const { rtdb, ref, push } = window.firebaseServices;
+                    try {
+                        const dmRef = ref(rtdb, `direct_messages/${dmId}`);
+                        await push(dmRef, newMsg);
+                    } catch (e) {
+                        console.error("Failed to push DM message:", e);
                     }
                 }
-            } else if (window.appState.activeDmUserId) {
-                if (!window.appState.dmMessages[window.appState.activeDmUserId]) window.appState.dmMessages[window.appState.activeDmUserId] = [];
-                window.appState.dmMessages[window.appState.activeDmUserId].push(newMsg);
             }
 
             renderMessages();
             playAudioNotification('audio-message');
+        }
+
+        // Search Friend via Client-Side Filtering on `users` collection
+        // Guarantee ZERO Firebase index restrictions required!
+        async function submitAddFriend() {
+            const inputEl = document.getElementById('friend-input');
+            const searchVal = inputEl.value.trim().toLowerCase();
+            const statusBox = document.getElementById('add-friend-status');
+            const spinner = document.getElementById('friend-spinner');
+
+            if (!searchVal) {
+                statusBox.className = "p-3 rounded-xl text-xs bg-red-500/20 text-red-300 border border-red-500/40 block";
+                statusBox.innerHTML = "Por favor, insira o e-mail ou nome do usuário.";
+                return;
+            }
+
+            statusBox.className = "hidden";
+            spinner.classList.remove('hidden');
+
+            try {
+                const { rtdb, ref, get, set } = window.firebaseServices || {};
+                const currentUser = window.appState.currentUser;
+
+                if (!rtdb || !currentUser) {
+                    // Fallback Demo Mode
+                    setTimeout(() => {
+                        spinner.classList.add('hidden');
+                        const fakeFriend = {
+                            uid: 'f_' + Date.now(),
+                            name: searchVal.split('@')[0],
+                            email: searchVal,
+                            avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop',
+                            status: 'online'
+                        };
+                        window.appState.friendsList.push(fakeFriend);
+                        renderFriendsList();
+                        closeModal('add-friend-modal');
+                        showToast(`Amigo ${fakeFriend.name} adicionado!`, "success");
+                    }, 500);
+                    return;
+                }
+
+                // FETCH ALL USERS AT ONCE CLIENT-SIDE TO PREVENT ANY FIREBASE INDEX RESTRICTIONS!
+                const usersSnap = await get(ref(rtdb, 'users'));
+                
+                if (!usersSnap.exists()) {
+                    spinner.classList.add('hidden');
+                    statusBox.className = "p-3 rounded-xl text-xs bg-red-500/20 text-red-300 border border-red-500/40 block";
+                    statusBox.innerHTML = "Nenhum usuário cadastrado no sistema ainda.";
+                    return;
+                }
+
+                const allUsers = Object.values(usersSnap.val());
+                
+                // Client-side exact or partial matching normalized to lowercase
+                const matchedUser = allUsers.find(u => 
+                    u.uid !== currentUser.uid && (
+                        (u.email && u.email.toLowerCase() === searchVal) ||
+                        (u.name && u.name.toLowerCase() === searchVal)
+                    )
+                );
+
+                spinner.classList.add('hidden');
+
+                if (matchedUser) {
+                    // Save friendship for BOTH users symmetrically
+                    await set(ref(rtdb, `friends/${currentUser.uid}/${matchedUser.uid}`), true);
+                    await set(ref(rtdb, `friends/${matchedUser.uid}/${currentUser.uid}`), true);
+
+                    inputEl.value = '';
+                    closeModal('add-friend-modal');
+                    showToast(`Amigo @${matchedUser.name} adicionado com sucesso!`, "success");
+                    
+                    // Automatically open DM session with new friend
+                    selectDM(matchedUser.uid);
+                } else {
+                    statusBox.className = "p-3 rounded-xl text-xs bg-red-500/20 text-red-300 border border-red-500/40 block";
+                    statusBox.innerHTML = `Usuário "<b>${searchVal}</b>" não foi encontrado.<br>Dica: Clique abaixo para ver os usuários cadastrados.`;
+                    
+                    // Show available users automatically for quick debug feedback
+                    await loadRegisteredUsersList();
+                    document.getElementById('registered-users-box').classList.remove('hidden');
+                }
+
+            } catch (err) {
+                spinner.classList.add('hidden');
+                console.error("Add friend error:", err);
+                statusBox.className = "p-3 rounded-xl text-xs bg-red-500/20 text-red-300 border border-red-500/40 block";
+                statusBox.innerHTML = "Erro ao buscar usuário: " + err.message;
+            }
+        }
+
+        async function toggleRegisteredUsersList() {
+            const box = document.getElementById('registered-users-box');
+            if (box.classList.contains('hidden')) {
+                await loadRegisteredUsersList();
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
+        }
+
+        async function loadRegisteredUsersList() {
+            const listEl = document.getElementById('registered-users-list');
+            listEl.innerHTML = `<p class="text-discord-muted animate-pulse">Carregando usuários...</p>`;
+
+            try {
+                const { rtdb, ref, get } = window.firebaseServices || {};
+                if (!rtdb) {
+                    listEl.innerHTML = `<p class="text-discord-muted">Modo offline / sem Firebase</p>`;
+                    return;
+                }
+
+                const usersSnap = await get(ref(rtdb, 'users'));
+                if (!usersSnap.exists()) {
+                    listEl.innerHTML = `<p class="text-discord-muted">Sem usuários cadastrados.</p>`;
+                    return;
+                }
+
+                const currentUser = window.appState.currentUser;
+                const usersArr = Object.values(usersSnap.val()).filter(u => u.uid !== currentUser?.uid);
+
+                if (usersArr.length === 0) {
+                    listEl.innerHTML = `<p class="text-discord-muted">Nenhum outro usuário disponível.</p>`;
+                    return;
+                }
+
+                listEl.innerHTML = usersArr.map(u => `
+                    <div onclick="quickAddFriend('${u.email}')" class="flex items-center justify-between p-2 rounded-lg bg-[#1e1f22] hover:bg-white/10 cursor-pointer border border-white/5 transition-all">
+                        <div class="flex items-center space-x-2 min-w-0">
+                            <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}" class="w-6 h-6 rounded-full object-cover shrink-0">
+                            <div class="truncate">
+                                <span class="font-bold text-white block truncate">${u.name}</span>
+                                <span class="text-[10px] text-discord-muted block truncate">${u.email}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] bg-[#5865f2] text-white px-2 py-0.5 rounded font-semibold shrink-0">Copiar</span>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                listEl.innerHTML = `<p class="text-red-400">Erro ao carregar lista.</p>`;
+            }
+        }
+
+        function quickAddFriend(email) {
+            document.getElementById('friend-input').value = email;
+            submitAddFriend();
         }
 
         async function toggleAudioRecord() {
@@ -1068,7 +1257,7 @@
                         document.getElementById('recording-timer').innerText = `${mins}:${secs}`;
                     }, 1000);
                 } catch (err) {
-                    alert('Por favor, permita o acesso ao seu microfone para gravar áudios.');
+                    showToast('Permita o acesso ao microfone para gravar áudios.', 'error');
                 }
             }
         }
@@ -1077,8 +1266,11 @@
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.onstop = () => {
                     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    addMessageToCurrentStore({ audioUrl: audioUrl });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        addMessageToCurrentStore({ audioUrl: reader.result });
+                    };
+                    reader.readAsDataURL(audioBlob);
                 };
                 mediaRecorder.stop();
                 cleanupRecord();
@@ -1114,7 +1306,7 @@
         }
 
         function startWebRTCCall() {
-            joinVoiceChannel('call_dm', 'Chamada com Amigo');
+            joinVoiceChannel('call_dm', 'Chamada Privada');
         }
 
         function toggleMic() {
@@ -1194,7 +1386,7 @@
                         { id: 'c_voice', name: 'Voz Principal', type: 'voice' }
                     ],
                     members: [
-                        { id: window.appState.currentUser.id, name: window.appState.currentUser.name, status: 'online', role: 'Membro' }
+                        { id: window.appState.currentUser.uid, name: window.appState.currentUser.name, status: 'online', role: 'Membro' }
                     ],
                     messages: {}
                 };
@@ -1219,7 +1411,7 @@
                     { id: 'cv_' + Date.now(), name: 'Canal de Voz', type: 'voice' }
                 ],
                 members: [
-                    { id: window.appState.currentUser.id, name: window.appState.currentUser.name, status: 'online', role: 'Dono' }
+                    { id: window.appState.currentUser.uid, name: window.appState.currentUser.name, status: 'online', role: 'Dono' }
                 ],
                 messages: {}
             };
@@ -1229,23 +1421,7 @@
             document.getElementById('new-server-name').value = '';
             document.getElementById('new-server-icon').value = '';
             selectServer(newServer.id);
-        }
-
-        function submitAddFriend() {
-            const input = document.getElementById('friend-input').value.trim();
-            if (!input) return;
-
-            const newFriend = {
-                id: 'u_' + Date.now(),
-                name: input,
-                avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop',
-                status: 'online'
-            };
-
-            window.appState.friends.push(newFriend);
-            document.getElementById('friend-input').value = '';
-            closeModal('add-friend-modal');
-            renderFriendsList();
+            showToast(`Servidor "${name}" criado com sucesso!`, "success");
         }
 
         function renderMemberList(members) {
@@ -1260,18 +1436,18 @@
             list.innerHTML = members.map(m => `
                 <div class="flex items-center space-x-2.5 px-2 py-1.5 rounded hover:bg-white/5 cursor-pointer transition-all">
                     <div class="relative shrink-0">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop" class="w-8 h-8 rounded-full object-cover">
+                        <img src="${m.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop'}" class="w-8 h-8 rounded-full object-cover">
                         <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-green border-2 border-[#2b2d31]"></div>
                     </div>
                     <div class="flex flex-col min-w-0">
                         <span class="text-sm font-semibold text-gray-200 truncate">${m.name}</span>
-                        <span class="text-[10px] text-discord-muted truncate font-medium">${m.role}</span>
+                        <span class="text-[10px] text-discord-muted truncate font-medium">${m.role || 'Membro'}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        function saveUserProfile() {
+        async function saveUserProfile() {
             const name = document.getElementById('profile-name-input').value.trim();
             const avatar = document.getElementById('profile-avatar-input').value.trim();
             const status = document.getElementById('profile-status-select').value;
@@ -1284,8 +1460,22 @@
             document.getElementById('user-avatar').src = window.appState.currentUser.avatar;
             document.getElementById('user-status-text').innerText = status.toUpperCase();
 
+            if (window.firebaseServices && window.firebaseServices.rtdb) {
+                const { rtdb, ref, update } = window.firebaseServices;
+                try {
+                    await update(ref(rtdb, `users/${window.appState.currentUser.uid}`), {
+                        name: window.appState.currentUser.name,
+                        avatar: window.appState.currentUser.avatar,
+                        status: status
+                    });
+                } catch (e) {
+                    console.error("Profile update error:", e);
+                }
+            }
+
             localStorage.setItem('soares_zap_user', JSON.stringify(window.appState.currentUser));
             closeModal('profile-modal');
+            showToast("Perfil atualizado!", "success");
         }
 
         function openLightbox(url) {
@@ -1317,7 +1507,7 @@
                 document.getElementById('profile-name-input').value = window.appState.currentUser.name;
                 document.getElementById('profile-avatar-input').value = window.appState.currentUser.avatar;
                 document.getElementById('profile-modal-avatar').src = window.appState.currentUser.avatar;
-                document.getElementById('profile-status-select').value = window.appState.currentUser.status;
+                document.getElementById('profile-status-select').value = window.appState.currentUser.status || 'online';
             }
         }
 
