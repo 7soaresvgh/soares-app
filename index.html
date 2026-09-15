@@ -24,13 +24,72 @@ button{
     cursor:pointer;
 }
 
+/* TELA DE AUTENTICAÇÃO (LOGIN/CADASTRO) */
+#authScreen {
+    position: fixed;
+    inset: 0;
+    background: #111827;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-box {
+    background: #20232a;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 380px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.auth-box h2 {
+    margin-top: 0;
+    color: #5865f2;
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    background: #111318;
+    border: 1px solid #333;
+    outline: 0;
+    border-radius: 7px;
+    color: white;
+}
+
+.auth-box button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 7px;
+    background: #5865f2;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.auth-toggle {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #949ba4;
+    cursor: pointer;
+}
+
+.auth-toggle span {
+    color: #5865f2;
+    text-decoration: underline;
+}
+
 .app{
     display:flex;
     height:100vh;
 }
 
 /* SERVIDORES */
-
 .servers{
     width:65px;
     background:#111318;
@@ -46,11 +105,9 @@ button{
     height:45px;
     border-radius:50%;
     background:#292c33;
-
     display:flex;
     align-items:center;
     justify-content:center;
-
     font-size:20px;
 }
 
@@ -64,8 +121,7 @@ button{
     font-size:27px;
 }
 
-/* LISTA */
-
+/* SIDEBAR */
 .sidebar{
     width:260px;
     background:#20232a;
@@ -78,28 +134,19 @@ button{
     font-size:20px;
     font-weight:bold;
     border-bottom:1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.menu{
-    display:flex;
-    gap:5px;
-    padding:10px;
-}
-
-.menu button{
-    flex:1;
-    padding:10px 5px;
-    border-radius:7px;
-    background:#2f333b;
-    color:white;
-}
-
-.menu button:hover{
-    background:#5865f2;
+.logout-btn {
+    background: transparent;
+    color: #f23f43;
+    font-size: 12px;
 }
 
 .search{
-    margin:5px 10px 10px;
+    margin:10px;
     padding:11px;
     background:#111318;
     border:0;
@@ -129,13 +176,7 @@ button{
     color:white;
 }
 
-.item.active{
-    background:#40444b;
-    color:white;
-}
-
 /* CHAT */
-
 .chat{
     flex:1;
     display:flex;
@@ -146,17 +187,10 @@ button{
 .chat-header{
     height:60px;
     padding:0 20px;
-
     display:flex;
     align-items:center;
     gap:10px;
-
     border-bottom:1px solid #333;
-}
-
-.chat-header span{
-    color:#949ba4;
-    font-size:23px;
 }
 
 .messages{
@@ -175,14 +209,11 @@ button{
     width:40px;
     height:40px;
     min-width:40px;
-
     border-radius:50%;
     background:#5865f2;
-
     display:flex;
     align-items:center;
     justify-content:center;
-
     font-weight:bold;
 }
 
@@ -222,121 +253,20 @@ button{
     font-size:20px;
 }
 
-/* MODAL */
-
-.modal{
-    display:none;
-
-    position:fixed;
-    inset:0;
-
-    background:rgba(0,0,0,.7);
-
-    align-items:center;
-    justify-content:center;
-
-    z-index:100;
-}
-
-.modal-box{
-    width:90%;
-    max-width:400px;
-
-    background:#2b2d31;
-
-    padding:25px;
-    border-radius:12px;
-}
-
-.modal-box h2{
-    margin-top:0;
-}
-
-.modal-box input{
-    width:100%;
-    padding:12px;
-    margin:7px 0;
-
-    background:#111318;
-    border:0;
-    outline:0;
-
-    border-radius:7px;
-    color:white;
-}
-
-.modal-buttons{
-    display:flex;
-    gap:10px;
-    margin-top:15px;
-}
-
-.modal-buttons button{
-    flex:1;
-    padding:12px;
-    border-radius:7px;
-}
-
-.confirm{
-    background:#5865f2;
-    color:white;
-}
-
-.cancel{
-    background:#444;
-    color:white;
-}
-
 /* MOBILE */
-
 @media(max-width:700px){
-
-    .servers{
-        width:55px;
-    }
-
-    .server{
-        width:40px;
-        height:40px;
-    }
-
-    .sidebar{
-        width:210px;
-    }
-
-    .members{
-        display:none;
-    }
-
+    .servers{ width:55px; }
+    .server{ width:40px; height:40px; }
+    .sidebar{ width:210px; }
 }
 
 @media(max-width:500px){
-
-    .servers{
-        display:none;
-    }
-
-    .sidebar{
-        width:100%;
-    }
-
-    .chat{
-        display:none;
-    }
-
-    .sidebar.mobile-hidden{
-        display:none;
-    }
-
-    .chat.mobile-show{
-        display:flex;
-        width:100%;
-    }
-
-    .back{
-        display:block !important;
-    }
-
+    .servers{ display:none; }
+    .sidebar{ width:100%; }
+    .chat{ display:none; }
+    .sidebar.mobile-hidden{ display:none; }
+    .chat.mobile-show{ display:flex; width:100%; }
+    .back{ display:block !important; }
 }
 
 .back{
@@ -351,488 +281,242 @@ button{
 
 <body>
 
+<!-- TELA DE LOGIN / CADASTRO -->
+<div id="authScreen">
+    <div class="auth-box">
+        <h2 id="authTitle">Soares App</h2>
+        
+        <input type="text" id="authNome" placeholder="Seu Nome / Apelido">
+        <input type="email" id="authEmail" placeholder="E-mail">
+        <input type="password" id="authSenha" placeholder="Senha (mínimo 6 caracteres)">
+        
+        <button id="btnAuth" onclick="executarAuth()">Entrar</button>
+        
+        <div class="auth-toggle" onclick="alternarModoAuth()">
+            <span id="authToggleText">Não tem conta? Cadastre-se</span>
+        </div>
+    </div>
+</div>
+
+<!-- APLICAÇÃO PRINCIPAL -->
 <div class="app">
 
-<!-- SERVIDORES -->
-
-<div class="servers">
-
-    <div class="server main">
-        S
+    <div class="servers">
+        <div class="server main">S</div>
+        <div class="server">👥</div>
+        <div class="server">🎮</div>
+        <div class="server">⚽</div>
+        <div class="server add">+</div>
     </div>
 
-    <div class="server">
-        👥
-    </div>
-
-    <div class="server">
-        🎮
-    </div>
-
-    <div class="server">
-        ⚽
-    </div>
-
-    <div class="server add">
-        +
-    </div>
-
-</div>
-
-
-<!-- SIDEBAR -->
-
-<div class="sidebar" id="sidebar">
-
-    <div class="header">
-        Soares App
-    </div>
-
-    <div class="menu">
-
-        <button onclick="mostrarAmigos()">
-            👥 Amigos
-        </button>
-
-        <button onclick="abrirGrupo()">
-            +
-        </button>
-
-    </div>
-
-    <input
-        class="search"
-        id="pesquisa"
-        placeholder="🔎 Procurar"
-        oninput="pesquisar()"
-    >
-
-    <div class="section">
-        AMIGOS
-    </div>
-
-    <div id="listaAmigos">
-
-        <div class="item" onclick="abrirChat('João')">
-            🟢 João
+    <div class="sidebar" id="sidebar">
+        <div class="header">
+            <span>Soares App</span>
+            <button class="logout-btn" onclick="fazerLogout()">Sair</button>
         </div>
 
-        <div class="item" onclick="abrirChat('Pedro')">
-            🟢 Pedro
+        <input class="search" id="pesquisa" placeholder="🔎 Procurar" oninput="pesquisar()">
+
+        <div class="section">CANAL GERAL</div>
+        <div id="listaCanais">
+            <div class="item" onclick="abrirChat('Geral')">💬 Chat Geral</div>
+        </div>
+    </div>
+
+    <div class="chat" id="chat">
+        <div class="chat-header">
+            <button class="back" onclick="voltar()">←</button>
+            <span>💬</span>
+            <strong id="chatNome">Chat Geral</strong>
         </div>
 
-    </div>
-
-
-    <div class="section">
-        GRUPOS
-    </div>
-
-    <div id="listaGrupos">
-
-        <div class="item" onclick="abrirChat('🎮 Amigos')">
-            🎮 Amigos
+        <div class="messages" id="messages">
+            <p style="color:#949ba4">Carregando mensagens...</p>
         </div>
 
+        <div class="input-area">
+            <input id="messageInput" placeholder="Digite uma mensagem..." onkeydown="tecla(event)">
+            <button class="send" onclick="enviar()">➤</button>
+        </div>
     </div>
 
 </div>
 
+<!-- FIREBASE SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    onAuthStateChanged, 
+    updateProfile,
+    signOut 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    query, 
+    orderBy, 
+    onSnapshot, 
+    serverTimestamp 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-<!-- CHAT -->
+  // Sua configuração do Firebase obtida no console
+  const firebaseConfig = {
+    apiKey: "AIzaSyDEGZZtnPoZh68ouIV7N6joPZ1TjRkcw4Q",
+    authDomain: "soares-app-61b17.firebaseapp.com",
+    projectId: "soares-app-61b17",
+    storageBucket: "soares-app-61b17.firebasestorage.app",
+    messagingSenderId: "246291781042",
+    appId: "1:246291781042:web:d88b50a9a790a8db2180ab",
+    measurementId: "G-X5R46KHPH1"
+  };
 
-<div class="chat" id="chat">
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    <div class="chat-header">
+  let usuarioAtual = null;
+  let modoCadastro = false;
+  let unsubscribeMensagens = null;
 
-        <button class="back" onclick="voltar()">
-            ←
-        </button>
+  // Monitora estado de autenticação
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      usuarioAtual = user;
+      document.getElementById("authScreen").style.display = "none";
+      carregarMensagens();
+    } else {
+      usuarioAtual = null;
+      document.getElementById("authScreen").style.display = "flex";
+      if(unsubscribeMensagens) unsubscribeMensagens();
+    }
+  });
 
-        <span>💬</span>
+  // Alterna entre tela de Login e Cadastro
+  window.alternarModoAuth = function() {
+    modoCadastro = !modoCadastro;
+    const nomeInput = document.getElementById("authNome");
+    const btn = document.getElementById("btnAuth");
+    const toggle = document.getElementById("authToggleText");
+    
+    if(modoCadastro) {
+      nomeInput.style.display = "block";
+      btn.innerText = "Cadastrar";
+      toggle.innerText = "Já tem conta? Faça login";
+    } else {
+      nomeInput.style.display = "none";
+      btn.innerText = "Entrar";
+      toggle.innerText = "Não tem conta? Cadastre-se";
+    }
+  };
 
-        <strong id="chatNome">
-            Selecione uma conversa
-        </strong>
+  // Inicializa o campo de nome oculto por padrão (Modo Login)
+  document.getElementById("authNome").style.display = "none";
 
-    </div>
+  // Login / Cadastro
+  window.executarAuth = async function() {
+    const email = document.getElementById("authEmail").value.trim();
+    const senha = document.getElementById("authSenha").value.trim();
+    const nome = document.getElementById("authNome").value.trim();
 
+    if(!email || !senha) {
+      alert("Preencha e-mail e senha!");
+      return;
+    }
 
-    <div class="messages" id="messages">
+    try {
+      if(modoCadastro) {
+        if(!nome) {
+          alert("Digite seu nome!");
+          return;
+        }
+        const res = await createUserWithEmailAndPassword(auth, email, senha);
+        await updateProfile(res.user, { displayName: nome });
+      } else {
+        await signInWithEmailAndPassword(auth, email, senha);
+      }
+    } catch(err) {
+      alert("Erro na autenticação: " + err.message);
+    }
+  };
 
-        <p style="color:#949ba4">
-            Escolha um amigo ou grupo para começar.
-        </p>
+  window.fazerLogout = function() {
+    signOut(auth);
+  };
 
-    </div>
-
-
-    <div class="input-area">
-
-        <input
-            id="messageInput"
-            placeholder="Digite uma mensagem..."
-            onkeydown="tecla(event)"
-        >
-
-        <button class="send" onclick="enviar()">
-            ➤
-        </button>
-
-    </div>
-
-</div>
-
-</div>
-
-
-<!-- MODAL ADICIONAR AMIGO -->
-
-<div class="modal" id="modalAmigo">
-
-<div class="modal-box">
-
-<h2>Adicionar amigo</h2>
-
-<p style="color:#aaa">
-Digite o nome do seu amigo.
-</p>
-
-<input
-    id="nomeAmigo"
-    placeholder="Nome do amigo"
->
-
-<div class="modal-buttons">
-
-<button class="cancel" onclick="fecharModal()">
-Cancelar
-</button>
-
-<button class="confirm" onclick="adicionarAmigo()">
-Adicionar
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- MODAL GRUPO -->
-
-<div class="modal" id="modalGrupo">
-
-<div class="modal-box">
-
-<h2>Criar grupo</h2>
-
-<input
-    id="nomeGrupo"
-    placeholder="Nome do grupo"
->
-
-<div class="modal-buttons">
-
-<button class="cancel" onclick="fecharGrupo()">
-Cancelar
-</button>
-
-<button class="confirm" onclick="criarGrupo()">
-Criar
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-
-<script>
-
-let conversaAtual = "";
-
-let amigos = ["João","Pedro"];
-
-let grupos = ["🎮 Amigos"];
-
-
-/* ABRIR CHAT */
-
-function abrirChat(nome){
-
-    conversaAtual = nome;
-
-    document.getElementById("chatNome").innerText = nome;
-
-    document.getElementById("messages").innerHTML = "";
-
-    document.getElementById("sidebar")
-        .classList.add("mobile-hidden");
-
-    document.getElementById("chat")
-        .classList.add("mobile-show");
-
-}
-
-
-/* ENVIAR */
-
-function enviar(){
-
-    const input =
-        document.getElementById("messageInput");
-
+  // Enviar mensagem para o Firestore
+  window.enviar = async function() {
+    const input = document.getElementById("messageInput");
     const texto = input.value.trim();
 
-    if(!texto || !conversaAtual){
-        return;
+    if(!texto || !usuarioAtual) return;
+
+    try {
+      await addDoc(collection(db, "mensagens"), {
+        texto: texto,
+        autor: usuarioAtual.displayName || usuarioAtual.email.split('@')[0],
+        userId: usuarioAtual.uid,
+        data: serverTimestamp()
+      });
+      input.value = "";
+    } catch(err) {
+      alert("Erro ao enviar mensagem: " + err.message);
     }
+  };
 
-    const hora = new Date().toLocaleTimeString(
-        "pt-BR",
-        {
-            hour:"2-digit",
-            minute:"2-digit"
-        }
-    );
+  window.tecla = function(event) {
+    if(event.key === "Enter") enviar();
+  };
 
-    const div =
-        document.createElement("div");
+  // Escutar mensagens do Firestore em tempo real
+  function carregarMensagens() {
+    const q = query(collection(db, "mensagens"), orderBy("data", "asc"));
 
-    div.className = "message";
+    unsubscribeMensagens = onSnapshot(q, (snapshot) => {
+      const messagesContainer = document.getElementById("messages");
+      messagesContainer.innerHTML = "";
 
-    div.innerHTML = `
+      snapshot.forEach((doc) => {
+        const msg = doc.data();
+        const hora = msg.data ? new Date(msg.data.toDate()).toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"}) : "...";
 
-        <div class="avatar">
-            S
-        </div>
+        const div = document.createElement("div");
+        div.className = "message";
+        div.innerHTML = `
+          <div class="avatar">${(msg.autor || "U")[0].toUpperCase()}</div>
+          <div>
+            <strong>${msg.autor || "Usuário"}</strong>
+            <span class="message-time">${hora}</span>
+            <div class="message-text">${msg.texto}</div>
+          </div>
+        `;
+        messagesContainer.appendChild(div);
+      });
 
-        <div>
-
-            <strong>
-                Soares
-            </strong>
-
-            <span class="message-time">
-                ${hora}
-            </span>
-
-            <div class="message-text">
-                ${texto}
-            </div>
-
-        </div>
-
-    `;
-
-    document
-        .getElementById("messages")
-        .appendChild(div);
-
-    input.value = "";
-
-    const messages =
-        document.getElementById("messages");
-
-    messages.scrollTop =
-        messages.scrollHeight;
-
-}
-
-
-/* ENTER */
-
-function tecla(event){
-
-    if(event.key === "Enter"){
-        enviar();
-    }
-
-}
-
-
-/* ADICIONAR AMIGO */
-
-function mostrarAmigos(){
-
-    document
-        .getElementById("modalAmigo")
-        .style.display = "flex";
-
-}
-
-
-function adicionarAmigo(){
-
-    const input =
-        document.getElementById("nomeAmigo");
-
-    const nome = input.value.trim();
-
-    if(!nome){
-        return;
-    }
-
-    amigos.push(nome);
-
-    atualizarAmigos();
-
-    input.value = "";
-
-    fecharModal();
-
-}
-
-
-function atualizarAmigos(){
-
-    const lista =
-        document.getElementById("listaAmigos");
-
-    lista.innerHTML = "";
-
-    amigos.forEach(nome => {
-
-        const div =
-            document.createElement("div");
-
-        div.className = "item";
-
-        div.innerText = "🟢 " + nome;
-
-        div.onclick = function(){
-            abrirChat(nome);
-        };
-
-        lista.appendChild(div);
-
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     });
+  }
 
-}
+  window.abrirChat = function(nome) {
+    document.getElementById("chatNome").innerText = nome;
+    document.getElementById("sidebar").classList.add("mobile-hidden");
+    document.getElementById("chat").classList.add("mobile-show");
+  };
 
+  window.voltar = function() {
+    document.getElementById("chat").classList.remove("mobile-show");
+    document.getElementById("sidebar").classList.remove("mobile-hidden");
+  };
 
-/* CRIAR GRUPO */
-
-function abrirGrupo(){
-
-    document
-        .getElementById("modalGrupo")
-        .style.display = "flex";
-
-}
-
-
-function criarGrupo(){
-
-    const input =
-        document.getElementById("nomeGrupo");
-
-    const nome = input.value.trim();
-
-    if(!nome){
-        return;
-    }
-
-    grupos.push("👥 " + nome);
-
-    atualizarGrupos();
-
-    input.value = "";
-
-    fecharGrupo();
-
-}
-
-
-function atualizarGrupos(){
-
-    const lista =
-        document.getElementById("listaGrupos");
-
-    lista.innerHTML = "";
-
-    grupos.forEach(nome => {
-
-        const div =
-            document.createElement("div");
-
-        div.className = "item";
-
-        div.innerText = nome;
-
-        div.onclick = function(){
-            abrirChat(nome);
-        };
-
-        lista.appendChild(div);
-
+  window.pesquisar = function() {
+    const texto = document.getElementById("pesquisa").value.toLowerCase();
+    document.querySelectorAll(".item").forEach(item => {
+      item.style.display = item.innerText.toLowerCase().includes(texto) ? "block" : "none";
     });
-
-}
-
-
-/* PESQUISA */
-
-function pesquisar(){
-
-    const texto =
-        document
-        .getElementById("pesquisa")
-        .value
-        .toLowerCase();
-
-    document
-        .querySelectorAll(".item")
-        .forEach(item => {
-
-            item.style.display =
-                item.innerText
-                .toLowerCase()
-                .includes(texto)
-                ? "block"
-                : "none";
-
-        });
-
-}
-
-
-/* FECHAR MODAIS */
-
-function fecharModal(){
-
-    document
-        .getElementById("modalAmigo")
-        .style.display = "none";
-
-}
-
-function fecharGrupo(){
-
-    document
-        .getElementById("modalGrupo")
-        .style.display = "none";
-
-}
-
-
-/* VOLTAR NO CELULAR */
-
-function voltar(){
-
-    document
-        .getElementById("chat")
-        .classList.remove("mobile-show");
-
-    document
-        .getElementById("sidebar")
-        .classList.remove("mobile-hidden");
-
-}
-
+  };
 </script>
 
 </body>
