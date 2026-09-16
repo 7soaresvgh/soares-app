@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urna do Soares - Eleição Online</title>
+    <title>Urna Eletrônica Oficial - E.E. Soares</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     
@@ -11,103 +11,120 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#4f46e5',
-                        darkBg: '#0f172a',
-                        cardBg: '#1e293b',
-                        borderCol: '#334155'
-                    }
-                }
-            }
-        }
-    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        .font-urna { font-family: 'VT323', monospace; }
+    </style>
 </head>
-<body class="bg-darkBg text-white font-sans min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between select-none">
 
-    <!-- TELA DE IDENTIFICAÇÃO DO ELEITOR -->
+    <!-- TELA 1: IDENTIFICAÇÃO DO ELEITOR (PRÉ-URNA) -->
     <div id="screenVoterLogin" class="flex-1 flex flex-col justify-center items-center p-4">
-        <div class="w-full max-w-md bg-cardBg border border-borderCol rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/20 rounded-full blur-2xl pointer-events-none"></div>
-            
+        <div class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl relative">
             <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 text-3xl mb-3 shadow-inner">
-                    <i class="fa-solid fa-box-archive"></i>
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 text-3xl mb-3">
+                    <i class="fa-solid fa-id-card"></i>
                 </div>
-                <h1 class="text-2xl font-bold tracking-tight">URNA DO SOARES</h1>
-                <p class="text-xs text-indigo-300/70 mt-1">Eleição Oficial Sincronizada • E.E. Soares Club</p>
+                <h1 class="text-2xl font-bold tracking-tight">IDENTIFICAÇÃO DO ELEITOR</h1>
+                <p class="text-xs text-slate-400 mt-1">Digite seu R.A. para liberar a Urna Eletrônica</p>
             </div>
 
             <form onsubmit="verificarEleitorFirebase(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">R.A. do Aluno (Registro)</label>
-                    <input type="text" id="voterRa" required placeholder="Ex: 15894231" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition">
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">R.A. do Aluno (Registro)</label>
+                    <input type="text" id="voterRa" required placeholder="Ex: 15894231" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">Dígito</label>
-                        <input type="text" id="voterDigito" maxlength="1" required placeholder="5" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-center focus:outline-none focus:border-indigo-500 transition">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Dígito</label>
+                        <input type="text" id="voterDigito" maxlength="1" required placeholder="5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-center focus:outline-none focus:border-emerald-500 transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">UF</label>
-                        <input type="text" id="voterUf" maxlength="2" value="SP" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-center uppercase focus:outline-none focus:border-indigo-500 transition">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">UF</label>
+                        <input type="text" id="voterUf" maxlength="2" value="SP" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-center uppercase focus:outline-none focus:border-emerald-500 transition">
                     </div>
                 </div>
-                <button type="submit" id="btnEntrar" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-indigo-900/40 mt-2">
-                    Verificar e Votar
+                <button type="submit" id="btnEntrar" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-emerald-900/40 mt-2">
+                    Liberar Urna para Votação
                 </button>
             </form>
 
-            <div class="mt-6 pt-4 border-t border-borderCol flex justify-between items-center text-xs">
-                <span class="text-indigo-300/50">Firebase Conectado</span>
-                <button onclick="abrirAdminModal()" class="text-indigo-400 hover:underline font-medium">Acesso Mesário / Admin</button>
+            <div class="mt-6 pt-4 border-t border-slate-700 flex justify-between items-center text-xs">
+                <span class="text-slate-500">Firebase Conectado</span>
+                <button onclick="abrirAdminModal()" class="text-emerald-400 hover:underline font-medium">Acesso Mesário</button>
             </div>
         </div>
     </div>
 
-    <!-- TELA DE VOTAÇÃO -->
-    <div id="screenVotingBooth" class="hidden flex-1 max-w-4xl mx-auto p-6 w-full flex flex-col justify-center">
-        <div class="bg-cardBg border border-borderCol rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
-            <div class="flex justify-between items-center border-b border-borderCol pb-4">
+    <!-- TELA 2: O CORPO DA URNA ELETRÔNICA REAL -->
+    <div id="screenVotingBooth" class="hidden flex-1 flex flex-col justify-center items-center p-2 md:p-6">
+        <!-- Chassi da Urna (Plástico Bege Tradicional da Urna Brasileira) -->
+        <div class="w-full max-w-4xl bg-[#dcd7c9] text-slate-900 rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-[#c5c0b1] flex flex-col md:flex-row gap-6">
+            
+            <!-- Lado Esquerdo: Display da Urna -->
+            <div class="flex-1 bg-[#eae6dc] border-4 border-[#b8b3a4] rounded-xl p-4 flex flex-col justify-between shadow-inner min-h-[380px]">
                 <div>
-                    <h2 class="text-xl font-bold">Cédula Eletrônica</h2>
-                    <p class="text-xs text-indigo-300/70">Eleitor autenticado: <span id="displayVoterRa" class="font-mono text-white"></span></p>
+                    <div class="flex justify-between items-center border-b-2 border-[#b8b3a4] pb-2 mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Justiça Eleitoral • E.E. Soares</span>
+                        <span class="text-xs font-mono bg-slate-300 px-2 py-0.5 rounded text-slate-800" id="displayVoterRaLabel"></span>
+                    </div>
+                    
+                    <div id="urnaDisplayConteudo">
+                        <!-- Renderizado dinamicamente via JS (Seu voto para / Número / Dados) -->
+                    </div>
                 </div>
-                <div class="bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 text-xs px-3 py-1.5 rounded-lg">
-                    Escolha 1 Chapa
+
+                <div id="urnaInstrucoesRodape" class="border-t-2 border-[#b8b3a4] pt-2 text-[13px] text-slate-700 font-medium">
+                    <p>APERTE:</p>
+                    <p class="text-emerald-700 font-bold">LARANJA para CORRIGIR</p>
+                    <p class="text-emerald-800 font-bold">VERDE para CONFIRMAR</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="listaChapasVotacao">
-                <!-- Renderizado via JS -->
+            <!-- Lado Direito: O Teclado Numérico da Urna -->
+            <div class="w-full md:w-80 bg-[#2b2b2b] rounded-2xl p-5 flex flex-col justify-between shadow-xl border-2 border-slate-700">
+                <div class="text-center mb-4">
+                    <div class="text-slate-400 font-bold tracking-widest text-xs uppercase mb-1">BRASIL</div>
+                    <div class="flex justify-center items-center space-x-1">
+                        <div class="w-3 h-3 bg-red-600 rounded-full"></div>
+                        <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                        <div class="w-3 h-3 bg-green-600 rounded-full"></div>
+                    </div>
+                </div>
+
+                <!-- Teclado Numérico -->
+                <div class="grid grid-cols-3 gap-2 px-2 mb-4">
+                    <button onclick="digitarNumero('1')" class="bg-black hover:bg-slate-900 text-white font-urna text-3xl py-3 rounded-lg shadow border-b-4 border-slate-800 active:translate-y-1">1</button>
+                    <button onclick="digitarNumero('2')" class="bg-black hover:bg-slate-900 text-white font-urna text-3xl py-3 rounded-lg shadow border-b-4 border-slate-800 active:translate-y-1">2</button>
+                    <button onclick="digitarNumero('3')" class="bg-black hover:bg-slate-900 text-white font-urna text-3xl py-3 rounded-lg shadow border-b-4 border-slate-800 active:translate-y-1">3</button>
+                    <button onclick="digitarNumero('4')" class="bg-black hover:bg-slate-900 text-white font-urna text-3xl py-3 rounded-lg shadow border-b-4 border-slate-800 active:translate-y-1">4</button>
+                    <button onclick="digitarNumero('5')" class="bg-black hover:bg-slate-900 text-white font-urna text-3xl py-3 rounded-lg shadow border-b-4 border-slate-800 active:translate-y-1">5</button>
+                    <button onclick="digitarNumero('6')" class="bg-black hover:bg-slate-900 text-white font-urna text-3xl py-3 rounded-lg shadow border-b-4 border-slate-800 active:translate-y-1">6</button>
+                    <button onclick="digitarNumero('7')" class="bg-black hover:bg-slate-900 text-white font-urna text-3xl py-3 rounded-lg shadow border-b-4 border-slate-800 active:translate-y-1">7</button>
+                    <button onclick="digitarNumero('8')" class="bg-black hover:bg-slate-900 text-white font-urna text-3xl py-3 rounded-lg shadow border-b-4 border-slate-800 active:translate-y-1">8</button>
+                    <button onclick="digitarNumero('9')" class="bg-black hover:bg-slate-900 text-white font-urna text-3xl py-3 rounded-lg shadow border-b-4 border-slate-800 active:translate-y-1">9</button>
+                    <div class="col-start-2">
+                        <button onclick="digitarNumero('0')" class="w-full bg-black hover:bg-slate-900 text-white font-urna text-3xl py-3 rounded-lg shadow border-b-4 border-slate-800 active:translate-y-1">0</button>
+                    </div>
+                </div>
+
+                <!-- Teclas de Ação da Urna (Branco, Corrige, Confirma) -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="votarBranco()" class="bg-white hover:bg-slate-200 text-slate-950 font-bold text-[10px] py-3 rounded-lg shadow border-b-4 border-slate-400 uppercase active:translate-y-1">Branco</button>
+                    <button onclick="acaoCorrige()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold text-[10px] py-3 rounded-lg shadow border-b-4 border-amber-800 uppercase active:translate-y-1">Corrige</button>
+                    <button onclick="acaoConfirma()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] py-3 rounded-lg shadow border-b-4 border-emerald-800 uppercase active:translate-y-1">Confirma</button>
+                </div>
             </div>
+
         </div>
     </div>
 
-    <!-- TELA DE SUCESSO -->
-    <div id="screenVotedSuccess" class="hidden flex-1 flex flex-col justify-center items-center p-4">
-        <div class="w-full max-w-md bg-cardBg border border-borderCol rounded-2xl p-8 text-center space-y-4 shadow-2xl">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/25 text-green-400 text-4xl mb-2">
-                <i class="fa-solid fa-check"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-green-400">Voto Computado com Sucesso!</h2>
-            <p class="text-sm text-indigo-200/80">Seu voto foi gravado com segurança na base de dados do Firebase. Este R.A. foi invalidado para novos votos.</p>
-            <button onclick="sairUrna()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-medium text-sm transition shadow-lg mt-4">
-                Encerrar / Próximo Eleitor
-            </button>
-        </div>
-    </div>
-
-    <!-- PAINEL DO MESÁRIO / ADMIN -->
+    <!-- TELA 3: PAINEL DO MESÁRIO / ADMIN -->
     <div id="screenAdminPanel" class="hidden flex-1 max-w-5xl mx-auto p-6 w-full space-y-6">
-        <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl flex justify-between items-center">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl flex justify-between items-center">
             <div>
-                <h2 class="text-xl font-bold text-indigo-300"><i class="fa-solid fa-screwdriver-wrench mr-2"></i> Painel do Mesário • Firebase Ativo</h2>
-                <p class="text-xs text-indigo-300/70 mt-0.5">Gerenciamento completo e apuração instantânea.</p>
+                <h2 class="text-xl font-bold text-emerald-400"><i class="fa-solid fa-screwdriver-wrench mr-2"></i> Painel do Mesário • Urna Real Firebase</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Apuração instantânea e controle de eleitores.</p>
             </div>
             <button onclick="sairUrna()" class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl text-xs hover:bg-red-500/30 transition">
                 Sair do Painel
@@ -115,43 +132,44 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Placar de Votos -->
-            <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
-                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Placar da Eleição</h3>
+            <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl space-y-4 shadow-xl">
+                <h3 class="font-bold text-sm text-emerald-400 uppercase tracking-wide">Placar da Eleição</h3>
                 <div id="placarResultados" class="space-y-3"></div>
             </div>
 
-            <!-- Cadastro de Chapas -->
-            <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
-                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Adicionar Nova Chapa</h3>
+            <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl space-y-4 shadow-xl">
+                <h3 class="font-bold text-sm text-emerald-400 uppercase tracking-wide">Adicionar Nova Chapa</h3>
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs mb-1 text-indigo-200">Nome da Chapa</label>
-                        <input type="text" id="novaChapaNome" placeholder="Ex: Chapa 3 - União" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs mb-1 text-slate-300">Número da Chapa (Ex: 10, 25...)</label>
+                        <input type="number" id="novaChapaId" placeholder="Ex: 15" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
                     </div>
                     <div>
-                        <label class="block text-xs mb-1 text-indigo-200">Proposta</label>
-                        <input type="text" id="novaChapaProposta" placeholder="Ex: Melhorias gerais" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs mb-1 text-slate-300">Nome da Chapa</label>
+                        <input type="text" id="novaChapaNome" placeholder="Ex: Chapa Renovação" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
                     </div>
-                    <button onclick="adicionarChapaFirebase()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-2.5 rounded-xl text-sm font-medium transition shadow">Salvar Chapa no Firebase</button>
+                    <div>
+                        <label class="block text-xs mb-1 text-slate-300">Proposta / Descrição</label>
+                        <input type="text" id="novaChapaProposta" placeholder="Ex: Melhorias na quadra" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <button onclick="adicionarChapaFirebase()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl text-sm font-medium transition shadow">Salvar Chapa</button>
                 </div>
             </div>
         </div>
 
-        <!-- Histórico de Eleitores que Votaram -->
-        <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
-            <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide"><i class="fa-solid fa-users-viewfinder mr-2"></i> Registro de Eleitores</h3>
+        <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl space-y-4 shadow-xl">
+            <h3 class="font-bold text-sm text-emerald-400 uppercase tracking-wide"><i class="fa-solid fa-users-viewfinder mr-2"></i> Registro de Eleitores</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
-                    <thead class="bg-darkBg text-indigo-300 border-b border-borderCol">
+                    <thead class="bg-slate-900 text-emerald-400 border-b border-slate-700">
                         <tr>
                             <th class="p-3 rounded-tl-xl">R.A. do Aluno</th>
                             <th class="p-3">Horário</th>
                             <th class="p-3 rounded-tr-xl">Voto Registrado</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelaHistoricoVotos" class="divide-y divide-borderCol">
-                        <tr><td colspan="3" class="p-4 text-center text-indigo-300/50">Carregando registros do Firebase...</td></tr>
+                    <tbody id="tabelaHistoricoVotos" class="divide-y divide-slate-700">
+                        <tr><td colspan="3" class="p-4 text-center text-slate-500">Carregando registros...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -160,15 +178,15 @@
 
     <!-- MODAL DE SENHA DO ADMIN -->
     <div id="adminModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center p-4 z-50">
-        <div class="bg-cardBg border border-borderCol w-full max-w-sm p-6 rounded-2xl space-y-4 shadow-2xl">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-sm p-6 rounded-2xl space-y-4 shadow-2xl">
             <h3 class="font-bold text-base">Acesso do Mesário</h3>
             <div>
-                <label class="block text-xs mb-1 text-indigo-200">Senha</label>
-                <input type="password" id="adminSenhaInput" placeholder="••••" class="w-full bg-darkBg border border-borderCol rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500">
+                <label class="block text-xs mb-1 text-slate-300">Senha</label>
+                <input type="password" id="adminSenhaInput" placeholder="••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:outline-none focus:border-emerald-500">
             </div>
             <div class="flex space-x-2 pt-2">
-                <button onclick="fecharAdminModal()" class="flex-1 bg-darkBg border border-borderCol py-2.5 rounded-xl text-xs font-medium hover:bg-borderCol transition">Cancelar</button>
-                <button onclick="validarAdmin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 py-2.5 rounded-xl text-xs font-medium transition">Entrar</button>
+                <button onclick="fecharAdminModal()" class="flex-1 bg-slate-900 border border-slate-700 py-2.5 rounded-xl text-xs font-medium hover:bg-slate-700 transition">Cancelar</button>
+                <button onclick="validarAdmin()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl text-xs font-medium transition">Entrar</button>
             </div>
         </div>
     </div>
@@ -184,7 +202,6 @@
             appId: "1:1234567890:web:abcdef123456"
         };
 
-        // Inicialização do Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -193,62 +210,36 @@
         let alunoLogadoRa = null;
         let chapasCache = [];
         let historicoCache = [];
+        let numeroDigitado = "";
+        let votoEmBrancoAtivo = false;
 
-        // FUNÇÃO DE SOM DE CONFIRMAÇÃO (Bip Eletrônico Nativo)
-        function tocarSomConfirmacao() {
+        // ÁUDIO REAL DA URNA ELETRÔNICA (Som Oficial do TSE / FIM)
+        const somUrnaReal = new Audio("https://www.myinstants.com/media/sounds/som-de-urna-eletronica-1.mp3");
+        somUrnaReal.volume = 0.8;
+
+        function tocarSomUrna() {
             try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                
-                const osc1 = audioCtx.createOscillator();
-                const gain1 = audioCtx.createGain();
-                osc1.type = 'sine';
-                osc1.frequency.setValueAtTime(800, audioCtx.currentTime);
-                gain1.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-                
-                osc1.connect(gain1);
-                gain1.connect(audioCtx.destination);
-                
-                osc1.start();
-                osc1.stop(audioCtx.currentTime + 0.15);
-
-                setTimeout(() => {
-                    const osc2 = audioCtx.createOscillator();
-                    const gain2 = audioCtx.createGain();
-                    osc2.type = 'sine';
-                    osc2.frequency.setValueAtTime(1200, audioCtx.currentTime);
-                    gain2.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                    gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
-                    
-                    osc2.connect(gain2);
-                    gain2.connect(audioCtx.destination);
-                    
-                    osc2.start();
-                    osc2.stop(audioCtx.currentTime + 0.25);
-                }, 150);
-
-            } catch (e) {
-                console.log("Áudio não suportado ou bloqueado.");
+                somUrnaReal.currentTime = 0;
+                somUrnaReal.play().catch(e => console.log("Áudio bloqueado até interação:", e));
+            } catch (err) {
+                console.log("Erro ao tocar áudio:", err);
             }
         }
 
-        // Escuta chapas em tempo real do Firestore
+        // Sincronização em tempo real das chapas
         db.collection("eleicao_soares").doc("dados_gerais").onSnapshot((doc) => {
             if (doc.exists) {
                 chapasCache = doc.data().chapas || [];
             } else {
                 chapasCache = [
-                    { id: 1, nome: "Chapa 1 - Inovação", proposta: "Novos eventos, melhorias nos bebedouros e quadras esportivas.", votos: 0, cor: "from-indigo-600 to-purple-600" },
-                    { id: 2, nome: "Chapa 2 - Ação Estudantil", proposta: "Campeonatos de e-sports, música nos intervalos e integração.", votos: 0, cor: "from-purple-600 to-pink-600" }
+                    { id: "11", nome: "CHAPA 11 - INOVAÇÃO", proposta: "Novos eventos, melhorias nos bebedouros.", votos: 0 },
+                    { id: "22", nome: "CHAPA 22 - AÇÃO ESTUDANTIL", proposta: "Campeonatos de e-sports e música nos intervalos.", votos: 0 }
                 ];
                 db.collection("eleicao_soares").doc("dados_gerais").set({ chapas: chapasCache });
             }
             atualizarPlacarAdminNaTela();
-        }, (error) => {
-            console.error("Erro ao sincronizar chapas:", error);
         });
 
-        // Escuta histórico de eleitores em tempo real do Firestore
         db.collection("eleicao_soares").doc("historico").onSnapshot((doc) => {
             if (doc.exists) {
                 historicoCache = doc.data().votos || [];
@@ -256,8 +247,6 @@
                 historicoCache = [];
             }
             atualizarTabelaHistoricoNaTela();
-        }, (error) => {
-            console.error("Erro ao sincronizar histórico:", error);
         });
 
         async function verificarEleitorFirebase(event) {
@@ -282,70 +271,155 @@
                     alert('BLOQUEIO: O R.A. ' + identificador + ' já votou nesta eleição!');
                     document.getElementById('voterRa').value = '';
                     document.getElementById('voterDigito').value = '';
-                    btn.innerText = "Verificar e Votar";
+                    btn.innerText = "Liberar Urna para Votação";
                     btn.disabled = false;
                     return;
                 }
 
                 alunoLogadoRa = identificador;
-                document.getElementById('displayVoterRa').innerText = identificador;
+                document.getElementById('displayVoterRaLabel').innerText = "R.A: " + identificador;
 
                 document.getElementById('screenVoterLogin').classList.add('hidden');
-                renderizarChapasVotacao();
                 document.getElementById('screenVotingBooth').classList.remove('hidden');
+                
+                resetarTelaUrna();
 
             } catch (err) {
                 console.error("Erro ao verificar eleitor:", err);
-                alert("Falha de comunicação com o Firebase. Verifique se o Firestore Database está ativo no seu console.");
-                btn.innerText = "Verificar e Votar";
+                alert("Falha de comunicação com o Firebase.");
+                btn.innerText = "Liberar Urna para Votação";
                 btn.disabled = false;
             }
         }
 
-        function renderizarChapasVotacao() {
-            const container = document.getElementById('listaChapasVotacao');
-            container.innerHTML = '';
-
-            chapasCache.forEach(chapa => {
-                container.innerHTML += `
-                    <div class="bg-darkBg border border-borderCol rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500 transition shadow-lg">
-                        <div>
-                            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr ${chapa.cor} flex items-center justify-center text-white text-xl font-bold mb-4 shadow">
-                                ${chapa.id}
-                            </div>
-                            <h3 class="font-bold text-lg mb-2 text-white">${chapa.nome}</h3>
-                            <p class="text-xs text-indigo-200/80 mb-6 leading-relaxed">${chapa.proposta}</p>
-                        </div>
-                        <button onclick="confirmarVotoFirebase(${chapa.id}, '${chapa.nome}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
-                            Votar nesta Chapa
-                        </button>
-                    </div>
-                `;
-            });
-
-            container.innerHTML += `
-                <div class="bg-darkBg border border-borderCol rounded-2xl p-6 flex flex-col justify-between hover:border-gray-500 transition shadow-lg">
-                    <div>
-                        <div class="w-12 h-12 rounded-xl bg-gray-700 flex items-center justify-center text-white text-xl font-bold mb-4 shadow">
-                            <i class="fa-solid fa-ban"></i>
-                        </div>
-                        <h3 class="font-bold text-lg mb-2 text-white">Voto em Branco</h3>
-                        <p class="text-xs text-gray-400 mb-6 leading-relaxed">Registrar voto em branco na urna eletrônica.</p>
-                    </div>
-                    <button onclick="confirmarVotoFirebase(0, 'Voto em Branco')" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
-                        Confirmar Branco
-                    </button>
-                </div>
-            `;
+        function resetarTelaUrna() {
+            numeroDigitado = "";
+            votoEmBrancoAtivo = false;
+            atualizarDisplayUrna();
         }
 
-        async function confirmarVotoFirebase(chapaId, nomeChapa) {
-            try {
-                tocarSomConfirmacao();
+        function digitarNumero(digito) {
+            if (votoEmBrancoAtivo) return; // Se for branco, ignora digitação
+            if (numeroDigitado.length < 2) {
+                numeroDigitado += digito;
+                atualizarDisplayUrna();
+            }
+        }
 
-                if(chapaId !== 0) {
-                    const chapa = chapasCache.find(c => c.id === chapaId);
-                    if(chapa) chapa.votos++;
+        function votarBranco() {
+            numeroDigitado = "";
+            votoEmBrancoAtivo = true;
+            atualizarDisplayUrna();
+        }
+
+        function acaoCorrige() {
+            resetarTelaUrna();
+        }
+
+        function atualizarDisplayUrna() {
+            const container = document.getElementById('urnaDisplayConteudo');
+            
+            if (votoEmBrancoAtivo) {
+                container.innerHTML = `
+                    <div class="py-6">
+                        <h2 class="text-3xl font-bold tracking-wider text-slate-800 mb-4">SEU VOTO PARA</h2>
+                        <div class="text-4xl font-extrabold uppercase text-slate-900 my-6 tracking-wide">VOTO EM BRANCO</div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (numeroDigitado.length === 0) {
+                container.innerHTML = `
+                    <div class="py-4">
+                        <h2 class="text-3xl font-bold tracking-wider text-slate-800 mb-6">SEU VOTO PARA</h2>
+                        <div class="text-xl font-bold text-slate-800 uppercase mb-8">CHAPA / REPRESENTANTE</div>
+                        <div class="flex items-center space-x-3 mb-6">
+                            <span class="text-sm font-bold text-slate-700">Número:</span>
+                            <div class="flex space-x-2">
+                                <div class="w-10 h-14 border-2 border-slate-700 bg-white flex items-center justify-center font-urna text-3xl font-bold shadow-inner"></div>
+                                <div class="w-10 h-14 border-2 border-slate-700 bg-white flex items-center justify-center font-urna text-3xl font-bold shadow-inner"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (numeroDigitado.length === 1) {
+                container.innerHTML = `
+                    <div class="py-4">
+                        <h2 class="text-3xl font-bold tracking-wider text-slate-800 mb-6">SEU VOTO PARA</h2>
+                        <div class="text-xl font-bold text-slate-800 uppercase mb-8">CHAPA / REPRESENTANTE</div>
+                        <div class="flex items-center space-x-3 mb-6">
+                            <span class="text-sm font-bold text-slate-700">Número:</span>
+                            <div class="flex space-x-2">
+                                <div class="w-10 h-14 border-2 border-slate-700 bg-white flex items-center justify-center font-urna text-3xl font-bold shadow-inner">${numeroDigitado[0]}</div>
+                                <div class="w-10 h-14 border-2 border-slate-700 bg-white flex items-center justify-center font-urna text-3xl font-bold shadow-inner animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (numeroDigitado.length === 2) {
+                const chapaEncontrada = chapasCache.find(c => c.id === numeroDigitado);
+                
+                if (chapaEncontrada) {
+                    container.innerHTML = `
+                        <div class="py-2">
+                            <h2 class="text-2xl font-bold tracking-wider text-slate-800 mb-2">SEU VOTO PARA</h2>
+                            <div class="text-lg font-bold text-slate-800 uppercase mb-2">CHAPA / REPRESENTANTE</div>
+                            <div class="flex items-center space-x-3 mb-4">
+                                <span class="text-xs font-bold text-slate-700">Número:</span>
+                                <div class="flex space-x-1">
+                                    <div class="w-8 h-10 border-2 border-slate-700 bg-white flex items-center justify-center font-urna text-2xl font-bold">${numeroDigitado[0]}</div>
+                                    <div class="w-8 h-10 border-2 border-slate-700 bg-white flex items-center justify-center font-urna text-2xl font-bold">${numeroDigitado[1]}</div>
+                                </div>
+                            </div>
+                            <div class="bg-white/80 border border-slate-400 p-3 rounded-lg shadow-sm space-y-1">
+                                <p class="text-base font-extrabold text-slate-900">${chapaEncontrada.nome}</p>
+                                <p class="text-xs text-slate-700 leading-snug">Proposta: ${chapaEncontrada.proposta}</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="py-4">
+                            <h2 class="text-2xl font-bold tracking-wider text-red-700 mb-4">VOTO NULO</h2>
+                            <div class="flex items-center space-x-3 mb-4">
+                                <span class="text-xs font-bold text-slate-700">Número:</span>
+                                <div class="flex space-x-1">
+                                    <div class="w-8 h-10 border-2 border-slate-700 bg-white flex items-center justify-center font-urna text-2xl font-bold">${numeroDigitado[0]}</div>
+                                    <div class="w-8 h-10 border-2 border-slate-700 bg-white flex items-center justify-center font-urna text-2xl font-bold">${numeroDigitado[1]}</div>
+                                </div>
+                            </div>
+                            <p class="text-sm font-bold text-red-600 mt-4">Numero incorreto ou Chapa inexistente.</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        async function acaoConfirma() {
+            let nomeVotoFinal = "Voto Nulo";
+            let chapaIdAlvo = null;
+
+            if (votoEmBrancoAtivo) {
+                nomeVotoFinal = "Voto em Branco";
+            } else if (numeroDigitado.length === 2) {
+                const chapa = chapasCache.find(c => c.id === numeroDigitado);
+                if (chapa) {
+                    nomeVotoFinal = chapa.nome;
+                    chapaIdAlvo = chapa.id;
+                }
+            } else {
+                alert("Digite os 2 dígitos da chapa ou escolha Voto em Branco.");
+                return;
+            }
+
+            try {
+                // Toca o som REAL da urna eletrônica imediatamente
+                tocarSomUrna();
+
+                if (chapaIdAlvo) {
+                    const cObj = chapasCache.find(c => c.id === chapaIdAlvo);
+                    if (cObj) cObj.votos++;
                 }
 
                 const agora = new Date();
@@ -354,24 +428,37 @@
                 historicoCache.unshift({
                     ra: alunoLogadoRa,
                     hora: horaFormatada,
-                    voto: nomeChapa
+                    voto: nomeVotoFinal
                 });
 
                 await db.collection("eleitores_bloqueados").doc(alunoLogadoRa).set({
                     votou: true,
                     horario: horaFormatada,
-                    votoEscolhido: nomeChapa
+                    votoEscolhido: nomeVotoFinal
                 });
 
                 await db.collection("eleicao_soares").doc("dados_gerais").set({ chapas: chapasCache });
                 await db.collection("eleicao_soares").doc("historico").set({ votos: historicoCache });
 
-                document.getElementById('screenVotingBooth').classList.add('hidden');
-                document.getElementById('screenVotedSuccess').classList.remove('hidden');
+                // Desenha a tela FIM clássica da urna eletrônica
+                const container = document.getElementById('urnaDisplayConteudo');
+                document.getElementById('urnaInstrucoesRodape').classList.add('hidden');
+                
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20">
+                        <h1 class="font-urna text-8xl font-black tracking-widest text-slate-900 animate-pulse">F I M</h1>
+                        <p class="text-xs text-slate-600 mt-4">Seu voto foi registrado com segurança no Firebase.</p>
+                    </div>
+                `;
+
+                // Aguarda 3.5 segundos ouvindo o som da urna e retorna para o login do próximo aluno
+                setTimeout(() => {
+                    sairUrna();
+                }, 3500);
 
             } catch (err) {
-                console.error("Erro ao computar voto:", err);
-                alert("Erro ao enviar o voto para o Firebase.");
+                console.error("Erro ao registrar voto:", err);
+                alert("Erro ao gravar voto no Firebase.");
             }
         }
 
@@ -381,12 +468,12 @@
             document.getElementById('voterDigito').value = '';
             const btn = document.getElementById('btnEntrar');
             if(btn) {
-                btn.innerText = "Verificar e Votar";
+                btn.innerText = "Liberar Urna para Votação";
                 btn.disabled = false;
             }
             
+            document.getElementById('urnaInstrucoesRodape').classList.remove('hidden');
             document.getElementById('screenVotingBooth').classList.add('hidden');
-            document.getElementById('screenVotedSuccess').classList.add('hidden');
             document.getElementById('screenAdminPanel').classList.add('hidden');
             document.getElementById('screenVoterLogin').classList.remove('hidden');
         }
@@ -420,22 +507,22 @@
             chapasCache.forEach(c => {
                 totalGeral += c.votos;
                 containerPlacar.innerHTML += `
-                    <div class="bg-darkBg border border-borderCol p-3.5 rounded-xl flex justify-between items-center">
+                    <div class="bg-slate-900 border border-slate-700 p-3.5 rounded-xl flex justify-between items-center">
                         <div>
-                            <span class="font-bold text-sm text-white">${c.nome}</span>
-                            <div class="text-[11px] text-indigo-300/70">Votos apurados</div>
+                            <span class="font-bold text-sm text-white">[#${c.id}] ${c.nome}</span>
+                            <div class="text-[11px] text-slate-400">${c.proposta}</div>
                         </div>
                         <div class="text-right">
-                            <span class="font-extrabold text-indigo-400 text-lg">${c.votos}</span>
-                            <span class="text-xs text-indigo-300/50 block">votos</span>
+                            <span class="font-extrabold text-emerald-400 text-lg">${c.votos}</span>
+                            <span class="text-xs text-slate-500 block">votos</span>
                         </div>
                     </div>
                 `;
             });
 
             containerPlacar.innerHTML += `
-                <div class="pt-2 text-xs text-indigo-300/80 text-center font-semibold">
-                    Total geral de votos: ${totalGeral}
+                <div class="pt-2 text-xs text-slate-400 text-center font-semibold">
+                    Total geral de votos apurados: ${totalGeral}
                 </div>
             `;
         }
@@ -446,15 +533,15 @@
             containerTabela.innerHTML = '';
 
             if(historicoCache.length === 0) {
-                containerTabela.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-indigo-300/50">Nenhum voto registrado ainda.</td></tr>`;
+                containerTabela.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-500">Nenhum voto registrado ainda.</td></tr>`;
                 return;
             }
 
             historicoCache.forEach(h => {
                 containerTabela.innerHTML += `
-                    <tr class="hover:bg-darkBg/50 transition">
-                        <td class="p-3 font-mono text-indigo-200">${h.ra}</td>
-                        <td class="p-3 text-indigo-300/80">${h.hora}</td>
+                    <tr class="hover:bg-slate-900/50 transition">
+                        <td class="p-3 font-mono text-slate-300">${h.ra}</td>
+                        <td class="p-3 text-slate-400">${h.hora}</td>
                         <td class="p-3 font-medium text-white">${h.voto}</td>
                     </tr>
                 `;
@@ -462,28 +549,28 @@
         }
 
         async function adicionarChapaFirebase() {
+            const idInput = document.getElementById('novaChapaId').value.trim();
             const nome = document.getElementById('novaChapaNome').value.trim();
             const proposta = document.getElementById('novaChapaProposta').value.trim();
 
-            if(!nome || !proposta) {
-                alert('Preencha os campos da chapa.');
+            if(!idInput || !nome || !proposta) {
+                alert('Preencha todos os campos da chapa.');
                 return;
             }
 
-            const novaId = chapasCache.length + 1;
             chapasCache.push({
-                id: novaId,
-                nome: nome,
+                id: idInput,
+                nome: nome.toUpperCase(),
                 proposta: proposta,
-                votos: 0,
-                cor: "from-blue-600 to-indigo-600"
+                votos: 0
             });
 
             try {
                 await db.collection("eleicao_soares").doc("dados_gerais").set({ chapas: chapasCache });
+                document.getElementById('novaChapaId').value = '';
                 document.getElementById('novaChapaNome').value = '';
                 document.getElementById('novaChapaProposta').value = '';
-                alert('Chapa cadastrada com sucesso no Firebase!');
+                alert('Chapa cadastrada com sucesso!');
             } catch (err) {
                 console.error("Erro ao salvar chapa:", err);
                 alert("Erro ao gravar chapa no Firebase.");
