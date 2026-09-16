@@ -6,10 +6,6 @@
     <title>Festa de 15 Anos - Murilo Gabriel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    
-    <!-- Firebase SDKs (Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
@@ -31,7 +27,7 @@
             <a href="#inicio" class="font-cinzel font-bold tracking-widest text-purple-400 text-lg">M G</a>
             <nav class="hidden md:flex space-x-8 text-sm font-medium tracking-wider uppercase text-slate-300">
                 <a href="#sobre" class="hover:text-purple-400 transition">O Aniversário</a>
-                <a href="#local" class="hover:text-purple-400 transition">Local & Data</a>
+                <a href="#local" class="hover:text-purple-400 transition">Programação</a>
                 <a href="#presentes" class="hover:text-purple-400 transition">Contribuição Pix</a>
                 <a href="#rsvp" class="hover:text-purple-400 transition text-purple-400 font-semibold">Confirmar Presença</a>
             </nav>
@@ -43,7 +39,6 @@
 
     <!-- SEÇÃO HERO / CAPA -->
     <section id="inicio" class="min-h-screen flex flex-col justify-center items-center text-center px-6 pt-28 pb-16 relative overflow-hidden">
-        <!-- Efeitos de Luz Roxa de Fundo -->
         <div class="absolute w-[500px] h-[500px] bg-purple-700/15 rounded-full blur-[120px] -top-20 -left-20 pointer-events-none"></div>
         <div class="absolute w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[120px] -bottom-20 -right-20 pointer-events-none"></div>
 
@@ -58,14 +53,14 @@
             </h1>
             
             <p class="text-purple-400 font-cinzel text-xl md:text-2xl tracking-widest uppercase">
-                Celebração de 15 Anos
+                Celebração de 15 Anos • 2 Dias de Festa!
             </p>
 
             <p class="text-slate-400 max-w-lg mx-auto text-sm md:text-base font-light leading-relaxed">
-                Uma noite inesquecível em tons de roxo e preto para celebrar esta data tão marcante ao lado de quem faz parte da minha história. Venha comemorar comigo!
+                São dois dias de comemoração em tons de roxo e preto. Venha curtir do seu jeito, sem regras de roupa, e celebrar comigo!
             </p>
 
-            <!-- CONTAGEM REGRESSIVA (Apontando para 14 de Novembro) -->
+            <!-- CONTAGEM REGRESSIVA -->
             <div class="grid grid-cols-4 gap-3 max-w-md mx-auto pt-4">
                 <div class="bg-gradient-to-b from-purple-950/60 to-black border border-purple-800/40 rounded-2xl p-3 text-center shadow-xl">
                     <span id="dias" class="font-cinzel text-2xl md:text-3xl font-bold text-purple-400 block">00</span>
@@ -87,52 +82,61 @@
 
             <div class="pt-6">
                 <a href="#local" class="inline-flex items-center space-x-2 text-slate-400 hover:text-purple-400 text-xs uppercase tracking-widest transition">
-                    <span>Ver detalhes do evento</span>
+                    <span>Ver programação completa</span>
                     <i class="fa-solid fa-arrow-down animate-bounce text-purple-500"></i>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- SEÇÃO DETALHES & LOCAL -->
-    <section id="local" class="py-24 px-6 bg-gradient-to-b from-black via-purple-950/20 to-black border-y border-purple-900/30">
+    <!-- SEÇÃO PROGRAMAÇÃO DETALHADA (DIAS 14 E 15) -->
+    <section id="local" class="py-24 px-6 bg-gradient-to-b from-black via-purple-950/20 to-black border-y border-purple-900/35">
         <div class="max-w-6xl mx-auto">
             <div class="text-center max-w-xl mx-auto mb-16 space-y-3">
-                <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-white">Quando e Onde</h2>
+                <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-white">Programação do Fim de Semana</h2>
                 <div class="w-12 h-0.5 bg-purple-600 mx-auto"></div>
-                <p class="text-slate-400 text-sm">Informações essenciais para você não perder nada.</p>
+                <p class="text-slate-400 text-sm">Dois dias de muita curtição. Veja os detalhes:</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Card Data -->
-                <div class="bg-gradient-to-b from-slate-900 to-black border border-purple-900/40 rounded-3xl p-8 text-center space-y-4 hover:border-purple-500 transition shadow-xl">
-                    <div class="w-14 h-14 bg-purple-950 border border-purple-500/30 rounded-2xl flex items-center justify-center text-purple-400 text-2xl mx-auto">
-                        <i class="fa-solid fa-calendar-days"></i>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <!-- Dia 14 -->
+                <div class="bg-gradient-to-b from-slate-900 to-black border border-purple-900/50 rounded-3xl p-8 space-y-5 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-purple-600 text-white text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-bl-2xl">Dia 14 de Novembro</div>
+                    <div class="w-14 h-14 bg-purple-950 border border-purple-500/40 rounded-2xl flex items-center justify-center text-purple-400 text-2xl">
+                        <i class="fa-solid fa-glass-cheers"></i>
                     </div>
-                    <h3 class="font-cinzel font-bold text-lg text-white">Data</h3>
-                    <p class="text-slate-200 text-sm font-semibold">14 e 15 de Novembro</p>
-                    <p class="text-xs text-purple-400 font-medium">Finais de semana inesquecíveis</p>
-                </div>
-
-                <!-- Card Local -->
-                <div class="bg-gradient-to-b from-slate-900 to-black border border-purple-900/40 rounded-3xl p-8 text-center space-y-4 hover:border-purple-500 transition shadow-xl">
-                    <div class="w-14 h-14 bg-purple-950 border border-purple-500/30 rounded-2xl flex items-center justify-center text-purple-400 text-2xl mx-auto">
+                    <h3 class="font-cinzel font-bold text-xl text-white">A Grande Festa</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        No dia 14 rola a festa principal onde todos vão com a roupa que preferir! Sem regras, o importante é marcar presença e curtir a noite.
+                    </p>
+                    <div class="border-t border-purple-900/40 pt-4 flex items-center text-xs text-purple-300 space-x-2">
                         <i class="fa-solid fa-location-dot"></i>
+                        <span>Local: A definir (Em breve)</span>
                     </div>
-                    <h3 class="font-cinzel font-bold text-lg text-white">Local</h3>
-                    <p class="text-slate-200 text-sm font-semibold">A Definir</p>
-                    <p class="text-xs text-slate-400">Em breve divulgaremos o endereço completo</p>
                 </div>
 
-                <!-- Card Traje -->
-                <div class="bg-gradient-to-b from-slate-900 to-black border border-purple-900/40 rounded-3xl p-8 text-center space-y-4 hover:border-purple-500 transition shadow-xl">
-                    <div class="w-14 h-14 bg-purple-950 border border-purple-500/30 rounded-2xl flex items-center justify-center text-purple-400 text-2xl mx-auto">
-                        <i class="fa-solid fa-shirt"></i>
+                <!-- Dia 15 -->
+                <div class="bg-gradient-to-b from-slate-900 to-black border border-purple-900/50 rounded-3xl p-8 space-y-5 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-purple-500 text-black text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-bl-2xl">Dia 15 de Novembro</div>
+                    <div class="w-14 h-14 bg-purple-950 border border-purple-500/40 rounded-2xl flex items-center justify-center text-purple-400 text-2xl">
+                        <i class="fa-solid fa-fire-burner"></i>
                     </div>
-                    <h3 class="font-cinzel font-bold text-lg text-white">Traje</h3>
-                    <p class="text-slate-200 text-sm font-semibold">Esporte Fino / Social</p>
-                    <p class="text-xs text-purple-400 font-medium">Temática Roxo e Preto (Opcional)</p>
+                    <h3 class="font-cinzel font-bold text-xl text-white">Churrasco & Lazer</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        No dia 15 é onde fica mais legal! Todo mundo junto para curtir um churrasco animado, piscina refrescante, partidas de vôlei, futebol e muito mais!
+                    </p>
+                    <div class="border-t border-purple-900/40 pt-4 flex items-center text-xs text-purple-300 space-x-2">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Local: A definir (Em breve)</span>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Card Destaque: Traje Livre -->
+            <div class="bg-purple-950/30 border border-purple-500/30 rounded-3xl p-6 md:p-8 text-center max-w-3xl mx-auto space-y-2">
+                <div class="text-purple-400 text-xl"><i class="fa-solid fa-shirt"></i></div>
+                <h4 class="font-cinzel font-bold text-lg text-white">Código de Vestimenta: Livre!</h4>
+                <p class="text-slate-300 text-sm">Lembrando: **não tem roupa definida, é você quem manda**! Venha com o que se sentir bem e confortável.</p>
             </div>
         </div>
     </section>
@@ -141,8 +145,8 @@
     <section id="presentes" class="py-24 px-6 max-w-4xl mx-auto text-center space-y-8">
         <div class="space-y-3">
             <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-white">Contribuição para a Festa</h2>
-            <div class="w-12 h-0.5 bg-purple-600 mx-auto"></div>
-            <p class="text-slate-400 text-sm max-w-lg mx-auto">Sua presença é o mais importante! Quem puder contribuir com algum dinheiro para ajudar a custear a festa, disponibilizamos o Pix abaixo:</p>
+            <div class="w-12 h-0.5 bg-purple-600 mx-auto"></th></div>
+            <p class="text-slate-400 text-sm max-w-lg mx-auto">Sua presença é o mais importante! Quem puder contribuir com algum dinheiro para ajudar a festa, quem quiser ajudar pode usar o Pix abaixo:</p>
         </div>
 
         <div class="bg-gradient-to-b from-purple-950/40 to-slate-900 border border-purple-700/30 rounded-3xl p-8 max-w-lg mx-auto space-y-6 shadow-2xl">
@@ -151,7 +155,7 @@
             </div>
             <div class="space-y-2">
                 <h3 class="font-cinzel font-bold text-xl text-white">Chave Pix (CPF)</h3>
-                <p class="text-xs text-slate-400 leading-snug">Qualquer valor é super bem-vindo e vai ajudar a tornar esta festa de 15 anos ainda mais incrível!</p>
+                <p class="text-xs text-slate-400 leading-snug">Quem puder contribuir com algum dinheiro para festa, qualquer valor ajuda muito!</p>
             </div>
             <div class="bg-black border border-purple-900/60 p-4 rounded-2xl flex items-center justify-between">
                 <div class="text-left">
@@ -171,7 +175,7 @@
             <div class="text-center space-y-3 mb-8">
                 <h2 class="font-cinzel text-3xl font-bold text-white">Confirmação de Presença</h2>
                 <p class="text-xs text-purple-400 uppercase tracking-widest font-semibold">Grupo Oficial do WhatsApp</p>
-                <p class="text-slate-400 text-sm">Digite seu nome e clique em confirmar para entrar no grupo e enviar sua confirmação automaticamente.</p>
+                <p class="text-slate-400 text-sm">Digite seu nome e clique em confirmar para entrar no grupo e enviar sua mensagem automática.</p>
             </div>
 
             <form onsubmit="confirmarPresencaWhatsApp(event)" class="space-y-5">
@@ -181,7 +185,7 @@
                 </div>
 
                 <div class="bg-purple-950/30 border border-purple-800/30 rounded-xl p-4 text-xs text-purple-300 space-y-1">
-                    <p class="font-bold flex items-center"><i class="fa-solid fa-circle-info mr-2"></i> O que vai acontecer ao confirmar:</p>
+                    <p class="font-bold flex items-center"><i class="fa-solid fa-circle-info mr-2"></i> O que vai acontecer:</p>
                     <p class="text-slate-400">1. O texto <code class="text-purple-300">"Nome: [Seu Nome] - Eu [Seu Nome] confirmo minha presença na festa de 15 do murilo"</code> será copiado automaticamente.</p>
                     <p class="text-slate-400">2. Você será direcionado para o grupo do WhatsApp para colar a mensagem no chat.</p>
                 </div>
@@ -196,7 +200,7 @@
     <!-- RODAPÉ -->
     <footer class="py-12 px-6 text-center border-t border-purple-950 text-slate-500 text-xs space-y-2">
         <p class="font-cinzel text-purple-400 font-bold tracking-widest text-sm">MURILO GABRIEL • 15 ANOS</p>
-        <p>Feito com carinho para esta data especial em tons de roxo e preto.</p>
+        <p>Feito com carinho para esta data especial.</p>
     </footer>
 
     <script>
@@ -232,18 +236,13 @@
             
             if(!nome) return;
 
-            // Formata o texto solicitado
             const textoMensagem = `Nome: ${nome}\nEu ${nome} confirmo minha presença na festa de 15 do murilo`;
 
-            // Copia automaticamente para a área de transferência do usuário
             navigator.clipboard.writeText(textoMensagem).then(() => {
-                alert(`Tudo pronto, ${nome}!\n\nA mensagem de confirmação foi copiada para a sua área de transferência.\n\nAgora você será levado para o grupo do WhatsApp. É só colar no chat!`);
-                
-                // Redireciona para o grupo do WhatsApp fornecido
+                alert(`Tudo pronto, ${nome}!\n\nA mensagem foi copiada para a sua área de transferência.\n\nAgora você será levado para o grupo do WhatsApp. É só colar no chat!`);
                 window.location.href = "https://chat.whatsapp.com/HqeRPOhScpdKklrAm80B77";
             }).catch(err => {
-                // Caso o navegador bloqueie a área de transferência direta por segurança
-                alert(`Erro ao copiar automaticamente. Copie este texto:\n\n${textoMensagem}`);
+                alert(`Copie este texto manualmente:\n\n${textoMensagem}`);
                 window.location.href = "https://chat.whatsapp.com/HqeRPOhScpdKklrAm80B77";
             });
         }
