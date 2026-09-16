@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soares Dev - E.E. Soares Club | Competição Desenvolvedor</title>
+    <title>Urna do Soares - Eleição do Grêmio Estudantil</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
@@ -12,747 +12,310 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#7c3aed',
-                        darkBg: '#090214',
-                        cardBg: '#130626',
-                        borderCol: '#2f1255'
+                        primary: '#4f46e5',
+                        darkBg: '#0f172a',
+                        cardBg: '#1e293b',
+                        borderCol: '#334155'
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-darkBg text-white font-sans min-h-screen flex flex-col justify-between selection:bg-purple-600 selection:text-white">
+<body class="bg-darkBg text-white font-sans min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-    <!-- TELA DE LOGIN (PADRÃO SEDEC-SP / SECRETARIA DO SOARES) -->
-    <div id="loginScreen" class="flex-1 flex flex-col justify-center items-center p-4">
+    <!-- TELA DE IDENTIFICAÇÃO DO ELEITOR (VOTO ÚNICO POR R.A.) -->
+    <div id="screenVoterLogin" class="flex-1 flex flex-col justify-center items-center p-4">
         <div class="w-full max-w-md bg-cardBg border border-borderCol rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-600/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/20 rounded-full blur-2xl pointer-events-none"></div>
             
             <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-purple-900/50 border border-purple-500/30 text-purple-400 text-2xl mb-3 shadow-inner">
-                    <i class="fa-solid fa-graduation-cap"></i>
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 text-3xl mb-3 shadow-inner">
+                    <i class="fa-solid fa-box-archive"></i>
                 </div>
-                <h1 class="text-2xl font-bold tracking-tight">SECRETARIA DO SOARES</h1>
-                <p class="text-xs text-purple-300/70 mt-1">E.E. Soares Club • Soares Dev Oficial</p>
+                <h1 class="text-2xl font-bold tracking-tight">URNA DO SOARES</h1>
+                <p class="text-xs text-indigo-300/70 mt-1">Eleições Oficiais do Grêmio Estudantil • E.E. Soares Club</p>
             </div>
 
-            <form id="formLogin" onsubmit="realizarLogin(event)" class="space-y-4">
+            <form onsubmit="entrarParaVotar(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-purple-300 uppercase tracking-wider mb-1">R.A. do Aluno / Servidor</label>
-                    <input type="text" id="inputRa" required placeholder="Ex: 15894231 ou soares" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 transition">
+                    <label class="block text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">R.A. do Aluno (Registro)</label>
+                    <input type="text" id="voterRa" required placeholder="Ex: 15894231" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-purple-300 uppercase tracking-wider mb-1">Dígito</label>
-                        <input type="text" id="inputDigito" maxlength="1" placeholder="5" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-center focus:outline-none focus:border-purple-500 transition">
+                        <label class="block text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">Dígito</label>
+                        <input type="text" id="voterDigito" maxlength="1" required placeholder="5" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-center focus:outline-none focus:border-indigo-500 transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-purple-300 uppercase tracking-wider mb-1">UF</label>
-                        <input type="text" id="inputUf" maxlength="2" value="SP" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-center uppercase focus:outline-none focus:border-purple-500 transition">
+                        <label class="block text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">UF</label>
+                        <input type="text" id="voterUf" maxlength="2" value="SP" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-center uppercase focus:outline-none focus:border-indigo-500 transition">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-purple-300 uppercase tracking-wider mb-1">Senha</label>
-                    <input type="password" id="inputSenha" required placeholder="••••••••" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 transition">
-                </div>
-                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-purple-900/40 mt-2">
-                    Entrar na Plataforma
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-indigo-900/40 mt-2">
+                    Iniciar Votação
                 </button>
             </form>
-            
-            <div class="mt-6 text-center text-xs text-purple-300/50">
-                Soares Dev &copy; 2026 • Competição Desenvolvedor SP
+
+            <div class="mt-6 pt-4 border-t border-borderCol flex justify-between items-center text-xs">
+                <span class="text-indigo-300/50">Sistema Eletrônico Seguro</span>
+                <button onclick="abrirAdminModal()" class="text-indigo-400 hover:underline font-medium">Acesso Mesário / Admin</button>
             </div>
         </div>
     </div>
 
-    <!-- TELA PRINCIPAL DO SISTEMA -->
-    <div id="mainApp" class="hidden flex-1 flex flex-col">
-        <!-- HEADER -->
-        <header class="bg-cardBg border-b border-borderCol px-6 py-4 flex justify-between items-center shadow-md">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-lg bg-purple-600/30 flex items-center justify-center text-purple-400 font-bold border border-purple-500/30">
-                    SF
-                </div>
+    <!-- TELA DE VOTAÇÃO (CABines DE VOTO) -->
+    <div id="screenVotingBooth" class="hidden flex-1 max-w-4xl mx-auto p-6 w-full flex flex-col justify-center">
+        <div class="bg-cardBg border border-borderCol rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+            <div class="flex justify-between items-center border-b border-borderCol pb-4">
                 <div>
-                    <h2 id="userNameDisplay" class="font-bold text-sm">Usuário</h2>
-                    <p id="userClassDisplay" class="text-xs text-purple-300/70">Série/Cargo</p>
+                    <h2 class="text-xl font-bold">Cédula Eletrônica Oficial</h2>
+                    <p class="text-xs text-indigo-300/70">Eleitor autenticado: <span id="displayVoterRa" class="font-mono text-white"></span></p>
+                </div>
+                <div class="bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 text-xs px-3 py-1.5 rounded-lg">
+                    Escolha 1 Chapa
                 </div>
             </div>
-            <div class="flex items-center space-x-4">
-                <button onclick="sairSistema()" class="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-3 py-2 rounded-lg hover:bg-red-500/30 transition">
-                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Sair
-                </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="listaChapasVotacao">
+                <!-- Preenchido dinamicamente via JS -->
             </div>
-        </header>
+        </div>
+    </div>
 
-        <div class="flex-1 flex flex-col md:flex-row">
-            <!-- SIDEBAR -->
-            <aside class="w-full md:w-64 bg-cardBg/50 border-r border-borderCol p-4 space-y-2">
-                <button onclick="mudarAba('home')" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-purple-600/20 text-purple-200 transition flex items-center space-x-3">
-                    <i class="fa-solid fa-house w-5 text-purple-400"></i><span>Home</span>
-                </button>
-                <button onclick="mudarAba('tarefas')" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-purple-600/20 text-purple-200 transition flex items-center space-x-3">
-                    <i class="fa-solid fa-list-check w-5 text-purple-400"></i><span>Tarefa SP</span>
-                </button>
-                <button onclick="mudarAba('redacao')" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-purple-600/20 text-purple-200 transition flex items-center space-x-3">
-                    <i class="fa-solid fa-pen-nib w-5 text-purple-400"></i><span>Redação Paulista</span>
-                </button>
-                <button onclick="mudarAba('materiais')" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-purple-600/20 text-purple-200 transition flex items-center space-x-3">
-                    <i class="fa-solid fa-book-open w-5 text-purple-400"></i><span>Materiais & Slides / Vídeos</span>
-                </button>
-                <button onclick="mudarAba('frequencia')" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-purple-600/20 text-purple-200 transition flex items-center space-x-3">
-                    <i class="fa-solid fa-calendar-check w-5 text-purple-400"></i><span>Frequência / Presença</span>
-                </button>
-                <div id="adminMenuBtn" class="hidden pt-2 border-t border-borderCol">
-                    <button onclick="mudarAba('admin')" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium bg-purple-600 text-white transition flex items-center space-x-3 shadow-lg">
-                        <i class="fa-solid fa-user-shield w-5"></i><span>Painel Admin / Gestão</span>
-                    </button>
+    <!-- TELA DE CONFIRMAÇÃO DO VOTO -->
+    <div id="screenVotedSuccess" class="hidden flex-1 flex flex-col justify-center items-center p-4">
+        <div class="w-full max-w-md bg-cardBg border border-borderCol rounded-2xl p-8 text-center space-y-4 shadow-2xl">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/20 text-green-400 text-4xl mb-2">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-green-400">Voto Computado com Sucesso!</h2>
+            <p class="text-sm text-indigo-200/80">Seu voto foi registrado com criptografia e sigilo na Urna do Soares. Obrigado por exercer sua cidadania estudantil!</p>
+            <button onclick="sairUrna()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-medium text-sm transition shadow-lg mt-4">
+                Finalizar e Sair da Sessão
+            </button>
+        </div>
+    </div>
+
+    <!-- PAINEL DE APURAÇÃO DO ADMIN / MESÁRIO -->
+    <div id="screenAdminPanel" class="hidden flex-1 max-w-4xl mx-auto p-6 w-full space-y-6">
+        <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-bold text-indigo-300"><i class="fa-solid fa-chart-pie mr-2"></i> Painel de Apuração • Urna do Soares</h2>
+                <p class="text-xs text-indigo-300/70 mt-0.5">Resultados parciais e controle de votos da eleição escolar.</p>
+            </div>
+            <button onclick="sairUrna()" class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl text-xs hover:bg-red-500/30 transition">
+                Sair do Painel
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
+                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Placar Geral de Votos</h3>
+                <div id="placarResultados" class="space-y-3">
+                    <!-- Preenchido via JS -->
                 </div>
-            </aside>
+            </div>
 
-            <!-- CONTEÚDO DINÂMICO -->
-            <main class="flex-1 p-6 overflow-y-auto">
-                
-                <!-- ABA HOME -->
-                <div id="aba-home" class="space-y-6">
-                    <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                        <div class="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-purple-600/10 to-transparent pointer-events-none"></div>
-                        <h3 id="welcomeMsg" class="text-xl font-bold mb-2">Bem-vindo(a) à Sala do Futuro!</h3>
-                        <p class="text-sm text-purple-300/80">E.E. Soares Club • Plataforma oficial conectada para estudos, videoaulas, slides e acompanhamento acadêmico.</p>
+            <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
+                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Gerenciamento de Chapas</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs mb-1 text-indigo-200">Nome da Nova Chapa</label>
+                        <input type="text" id="novaChapaNome" placeholder="Ex: Chapa 3 - Inovação" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-indigo-500">
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-cardBg border border-borderCol rounded-2xl p-5">
-                            <span class="text-xs text-purple-400 uppercase font-bold">Frequência Escolar</span>
-                            <div id="freqDisplayCard" class="text-3xl font-extrabold mt-2 text-green-400">100%</div>
-                        </div>
-                        <div class="bg-cardBg border border-borderCol rounded-2xl p-5">
-                            <span class="text-xs text-purple-400 uppercase font-bold">Tarefas Pendentes</span>
-                            <div id="countTarefasPendentes" class="text-3xl font-extrabold mt-2 text-yellow-400">2</div>
-                        </div>
-                        <div class="bg-cardBg border border-borderCol rounded-2xl p-5">
-                            <span class="text-xs text-purple-400 uppercase font-bold">Desenvolvedores</span>
-                            <div class="text-xs font-semibold mt-3 text-purple-300">@7soaresvgh & murilo_xyz</div>
-                        </div>
+                    <div>
+                        <label class="block text-xs mb-1 text-indigo-200">Proposta Principal</label>
+                        <input type="text" id="novaChapaProposta" placeholder="Ex: Wi-Fi livre e campeonatos" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-indigo-500">
                     </div>
+                    <button onclick="adicionarChapa()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-2.5 rounded-xl text-sm font-medium transition shadow">Cadastrar Nova Chapa</button>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- ABA TAREFAS SP -->
-                <div id="aba-tarefas" class="hidden space-y-6">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-xl font-bold">Tarefas SP - Atividades por Matéria</h3>
-                    </div>
-                    <div id="listaTarefasAluno" class="space-y-4">
-                        <!-- Gerado por JS -->
-                    </div>
-                </div>
-
-                <!-- TELA DE FAZER TAREFA (QUIZ DE 5 QUESTÕES) -->
-                <div id="aba-fazer-tarefa" class="hidden space-y-6 max-w-2xl mx-auto bg-cardBg border border-borderCol p-6 rounded-2xl shadow-xl">
-                    <div class="flex justify-between items-center border-b border-borderCol pb-4">
-                        <h3 id="tituloTarefaModal" class="text-lg font-bold text-purple-300"></h3>
-                        <button onclick="mudarAba('tarefas')" class="text-xs bg-purple-900/50 px-3 py-1.5 rounded-lg hover:bg-purple-800 transition">Voltar</button>
-                    </div>
-                    <div id="containerQuiz" class="space-y-6"></div>
-                </div>
-
-                <!-- ABA REDAÇÃO PAULISTA -->
-                <div id="aba-redacao" class="hidden space-y-6">
-                    <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl">
-                        <h3 class="text-lg font-bold mb-2">Tema da Redação Paulista: Os impactos da tecnologia na educação contemporânea</h3>
-                        <p class="text-xs text-purple-300/70 mb-4">Texto de apoio: A integração digital nas escolas transforma o aprendizado, exigindo letramento crítico, uso responsável de ferramentas em nuvem e adaptação pedagógica contínua.</p>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-semibold mb-1">Título da Redação</label>
-                                <input type="text" id="inputTituloRedacao" placeholder="Digite seu título aqui..." class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-purple-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold mb-1">Texto da Redação (Mínimo de caracteres exigido)</label>
-                                <textarea id="inputTextoRedacao" rows="6" placeholder="Escreva sua dissertação argumentativa aqui..." class="w-full bg-darkBg border border-borderCol rounded-xl p-4 text-sm focus:outline-none focus:border-purple-500"></textarea>
-                            </div>
-                            <button onclick="enviarRedacao()" class="bg-purple-600 hover:bg-purple-500 px-6 py-2.5 rounded-xl text-sm font-medium transition shadow-lg">Enviar para Correção IA & Professor</button>
-                        </div>
-                    </div>
-                    <div id="statusRedacaoEnvio" class="bg-cardBg border border-borderCol rounded-2xl p-4 text-sm"></div>
-                </div>
-
-                <!-- ABA MATERIAIS DIGITAIS (SLIDES & VÍDEOS YOUTUBE) -->
-                <div id="aba-materiais" class="hidden space-y-6">
-                    <h3 class="text-xl font-bold">Materiais Digitais • Aulas em Slides & Vídeos Oficiais</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-cardBg border border-borderCol p-5 rounded-2xl space-y-3 flex flex-col justify-between">
-                            <div>
-                                <span class="text-xs text-purple-400 font-bold uppercase">Matemática</span>
-                                <h4 class="font-bold text-base mt-1">Aula 1: Funções Afim e Quadráticas</h4>
-                                <p class="text-xs text-purple-300/70 mt-1">Slides interativos e videoaula explicativa do Centro de Mídias.</p>
-                            </div>
-                            <div class="flex space-x-2 pt-2">
-                                <button onclick="abrirSlide('Matemática', 'Aula 1: Funções Afim e Quadráticas')" class="flex-1 bg-purple-600 hover:bg-purple-500 py-2 rounded-xl text-xs font-medium transition text-center">Abrir Slides</button>
-                                <button onclick="abrirVideoYouTube('dQw4w9WgXcQ', 'Matemática - Funções')" class="flex-1 bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 py-2 rounded-xl text-xs font-medium transition text-center"><i class="fa-brands fa-youtube mr-1"></i> Ver Vídeo</button>
-                            </div>
-                        </div>
-
-                        <div class="bg-cardBg border border-borderCol p-5 rounded-2xl space-y-3 flex flex-col justify-between">
-                            <div>
-                                <span class="text-xs text-purple-400 font-bold uppercase">Física</span>
-                                <h4 class="font-bold text-base mt-1">Aula 1: Leis de Newton e Dinâmica</h4>
-                                <p class="text-xs text-purple-300/70 mt-1">Apresentação multimídia e resolução de exercícios.</p>
-                            </div>
-                            <div class="flex space-x-2 pt-2">
-                                <button onclick="abrirSlide('Física', 'Aula 1: Leis de Newton e Dinâmica')" class="flex-1 bg-purple-600 hover:bg-purple-500 py-2 rounded-xl text-xs font-medium transition text-center">Abrir Slides</button>
-                                <button onclick="abrirVideoYouTube('dQw4w9WgXcQ', 'Física - Leis de Newton')" class="flex-1 bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 py-2 rounded-xl text-xs font-medium transition text-center"><i class="fa-brands fa-youtube mr-1"></i> Ver Vídeo</button>
-                            </div>
-                        </div>
-
-                        <div class="bg-cardBg border border-borderCol p-5 rounded-2xl space-y-3 flex flex-col justify-between">
-                            <div>
-                                <span class="text-xs text-purple-400 font-bold uppercase">Biologia</span>
-                                <h4 class="font-bold text-base mt-1">Aula 1: Genética e DNA</h4>
-                                <p class="text-xs text-purple-300/70 mt-1">Estudo dos ácidos nucleicos e hereditariedade.</p>
-                            </div>
-                            <div class="flex space-x-2 pt-2">
-                                <button onclick="abrirSlide('Biologia', 'Aula 1: Genética e DNA')" class="flex-1 bg-purple-600 hover:bg-purple-500 py-2 rounded-xl text-xs font-medium transition text-center">Abrir Slides</button>
-                                <button onclick="abrirVideoYouTube('dQw4w9WgXcQ', 'Biologia - Genética')" class="flex-1 bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 py-2 rounded-xl text-xs font-medium transition text-center"><i class="fa-brands fa-youtube mr-1"></i> Ver Vídeo</button>
-                            </div>
-                        </div>
-
-                        <div class="bg-cardBg border border-borderCol p-5 rounded-2xl space-y-3 flex flex-col justify-between">
-                            <div>
-                                <span class="text-xs text-purple-400 font-bold uppercase">História</span>
-                                <h4 class="font-bold text-base mt-1">Aula 1: Revolução Industrial</h4>
-                                <p class="text-xs text-purple-300/70 mt-1">Impactos sociais, econômicos e tecnológicos na modernidade.</p>
-                            </div>
-                            <div class="flex space-x-2 pt-2">
-                                <button onclick="abrirSlide('História', 'Aula 1: Revolução Industrial')" class="flex-1 bg-purple-600 hover:bg-purple-500 py-2 rounded-xl text-xs font-medium transition text-center">Abrir Slides</button>
-                                <button onclick="abrirVideoYouTube('dQw4w9WgXcQ', 'História - Rev. Industrial')" class="flex-1 bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 py-2 rounded-xl text-xs font-medium transition text-center"><i class="fa-brands fa-youtube mr-1"></i> Ver Vídeo</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TELA DE SLIDE INTERATIVO -->
-                <div id="aba-visor-slide" class="hidden space-y-6 max-w-3xl mx-auto bg-cardBg border border-borderCol p-6 rounded-2xl shadow-2xl">
-                    <div class="flex justify-between items-center border-b border-borderCol pb-4">
-                        <h3 id="tituloSlideHeader" class="text-lg font-bold text-purple-300"></h3>
-                        <button onclick="mudarAba('materiais')" class="text-xs bg-purple-900/50 px-3 py-1.5 rounded-lg hover:bg-purple-800 transition">Fechar Slides</button>
-                    </div>
-                    <div id="conteudoSlideCorpo" class="bg-darkBg border border-borderCol p-8 rounded-xl text-center space-y-4 min-h-[300px] flex flex-col justify-center items-center">
-                        <!-- Gerado por JS -->
-                    </div>
-                    <div class="flex justify-between items-center pt-2">
-                        <button onclick="mudarSlide(-1)" class="bg-purple-900/40 hover:bg-purple-900/70 border border-purple-500/30 px-4 py-2 rounded-xl text-xs font-medium transition"><i class="fa-solid fa-arrow-left mr-1"></i> Anterior</button>
-                        <span id="contadorSlide" class="text-xs text-purple-300/70 font-semibold">Slide 1 de 3</span>
-                        <button onclick="mudarSlide(1)" class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-xl text-xs font-medium transition">Próximo <i class="fa-solid fa-arrow-right ml-1"></i></button>
-                    </div>
-                </div>
-
-                <!-- TELA DE PLAYER DE VÍDEO DO YOUTUBE -->
-                <div id="aba-visor-video" class="hidden space-y-6 max-w-3xl mx-auto bg-cardBg border border-borderCol p-6 rounded-2xl shadow-2xl">
-                    <div class="flex justify-between items-center border-b border-borderCol pb-4">
-                        <h3 id="tituloVideoHeader" class="text-lg font-bold text-red-400"><i class="fa-brands fa-youtube mr-2"></i> Videoaula Oficial</h3>
-                        <button onclick="mudarAba('materiais')" class="text-xs bg-purple-900/50 px-3 py-1.5 rounded-lg hover:bg-purple-800 transition">Fechar Vídeo</button>
-                    </div>
-                    <div class="aspect-video w-full bg-black rounded-xl overflow-hidden border border-borderCol flex items-center justify-center relative">
-                        <!-- Player incorporado simulado real -->
-                        <iframe id="iframeYoutubePlayer" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                    </div>
-                    <p class="text-xs text-purple-300/70 text-center">Videoaula recomendada pela Secretaria de Educação para reforço escolar.</p>
-                </div>
-
-                <!-- ABA FREQUÊNCIA -->
-                <div id="aba-frequencia" class="hidden space-y-6">
-                    <h3 class="text-xl font-bold">Resumo de Frequência Escolar</h3>
-                    <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm font-semibold">Presença Global Registrada</span>
-                            <span id="txtFreqPorcentagem" class="font-bold text-green-400 text-lg">100%</span>
-                        </div>
-                        <div class="w-full bg-darkBg h-4 rounded-full overflow-hidden border border-borderCol p-0.5">
-                            <div id="barraProgressoFreq" class="bg-green-500 h-full rounded-full transition-all duration-500" style="width: 100%;"></div>
-                        </div>
-                        <p class="text-xs text-purple-300/60 pt-2">A frequência é calculada em tempo real com base nas chamadas lançadas pelos professores no painel da Secretaria do Soares.</p>
-                    </div>
-                </div>
-
-                <!-- ABA ADMIN / GESTÃO ESCOLAR -->
-                <div id="aba-admin" class="hidden space-y-6">
-                    <h3 class="text-xl font-bold text-purple-300"><i class="fa-solid fa-user-shield mr-2"></i> Painel do Administrador (Secretaria do Soares)</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- LANÇADOR DE PRESENÇA POR ALUNO / SALA -->
-                        <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
-                            <h4 class="font-bold text-sm text-purple-400 uppercase tracking-wide">1. Lançador de Chamada & Presença</h4>
-                            <div>
-                                <label class="block text-xs mb-1 text-purple-300">Selecionar Turma</label>
-                                <select id="adminSelectTurma" onchange="carregarAlunosChamada()" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-purple-500">
-                                    <option value="6ano">6º Ano Fundamental (Gerson)</option>
-                                    <option value="7ano">7º Ano Fundamental (Erika)</option>
-                                    <option value="8ano">8º Ano Fundamental (Priscila)</option>
-                                    <option value="9ano">9º Ano Fundamental (Laerte)</option>
-                                    <option value="1medio">1º Ano Ensino Médio (Fernando)</option>
-                                    <option value="2medio">2º Ano Ensino Médio (Jade)</option>
-                                    <option value="3medio">3º Ano Ensino Médio (Heloysa)</option>
-                                </select>
-                            </div>
-                            <div id="listaChamadaAlunos" class="space-y-2 max-h-56 overflow-y-auto pr-2 border border-borderCol p-3 rounded-xl bg-darkBg">
-                                <!-- Preenchido por JS com os 19 alunos de cada sala -->
-                            </div>
-                            <button onclick="salvarChamadaTurma()" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded-xl text-sm font-medium transition shadow-lg">Salvar Chamada da Turma</button>
-                        </div>
-
-                        <!-- LANÇADOR DE TAREFAS POR MATÉRIA E AULA -->
-                        <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
-                            <h4 class="font-bold text-sm text-purple-400 uppercase tracking-wide">2. Lançador de Tarefas SP com Questões</h4>
-                            <div>
-                                <label class="block text-xs mb-1 text-purple-300">Turma Destino</label>
-                                <select id="adminTarefaTurma" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-purple-500">
-                                    <option value="6ano">6º Ano Fundamental</option>
-                                    <option value="7ano">7º Ano Fundamental</option>
-                                    <option value="8ano">8º Ano Fundamental</option>
-                                    <option value="9ano">9º Ano Fundamental</option>
-                                    <option value="1medio">1º Ano Ensino Médio</option>
-                                    <option value="2medio">2º Ano Ensino Médio</option>
-                                    <option value="3medio">3º Ano Ensino Médio</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs mb-1 text-purple-300">Matéria</label>
-                                <select id="adminTarefaMateria" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-purple-500">
-                                    <option value="Matemática">Matemática</option>
-                                    <option value="Física">Física</option>
-                                    <option value="Biologia">Biologia</option>
-                                    <option value="História">História</option>
-                                    <option value="Geografia">Geografia</option>
-                                    <option value="Português">Português</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs mb-1 text-purple-300">Título / Aula Específica</label>
-                                <input type="text" id="adminTituloTarefa" placeholder="Ex: Aula 2: Geometria Espacial Avançada" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-purple-500">
-                            </div>
-                            <button onclick="enviarNovaTarefaAdmin()" class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl text-sm font-medium transition shadow-lg">Disparar Tarefa com 5 Questões Automáticas</button>
-                        </div>
-                    </div>
-
-                    <!-- PAINEL DE AVALIAÇÃO DE REDAÇÕES -->
-                    <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl mt-6">
-                        <h4 class="font-bold text-sm text-purple-400 uppercase tracking-wide">3. Redações Paulistas Enviadas (Aguardando Professor)</h4>
-                        <div id="listaRedacoesAdmin" class="space-y-3">
-                            <p class="text-xs text-purple-300/60">Nenhuma redação pendente no momento.</p>
-                        </div>
-                    </div>
-                </div>
-
-            </main>
+    <!-- MODAL DE SENHA DO ADMIN -->
+    <div id="adminModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+        <div class="bg-cardBg border border-borderCol w-full max-w-sm p-6 rounded-2xl space-y-4 shadow-2xl">
+            <h3 class="font-bold text-base">Acesso Restrito - Mesário</h3>
+            <div>
+                <label class="block text-xs mb-1 text-indigo-200">Senha do Administrador</label>
+                <input type="password" id="adminSenhaInput" placeholder="••••" class="w-full bg-darkBg border border-borderCol rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="fecharAdminModal()" class="flex-1 bg-darkBg border border-borderCol py-2.5 rounded-xl text-xs font-medium hover:bg-borderCol transition">Cancelar</button>
+                <button onclick="validarAdmin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 py-2.5 rounded-xl text-xs font-medium transition">Entrar</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // BANCO DE DADOS DE USUÁRIOS (ADMINS + 19 ALUNOS FICTÍCIOS POR SÉRIE)
-        const usuariosDB = {
-            "soares": { nome: "Prof. Soares", cargo: "Administrador", tipo: "admin", senha: "123" },
-            "murilo": { nome: "Prof. Murilo", cargo: "Administrador", tipo: "admin", senha: "123" },
-            "15894231": { nome: "Gerson", cargo: "6º Ano Fundamental", tipo: "aluno", serie: "6ano", senha: "sp2026futuro", freq: 100 },
-            "25894232": { nome: "Erika", cargo: "7º Ano Fundamental", tipo: "aluno", serie: "7ano", senha: "sp2026futuro", freq: 100 },
-            "35894233": { nome: "Priscila", cargo: "8º Ano Fundamental", tipo: "aluno", serie: "8ano", senha: "sp2026futuro", freq: 100 },
-            "45894234": { nome: "Laerte", cargo: "9º Ano Fundamental", tipo: "aluno", serie: "9ano", senha: "sp2026futuro", freq: 100 },
-            "55894235": { nome: "Fernando", cargo: "1º Ano Ensino Médio", tipo: "aluno", serie: "1medio", senha: "sp2026futuro", freq: 100 },
-            "65894236": { nome: "Jade", cargo: "2º Ano Ensino Médio", tipo: "aluno", serie: "2medio", senha: "sp2026futuro", freq: 100 },
-            "75894237": { nome: "Heloysa", cargo: "3º Ano Ensino Médio", tipo: "aluno", serie: "3medio", senha: "sp2026futuro", freq: 100 }
-        };
+        // BANCO DE DADOS DE CHAPAS E ELEITORES QUE JÁ VOTARAM
+        let chapasDB = [
+            { id: 1, nome: "Chapa 1 - Renovação Total", proposta: "Mais eventos culturais, reforma das quadras e bebedouros modernos.", votos: 42, cor: "from-indigo-600 to-purple-600" },
+            { id: 2, nome: "Chapa 2 - Conexão Estudantil", proposta: "Clubs de programação, campeonatos de e-sports e melhorias na cantina.", votos: 38, cor: "from-purple-600 to-pink-600" }
+        ];
 
-        // Geração robusta de 19 alunos fictícios para cada uma das 7 séries
-        const nomesFicticios = ["Lucas", "Beatriz", "Gabriel", "Mariana", "Matheus", "Ana Clara", "Carlos Eduardo", "Juliana", "Rafael", "Camila", "Bruno", "Larissa", "Thiago", "Amanda", "Felipe", "Letícia", "Diego", "Victória", "Vinicius"];
-        const seriesTurmas = ["6ano", "7ano", "8ano", "9ano", "1medio", "2medio", "3medio"];
-        
-        seriesTurmas.forEach(serie => {
-            for(let i = 1; i <= 19; i++) {
-                const raFicticio = (parseInt(serie.replace(/\D/g,'')) * 1000000 + 400000 + i).toString();
-                const nomeRand = nomesFicticios[(i - 1) % nomesFicticios.length] + " Aluno " + i;
-                usuariosDB[raFicticio] = {
-                    nome: nomeRand,
-                    cargo: serie.toUpperCase() + " • E.E. Soares Club",
-                    tipo: "aluno",
-                    serie: serie,
-                    senha: "sp2026futuro",
-                    freq: 100
-                };
-            }
-        });
+        let eleitoresVotaram = new Set(); // Armazena R.A.s que já votaram para impedir voto duplo
+        let alunoLogadoRa = null;
 
-        let usuarioAtual = null;
-
-        // Banco de Tarefas separado por turma
-        let tarefasDB = {
-            "6ano": [
-                { id: 101, materia: "Matemática", titulo: "Matemática - Frações e Operações Básicas", questoes: [
-                    { p: "Quanto é 1/2 + 1/4?", opts: ["3/4", "2/6", "1/6", "4/2"], resp: 0 },
-                    { p: "Qual o resultado de 3/5 de 100?", opts: ["60", "50", "30", "80"], resp: 0 },
-                    { p: "Simplificando a fração 8/16 obtemos:", opts: ["1/2", "1/4", "2/3", "3/4"], resp: 0 },
-                    { p: "O numerador da fração 7/9 é:", opts: ["7", "9", "2", "63"], resp: 0 },
-                    { p: "Uma pizza dividida em 8 pedaços comendo 3 sobra:", opts: ["5/8", "3/8", "1/8", "2/8"], resp: 0 }
-                ]}
-            ],
-            "7ano": [
-                { id: 201, materia: "Geografia", titulo: "Geografia - Relevo e Hidrografia do Brasil", questoes: [
-                    { p: "Qual é a bacia hidrográfica totalmente brasileira?", opts: ["Bacia Amazônica", "Bacia do São Francisco", "Bacia do Paraná", "Bacia Platina"], resp: 1 },
-                    { p: "O ponto culminante do Brasil é:", opts: ["Pico da Neblina", "Pico da Bandeira", "Monte Roraima", "Serra do Mar"], resp: 0 },
-                    { p: "Formas de relevo caracterizadas por partes planas mais altas:", opts: ["Planalto", "Depressão", "Planície", "Vale"], resp: 0 },
-                    { p: "O rio São Francisco também é conhecido como:", opts: ["Velho Chico", "Gigante das Águas", "Rio da Prata", "Amazonas"], resp: 0 },
-                    { p: "Clima predominante na região Norte:", opts: ["Equatorial", "Tropical", "Semiárido", "Subtropical"], resp: 0 }
-                ]}
-            ],
-            "8ano": [
-                { id: 301, materia: "Ciências", titulo: "Ciências - Sistema Digestório e Respiratório", questoes: [
-                    { p: "Onde ocorre a maior absorção de nutrientes?", opts: ["Intestino Delgado", "Estômago", "Intestino Grosso", "Esôfago"], resp: 0 },
-                    { p: "Qual estrutura impede a entrada de alimento na traqueia?", opts: ["Epiglote", "Laringe", "Faringe", "Alvéolo"], resp: 0 },
-                    { p: "Trocas gasosas nos pulmões acontecem nos:", opts: ["Alvéolos pulmonares", "Brônquios", "Bronquíolos", "Traqueia"], resp: 0 },
-                    { p: "Enzima digestiva presente na saliva:", opts: ["Amilase salivar (ptialina)", "Pepsina", "Bílis", "Lipase"], resp: 0 },
-                    { p: "O órgão responsável por produzir a bile é:", opts: ["Fígado", "Pâncreas", "Vesícula Biliar", "Estômago"], resp: 0 }
-                ]}
-            ],
-            "9ano": [
-                { id: 401, materia: "Química", tabela: "Química", titulo: "Química - Tabela Periódica e Ligações", questoes: [
-                    { p: "Família dos elementos gasosos inertes:", opts: ["Gases Nobres", "Metais Alcalinos", "Halogênios", "Calcogênios"], resp: 0 },
-                    { p: "Ligação química entre metal e ametal:", opts: ["Iônica", "Covalente", "Metálica", "Ponte de Hidrogênio"], resp: 0 },
-                    { p: "O elemento químico com símbolo Na é:", opts: ["Sódio", "Nitrogênio", "Níquel", "Neônio"], resp: 0 },
-                    { p: "Partícula subatômica de carga neutra:", opts: ["Nêutron", "Próton", "Elétron", Positrão], resp: 0 },
-                    { p: "O número atômico (Z) representa o número de:", opts: ["Prótons", "Nêutrons", "Elétrons na camada de valência", "Massa total"], resp: 0 }
-                ]}
-            ],
-            "1medio": [
-                { id: 501, materia: "Física", titulo: "Física - Leis de Newton Aplicadas", questoes: [
-                    { p: "Qual é a expressão matemática da 2ª Lei de Newton?", opts: ["F = m * a", "P = m * g", "E = m*c^2", "V = d / t"], resp: 0 },
-                    { p: "A tendência de um corpo manter seu estado de repouso chama-se:", opts: ["Inércia", "Aceleração", "Atrito", "Gravidade"], resp: 0 },
-                    { p: "A unidade de medida da força no SI é:", opts: ["Newton (N)", "Joule (J)", "Watt (W)", "Pascal (Pa)"], resp: 0 },
-                    { p: "Quando um corpo exerce força em outro, este reage com força igual e oposta. Trata-se da:", opts: ["3ª Lei de Newton", "1ª Lei de Newton", "Lei da Gravitação", "Princípio de Arquimedes"], resp: 0 },
-                    { p: "Se a força resultante sobre um corpo é nula, sua aceleração é:", opts: ["Zero", "Máxima", "Constante positiva", "Negativa"], resp: 0 }
-                ]}
-            ],
-            "2medio": [
-                { id: 601, materia: "Biologia", titulo: "Biologia - Ecologia e Fluxo de Energia", questoes: [
-                    { p: "Os organismos autótrofos também são chamados de:", opts: ["Produtores", "Consumidores primários", "Decompositores", "Heterótrofos"], resp: 0 },
-                    { p: "Relação ecológica interespecífica desarmônica onde uma espécie elimina toxinas:", opts: ["Amensalismo", "Mutualismo", "Comensalismo", "Protocooperação"], resp: 0 },
-                    { p: "O conjunto de todas as comunidades de um planeta forma a:", opts: ["Biosfera", "Ecossistema", "População", "Bioma"], resp: 0 },
-                    { p: "Bactérias e fungos atuam ecologicamente como:", opts: ["Decompositores", "Consumidores terciários", "Produtores primários", "Fitoplânctons"], resp: 0 },
-                    { p: "A perda de energia ao longo de uma cadeia trófica ocorre porque:", opts: ["É dissipada em forma de calor na respiração e metabolismo", "Aumenta nos níveis superiores", "Retorna ao sol", "Fica armazenada nos ossos"], resp: 0 }
-                ]}
-            ],
-            "3medio": [
-                { id: 701, materia: "Sociologia", titulo: "Sociologia - Cidadania, Direitos e Estado Moderno", questoes: [
-                    { p: "Quem formulou a teoria do contrato social fundamentada no Leviatã?", opts: ["Thomas Hobbes", "Jean-Jacques Rousseau", "Karl Marx", "Max Weber"], resp: 0 },
-                    { p: "A cidadania formal expressa-se através de:", opts: ["Garantias legais e direitos civis, políticos e sociais", "Apenas pagamento de tributos", "Filição partidária obrigatória", "Isolamento social"], resp: 0 },
-                    { p: "Para Karl Marx, o motor da história nas sociedades de classe é:", opts: ["A luta de classes", "A evolução tecnológica neutra", "A harmonia institucional", "A religiosidade"], resp: 0 },
-                    { p: "O conceito de 'Tipo Ideal' foi desenvolvido por:", opts: ["Max Weber", "Émile Durkheim", "Auguste Comte", "Simone de Beauvoir"], resp: 0 },
-                    { p: "A globalização econômica e cultural contemporânea caracteriza-se por:", opts: ["Fluidos fluxos informacionais e interdependência de mercados", "Fim absoluto das fronteiras nacionais", "Isolamento total dos continentes", "Abolição de moedas"], resp: 0 }
-                ]}
-            ]
-        };
-
-        let redacoesEnviadasDB = [];
-        let slideAtualIndex = 0;
-        let slidesSlidesAtuais = [];
-
-        function realizarLogin(event) {
+        function entrarParaVotar(event) {
             event.preventDefault();
-            const ra = document.getElementById('inputRa').value.trim();
-            const senha = document.getElementById('inputSenha').value.trim();
+            const ra = document.getElementById('voterRa').value.trim();
+            const digito = document.getElementById('voterDigito').value.trim();
 
-            const user = usuariosDB[ra];
-            if(user && user.senha === senha) {
-                usuarioAtual = user;
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
-                
-                document.getElementById('userNameDisplay').innerText = user.nome;
-                document.getElementById('userClassDisplay').innerText = user.cargo;
-
-                if(user.tipo === 'admin') {
-                    document.getElementById('adminMenuBtn').classList.remove('hidden');
-                    carregarAlunosChamada();
-                    atualizarPainelAdminRedacoes();
-                } else {
-                    document.getElementById('adminMenuBtn').classList.add('hidden');
-                }
-                atualizarInterfaceAluno();
-            } else {
-                alert('R.A., Dígito ou Senha inválidos! Verifique seus dados.');
-            }
-        }
-
-        function sairSistema() {
-            usuarioAtual = null;
-            document.getElementById('mainApp').classList.add('hidden');
-            document.getElementById('loginScreen').classList.remove('hidden');
-        }
-
-        function mudarAba(aba) {
-            ['home', 'tarefas', 'fazer-tarefa', 'redacao', 'materiais', 'visor-slide', 'visor-video', 'frequencia', 'admin'].forEach(a => {
-                document.getElementById('aba-' + a).classList.add('hidden');
-            });
-            document.getElementById('aba-' + aba).classList.remove('hidden');
-            if(aba === 'tarefas') renderizarTarefasAluno();
-            if(aba === 'frequencia') atualizarFrequenciaTela();
-            if(aba === 'admin') {
-                carregarAlunosChamada();
-                atualizarPainelAdminRedacoes();
-            }
-        }
-
-        function atualizarInterfaceAluno() {
-            if(!usuarioAtual) return;
-            document.getElementById('freqDisplayCard').innerText = usuarioAtual.freq + '%';
-            const turmaAluno = usuarioAtual.serie || '1medio';
-            const totalPendentes = (tarefasDB[turmaAluno] || []).length;
-            document.getElementById('countTarefasPendentes').innerText = totalPendentes;
-        }
-
-        function renderizarTarefasAluno() {
-            const container = document.getElementById('listaTarefasAluno');
-            container.innerHTML = '';
-            const turmaAluno = usuarioAtual.serie || '1medio';
-            const tarefasTurma = tarefasDB[turmaAluno] || [];
-
-            if(tarefasTurma.length === 0) {
-                container.innerHTML = `<div class="bg-cardBg border border-borderCol p-6 rounded-2xl text-center text-purple-300/70">Parabéns! Nenhuma tarefa pendente para esta turma no momento.</div>`;
+            if(!ra || !digito) {
+                alert('Preencha o R.A. e o Dígito corretamente.');
                 return;
             }
 
-            tarefasTurma.forEach(t => {
+            const identificadorCompleto = `${ra}-${digito}`;
+
+            if(eleitoresVotaram.has(identificadorCompleto)) {
+                alert('Atenção: Este R.A. já registrou seu voto nesta urna! O voto é único por aluno.');
+                return;
+            }
+
+            alunoLogadoRa = identificadorCompleto;
+            document.getElementById('displayVoterRa').innerText = identificadorCompleto;
+
+            document.getElementById('screenVoterLogin').classList.add('hidden');
+            renderizarChapasVotacao();
+            document.getElementById('screenVotingBooth').classList.remove('hidden');
+        }
+
+        function renderizarChapasVotacao() {
+            const container = document.getElementById('listaChapasVotacao');
+            container.innerHTML = '';
+
+            chapasDB.forEach(chapa => {
                 container.innerHTML += `
-                    <div class="bg-cardBg border border-borderCol p-5 rounded-2xl flex justify-between items-center shadow-lg">
+                    <div class="bg-darkBg border border-borderCol rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500 transition shadow-lg">
                         <div>
-                            <span class="text-xs text-purple-400 font-bold uppercase">${t.materia || 'Tarefa SP'} • ${turmaAluno.toUpperCase()}</span>
-                            <h4 class="font-bold text-base mt-1 text-white">${t.titulo}</h4>
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr ${chapa.cor} flex items-center justify-center text-white text-xl font-bold mb-4 shadow">
+                                ${chapa.id}
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white">${chapa.nome}</h3>
+                            <p class="text-xs text-indigo-200/80 mb-6 leading-relaxed">${chapa.proposta}</p>
                         </div>
-                        <button onclick="comecarTarefa('${turmaAluno}', ${t.id})" class="bg-purple-600 hover:bg-purple-500 px-5 py-2.5 rounded-xl text-xs font-medium transition shadow">Começar a fazer tarefa</button>
+                        <button onclick="confirmarVoto(${chapa.id})" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
+                            Votar nesta Chapa
+                        </button>
                     </div>
                 `;
             });
-        }
 
-        function comecarTarefa(turma, id) {
-            const t = tarefasDB[turma].find(x => x.id === id);
-            document.getElementById('tituloTarefaModal').innerText = t.titulo;
-            const container = document.getElementById('containerQuiz');
-            container.innerHTML = '';
-            
-            t.questoes.forEach((q, idx) => {
-                container.innerHTML += `
-                    <div class="space-y-3 border-b border-borderCol pb-4">
-                        <p class="text-sm font-semibold text-purple-200">${idx + 1}. ${q.p}</p>
-                        <div class="space-y-1.5">
-                            ${q.opts.map((opt, i) => `
-                                <label class="block text-xs bg-darkBg border border-borderCol p-3 rounded-xl cursor-pointer hover:border-purple-500 transition">
-                                    <input type="radio" name="q${idx}" value="${i}" class="mr-2 accent-purple-600"> ${opt}
-                                </label>
-                            `).join('')}
+            // Opção de Voto em Branco
+            container.innerHTML += `
+                <div class="bg-darkBg border border-borderCol rounded-2xl p-6 flex flex-col justify-between hover:border-gray-500 transition shadow-lg">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-gray-700 flex items-center justify-center text-white text-xl font-bold mb-4 shadow">
+                            <i class="fa-solid fa-ban"></i>
                         </div>
+                        <h3 class="font-bold text-lg mb-2 text-white">Voto em Branco</h3>
+                        <p class="text-xs text-gray-400 mb-6 leading-relaxed">Registrar voto em branco na urna eletrônica do Soares.</p>
                     </div>
-                `;
-            });
-            container.innerHTML += `<button onclick="enviarRespostasQuiz('${turma}', ${id})" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded-xl font-semibold text-sm transition shadow-lg mt-4">Enviar Respostas ao Professor</button>`;
-            mudarAba('fazer-tarefa');
-        }
-
-        function enviarRespostasQuiz(turma, id) {
-            // Remove a tarefa da lista do aluno após entrega bem-sucedida
-            tarefasDB[turma] = tarefasDB[turma].filter(x => x.id !== id);
-            alert('Atividade avaliada e enviada com sucesso para o painel do professor!');
-            mudarAba('tarefas');
-        }
-
-        function enviarRedacao() {
-            const titulo = document.getElementById('inputTituloRedacao').value.trim();
-            const texto = document.getElementById('inputTextoRedacao').value.trim();
-            if(!titulo || texto.length < 80) {
-                alert('Preencha o título e redija um texto com pelo menos 80 caracteres para análise da IA.');
-                return;
-            }
-            
-            // IA Paulista calcula nota baseada no tamanho, vocabulário e tema
-            let nota = Math.min(100, Math.max(65, Math.floor(texto.length / 4) + 50));
-            
-            redacoesEnviadasDB.push({
-                aluno: usuarioAtual.nome,
-                serie: usuarioAtual.cargo,
-                titulo: titulo,
-                texto: texto,
-                nota: nota,
-                status: "Pendente Correção"
-            });
-
-            document.getElementById('statusRedacaoEnvio').innerHTML = `
-                <div class="text-green-400 font-bold mb-1"><i class="fa-solid fa-check-circle mr-1"></i> Redação Enviada com Sucesso!</div>
-                <div class="text-xs text-purple-200">Nota preliminar atribuída pela IA Paulista: <span class="font-extrabold text-white text-base">${nota}/100</span></div>
-                <div class="text-xs text-purple-300/70 mt-1">Sua redação foi enviada para o painel da Secretaria do Soares para validação do professor.</div>
-            `;
-            document.getElementById('inputTituloRedacao').value = '';
-            document.getElementById('inputTextoRedacao').value = '';
-        }
-
-        // SLIDES DIGITAIS REAIS COM NAVEGAÇÃO
-        function abrirSlide(materia, aula) {
-            document.getElementById('tituloSlideHeader').innerText = materia + " - " + aula;
-            slidesSlidesAtuais = [
-                { titulo: aula, desc: "Introdução conceitual e diretrizes curriculares do programa Sala do Futuro SEDUC-SP.", topicos: ["Fundamentação teórica principal", "Contextualização histórica e científica", "Aplicação prática no cotidiano escolar"] },
-                { titulo: aula + " (Desenvolvimento)", desc: "Estudo detalhado de casos práticos e resolução de problemas estruturados.", topicos: ["Análise de gráficos e modelos teóricos", "Exemplo resolvido passo a passo", "Exercício de fixação monitorada"] },
-                { titulo: aula + " (Conclusão & Síntese)", desc: "Fechamento do tópico com gabarito comentado e indicações de estudo.", topicos: ["Resumo dos pontos essenciais", "Preparação para avaliações externas", "Indicação de leitura digital complementar"] }
-            ];
-            slideAtualIndex = 0;
-            renderizarSlideAtual();
-            mudarAba('visor-slide');
-        }
-
-        function renderizarSlideAtual() {
-            const s = slidesSlidesAtuais[slideAtualIndex];
-            document.getElementById('contadorSlide').innerText = `Slide ${slideAtualIndex + 1} de ${slidesSlidesAtuais.length}`;
-            document.getElementById('conteudoSlideCorpo').innerHTML = `
-                <div class="text-purple-400 font-bold text-xs uppercase tracking-widest mb-1">Apresentação Digital Oficial</div>
-                <h2 class="text-xl font-extrabold mb-2 text-white">${s.titulo}</h2>
-                <p class="text-sm text-purple-200/90 mb-4">${s.desc}</p>
-                <div class="w-full bg-cardBg border border-borderCol p-4 rounded-xl text-left space-y-2">
-                    ${s.topicos.map(tp => `<div class="text-xs text-purple-300 flex items-center"><i class="fa-solid fa-circle-check text-green-400 mr-2"></i> ${tp}</div>`).join('')}
+                    <button onclick="confirmarVoto(0)" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
+                        Confirmar Branco
+                    </button>
                 </div>
             `;
         }
 
-        function mudarSlide(direcao) {
-            slideAtualIndex += direcao;
-            if(slideAtualIndex < 0) slideAtualIndex = 0;
-            if(slideAtualIndex >= slidesSlidesAtuais.length) slideAtualIndex = slidesSlidesAtuais.length - 1;
-            renderizarSlideAtual();
-        }
-
-        function abrirVideoYouTube(idVideo, titulo) {
-            document.getElementById('tituloVideoHeader').innerHTML = `<i class="fa-brands fa-youtube mr-2"></i> ${titulo}`;
-            // Incorporação limpa e compatível com embed oficial do YouTube
-            document.getElementById('iframeYoutubePlayer').src = `https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=1`;
-            mudarAba('visor-video');
-        }
-
-        // PAINEL ADMIN - CHAMADA POR ALUNO
-        function carregarAlunosChamada() {
-            const turmaSel = document.getElementById('adminSelectTurma').value;
-            const container = document.getElementById('listaChamadaAlunos');
-            container.innerHTML = '';
-
-            const alunosTurma = Object.entries(usuariosDB).filter(([ra, u]) => u.tipo === 'aluno' && u.serie === turmaSel);
-
-            if(alunosTurma.length === 0) {
-                container.innerHTML = `<p class="text-xs text-purple-300/60">Nenhum aluno encontrado nesta turma.</p>`;
-                return;
+        function confirmarVoto(chapaId) {
+            if(chapaId !== 0) {
+                const chapa = chapasDB.find(c => c.id === chapaId);
+                if(chapa) chapa.votos++;
             }
+            
+            eleitoresVotaram.add(alunoLogadoRa);
 
-            alunosTurma.forEach(([ra, u]) => {
+            document.getElementById('screenVotingBooth').classList.add('hidden');
+            document.getElementById('screenVotedSuccess').classList.remove('hidden');
+        }
+
+        function sairUrna() {
+            alunoLogadoRa = null;
+            document.getElementById('voterRa').value = '';
+            document.getElementById('voterDigito').value = '';
+            
+            document.getElementById('screenVotingBooth').classList.add('hidden');
+            document.getElementById('screenVotedSuccess').classList.add('hidden');
+            document.getElementById('screenAdminPanel').classList.add('hidden');
+            document.getElementById('screenVoterLogin').classList.remove('hidden');
+        }
+
+        function abrirAdminModal() {
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function fecharAdminModal() {
+            document.getElementById('adminSenhaInput').value = '';
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function validarAdmin() {
+            const senha = document.getElementById('adminSenhaInput').value.trim();
+            if(senha === "soares2026" || senha === "123") {
+                fecharAdminModal();
+                document.getElementById('screenVoterLogin').classList.add('hidden');
+                atualizarPlacarAdmin();
+                document.getElementById('screenAdminPanel').classList.remove('hidden');
+            } else {
+                alert('Senha de administrador incorreta!');
+            }
+        }
+
+        function atualizarPlacarAdmin() {
+            const container = document.getElementById('placarResultados');
+            container.innerHTML = '';
+            
+            const totalVotosGeral = Array.from(eleitoresVotaram).length;
+
+            chapasDB.forEach(c => {
                 container.innerHTML += `
-                    <div class="flex justify-between items-center bg-cardBg p-2.5 rounded-xl border border-borderCol">
-                        <span class="text-xs font-semibold text-purple-200">${u.nome} <span class="text-[10px] text-purple-400/60">(RA: ${ra})</span></span>
-                        <div class="flex space-x-3">
-                            <label class="text-xs text-green-400 flex items-center cursor-pointer font-medium"><input type="radio" name="chamada_${ra}" value="presente" checked class="mr-1 accent-green-500"> Pres.</label>
-                            <label class="text-xs text-red-400 flex items-center cursor-pointer font-medium"><input type="radio" name="chamada_${ra}" value="falta" class="mr-1 accent-red-500"> Falta</label>
+                    <div class="bg-darkBg border border-borderCol p-3.5 rounded-xl flex justify-between items-center">
+                        <div>
+                            <span class="font-bold text-sm text-white">${c.nome}</span>
+                            <div class="text-[11px] text-indigo-300/70">Total de votos apurados</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-extrabold text-indigo-400 text-lg">${c.votos}</span>
+                            <span class="text-xs text-indigo-300/50 block">votos</span>
                         </div>
                     </div>
                 `;
             });
+
+            container.innerHTML += `
+                <div class="pt-2 text-xs text-indigo-300/80 text-center font-semibold">
+                    Total geral de eleitores que já votaram: ${totalVotosGeral} aluno(s)
+                </div>
+            `;
         }
 
-        function salvarChamadaTurma() {
-            const turmaSel = document.getElementById('adminSelectTurma').value;
-            const alunosTurma = Object.entries(usuariosDB).filter(([ra, u]) => u.tipo === 'aluno' && u.serie === turmaSel);
-            
-            let totalFaltas = 0;
-            alunosTurma.forEach(([ra, u]) => {
-                const radios = document.getElementsByName(`chamada_${ra}`);
-                for(let r of radios) {
-                    if(r.checked && r.value === 'falta') {
-                        u.freq = Math.max(0, u.freq - 5);
-                        totalFaltas++;
-                    }
-                }
-            });
-            alert(`Chamada gravada com sucesso! Faltas computadas para ${totalFaltas} aluno(s) desta turma.`);
-        }
+        function adicionarChapa() {
+            const nome = document.getElementById('novaChapaNome').value.trim();
+            const proposta = document.getElementById('novaChapaProposta').value.trim();
 
-        function atualizarFrequenciaTela() {
-            if(usuarioAtual) {
-                document.getElementById('txtFreqPorcentagem').innerText = usuarioAtual.freq + '%';
-                document.getElementById('barraProgressoFreq').style.width = usuarioAtual.freq + '%';
-            }
-        }
-
-        // LANÇADOR DE TAREFAS ADMIN (GERA 5 QUESTÕES COM BASE NO TEMA)
-        function enviarNovaTarefaAdmin() {
-            const turma = document.getElementById('adminTarefaTurma').value;
-            const materia = document.getElementById('adminTarefaMateria').value;
-            const tituloInput = document.getElementById('adminTituloTarefa').value.trim();
-            
-            if(!tituloInput) {
-                alert('Digite o título ou tema da aula para gerar a tarefa!');
+            if(!nome || !proposta) {
+                alert('Preencha o nome e a proposta da nova chapa.');
                 return;
             }
 
-            const tituloCompleto = `${materia} - ${tituloInput}`;
-            
-            // Geração inteligente de 5 questões contextualizadas com o tema inserido pelo professor
-            const novasQuestoes = [
-                { p: `Qual é o princípio fundamental abordado no estudo sobre ${tituloInput}?`, opts: ["Fundamentação teórica principal", "Conceito obsoleto secundário", "Hipótese descartada", "Nenhuma das anteriores"], resp: 0 },
-                { p: `Em relação à aplicação prática de ${tituloInput}, podemos afirmar que:`, opts: ["Aplica-se diretamente na resolução de problemas da área", "Não possui utilidade prática", "Apenas serve para teoria acadêmica", "É restrita a laboratórios"], resp: 0 },
-                { p: `Qual das alternativas abaixo caracteriza corretamente um aspecto de ${materia}?`, opts: ["Análise sistemática e estruturada", "Desorganização conceitual", "Falta de evidências", "Suposição empírica aleatória"], resp: 0 },
-                { p: `Segundo as diretrizes educacionais, o domínio de ${tituloInput} é essencial para:`, opts: ["O desenvolvimento de competências avançadas do estudante", "Apenas cumprimento de carga horária", "Eliminação de avaliações", "Redução de estudos"], resp: 0 },
-                { p: `Assinale a alternativa que melhor resume a conclusão sobre ${tituloInput}:`, opts: ["Integração completa de teoria e prática pedagógica", "Isolamento de conceitos", "Estudo puramente decorativo", "Complexidade sem aplicação"], resp: 0 }
-            ];
-
-            if(!tarefasDB[turma]) tarefasDB[turma] = [];
-            tarefasDB[turma].push({
-                id: Date.now(),
-                materia: materia,
-                titulo: tituloCompleto,
-                questoes: novasQuestoes
+            const novaId = chapasDB.length + 1;
+            chapasDB.push({
+                id: novaId,
+                nome: nome,
+                proposta: proposta,
+                votos: 0,
+                cor: "from-blue-600 to-indigo-600"
             });
 
-            alert(`Tarefa "${tituloCompleto}" disparada com sucesso para todas as contas dos alunos da turma ${turma.toUpperCase()}!`);
-            document.getElementById('adminTituloTarefa').value = '';
-        }
-
-        function atualizarPainelAdminRedacoes() {
-            const container = document.getElementById('listaRedacoesAdmin');
-            if(!container) return;
-            if(redacoesEnviadasDB.length === 0) {
-                container.innerHTML = `<p class="text-xs text-purple-300/60">Nenhuma redação pendente enviada pelos alunos no momento.</p>`;
-                return;
-            }
-            container.innerHTML = '';
-            redacoesEnviadasDB.forEach((red, idx) => {
-                container.innerHTML += `
-                    <div class="bg-darkBg border border-borderCol p-4 rounded-xl space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-purple-300">${red.aluno} (${red.serie})</span>
-                            <span class="text-xs bg-purple-900/60 px-2.5 py-1 rounded-lg text-purple-200 font-semibold">Nota IA: ${red.nota}/100</span>
-                        </div>
-                        <h5 class="text-sm font-bold text-white">${red.titulo}</h5>
-                        <p class="text-xs text-purple-300/80 bg-cardBg p-3 rounded-lg border border-borderCol/50 max-h-24 overflow-y-auto leading-relaxed">${red.texto}</p>
-                        <div class="flex space-x-2 pt-1">
-                            <button onclick="aprovarRedacao(${idx})" class="bg-green-600 hover:bg-green-500 text-white text-xs px-4 py-1.5 rounded-lg font-medium transition shadow">Aprovar / Concluir</button>
-                            <button onclick="devolverRedacao(${idx})" class="bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 text-xs px-4 py-1.5 rounded-lg font-medium transition">Devolver para Refazer</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function aprovarRedacao(idx) {
-            alert('Redação avaliada, aprovada e registrada no histórico oficial!');
-            redacoesEnviadasDB.splice(idx, 1);
-            atualizarPainelAdminRedacoes();
-        }
-
-        function devolverRedacao(idx) {
-            alert('Redação devolvida ao aluno com apontamentos para reescrita.');
-            redacoesEnviadasDB.splice(idx, 1);
-            atualizarPainelAdminRedacoes();
+            document.getElementById('novaChapaNome').value = '';
+            document.getElementById('novaChapaProposta').value = '';
+            atualizarPlacarAdmin();
+            alert('Chapa cadastrada com sucesso na urna!');
         }
     </script>
 </body>
