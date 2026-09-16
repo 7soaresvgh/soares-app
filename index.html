@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     
-    <!-- Firebase SDKs (Compat) para salvar o RSVP -->
+    <!-- Firebase SDKs (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
 
@@ -18,24 +18,24 @@
         .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
         
         .bg-pattern {
-            background-image: radial-gradient(rgba(212, 175, 55, 0.1) 1px, transparent 1px);
+            background-image: radial-gradient(rgba(168, 85, 247, 0.08) 1px, transparent 1px);
             background-size: 32px 32px;
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans bg-pattern antialiased selection:bg-amber-500 selection:text-slate-950">
+<body class="bg-black text-slate-100 font-sans bg-pattern antialiased selection:bg-purple-600 selection:text-white">
 
     <!-- HEADER / NAVEGAÇÃO FIXA -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-amber-500/20">
+    <header class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-purple-900/40">
         <div class="max-w-6xl mx-auto px-6 h-20 flex justify-between items-center">
-            <a href="#inicio" class="font-cinzel font-bold tracking-widest text-amber-400 text-lg">M G</a>
+            <a href="#inicio" class="font-cinzel font-bold tracking-widest text-purple-400 text-lg">M G</a>
             <nav class="hidden md:flex space-x-8 text-sm font-medium tracking-wider uppercase text-slate-300">
-                <a href="#sobre" class="hover:text-amber-400 transition">O Aniversário</a>
-                <a href="#local" class="hover:text-amber-400 transition">Local & Data</a>
-                <a href="#presentes" class="hover:text-amber-400 transition">Sugestão de Presentes</a>
-                <a href="#rsvp" class="hover:text-amber-400 transition text-amber-400 font-semibold">Confirmar Presença</a>
+                <a href="#sobre" class="hover:text-purple-400 transition">O Aniversário</a>
+                <a href="#local" class="hover:text-purple-400 transition">Local & Data</a>
+                <a href="#presentes" class="hover:text-purple-400 transition">Contribuição Pix</a>
+                <a href="#rsvp" class="hover:text-purple-400 transition text-purple-400 font-semibold">Confirmar Presença</a>
             </nav>
-            <a href="#rsvp" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs uppercase tracking-widest px-5 py-2.5 rounded-full transition shadow-lg shadow-amber-500/20">
+            <a href="#rsvp" class="bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs uppercase tracking-widest px-5 py-2.5 rounded-full transition shadow-lg shadow-purple-900/40">
                 Confirmar Presença
             </a>
         </div>
@@ -43,13 +43,13 @@
 
     <!-- SEÇÃO HERO / CAPA -->
     <section id="inicio" class="min-h-screen flex flex-col justify-center items-center text-center px-6 pt-28 pb-16 relative overflow-hidden">
-        <!-- Efeito de Luz de Fundo -->
-        <div class="absolute w-96 h-96 bg-amber-500/10 rounded-full blur-3xl -top-20 -left-20 pointer-events-none"></div>
-        <div class="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -bottom-20 -right-20 pointer-events-none"></div>
+        <!-- Efeitos de Luz Roxa de Fundo -->
+        <div class="absolute w-[500px] h-[500px] bg-purple-700/15 rounded-full blur-[120px] -top-20 -left-20 pointer-events-none"></div>
+        <div class="absolute w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[120px] -bottom-20 -right-20 pointer-events-none"></div>
 
         <div class="max-w-3xl mx-auto space-y-6 relative z-10">
-            <div class="inline-flex items-center space-x-2 border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 rounded-full text-amber-300 text-xs tracking-widest uppercase font-semibold">
-                <i class="fa-solid fa-crown"></i>
+            <div class="inline-flex items-center space-x-2 border border-purple-500/30 bg-purple-950/40 px-4 py-1.5 rounded-full text-purple-300 text-xs tracking-widest uppercase font-semibold">
+                <i class="fa-solid fa-crown text-purple-400"></i>
                 <span>Você é meu convidado especial</span>
             </div>
 
@@ -57,108 +57,108 @@
                 Murilo Gabriel
             </h1>
             
-            <p class="text-amber-400/90 font-cinzel text-xl md:text-2xl tracking-widest uppercase">
+            <p class="text-purple-400 font-cinzel text-xl md:text-2xl tracking-widest uppercase">
                 Celebração de 15 Anos
             </p>
 
             <p class="text-slate-400 max-w-lg mx-auto text-sm md:text-base font-light leading-relaxed">
-                Uma noite inesquecível para celebrar esta data tão marcante ao lado de quem faz parte da minha história. Venha comemorar comigo!
+                Uma noite inesquecível em tons de roxo e preto para celebrar esta data tão marcante ao lado de quem faz parte da minha história. Venha comemorar comigo!
             </p>
 
-            <!-- CONTAGEM REGRESSIVA -->
+            <!-- CONTAGEM REGRESSIVA (Apontando para 14 de Novembro) -->
             <div class="grid grid-cols-4 gap-3 max-w-md mx-auto pt-4">
-                <div class="bg-slate-900 border border-amber-500/20 rounded-2xl p-3 text-center">
-                    <span id="dias" class="font-cinzel text-2xl md:text-3xl font-bold text-amber-400 block">00</span>
+                <div class="bg-gradient-to-b from-purple-950/60 to-black border border-purple-800/40 rounded-2xl p-3 text-center shadow-xl">
+                    <span id="dias" class="font-cinzel text-2xl md:text-3xl font-bold text-purple-400 block">00</span>
                     <span class="text-[10px] uppercase tracking-wider text-slate-400">Dias</span>
                 </div>
-                <div class="bg-slate-900 border border-amber-500/20 rounded-2xl p-3 text-center">
-                    <span id="horas" class="font-cinzel text-2xl md:text-3xl font-bold text-amber-400 block">00</span>
+                <div class="bg-gradient-to-b from-purple-950/60 to-black border border-purple-800/40 rounded-2xl p-3 text-center shadow-xl">
+                    <span id="horas" class="font-cinzel text-2xl md:text-3xl font-bold text-purple-400 block">00</span>
                     <span class="text-[10px] uppercase tracking-wider text-slate-400">Horas</span>
                 </div>
-                <div class="bg-slate-900 border border-amber-500/20 rounded-2xl p-3 text-center">
-                    <span id="minutos" class="font-cinzel text-2xl md:text-3xl font-bold text-amber-400 block">00</span>
+                <div class="bg-gradient-to-b from-purple-950/60 to-black border border-purple-800/40 rounded-2xl p-3 text-center shadow-xl">
+                    <span id="minutos" class="font-cinzel text-2xl md:text-3xl font-bold text-purple-400 block">00</span>
                     <span class="text-[10px] uppercase tracking-wider text-slate-400">Min</span>
                 </div>
-                <div class="bg-slate-900 border border-amber-500/20 rounded-2xl p-3 text-center">
-                    <span id="segundos" class="font-cinzel text-2xl md:text-3xl font-bold text-amber-400 block">00</span>
+                <div class="bg-gradient-to-b from-purple-950/60 to-black border border-purple-800/40 rounded-2xl p-3 text-center shadow-xl">
+                    <span id="segundos" class="font-cinzel text-2xl md:text-3xl font-bold text-purple-400 block">00</span>
                     <span class="text-[10px] uppercase tracking-wider text-slate-400">Seg</span>
                 </div>
             </div>
 
             <div class="pt-6">
-                <a href="#local" class="inline-flex items-center space-x-2 text-slate-400 hover:text-amber-400 text-xs uppercase tracking-widest transition">
+                <a href="#local" class="inline-flex items-center space-x-2 text-slate-400 hover:text-purple-400 text-xs uppercase tracking-widest transition">
                     <span>Ver detalhes do evento</span>
-                    <i class="fa-solid fa-arrow-down animate-bounce"></i>
+                    <i class="fa-solid fa-arrow-down animate-bounce text-purple-500"></i>
                 </a>
             </div>
         </div>
     </section>
 
     <!-- SEÇÃO DETALHES & LOCAL -->
-    <section id="local" class="py-24 px-6 bg-slate-900/50 border-y border-amber-500/10">
+    <section id="local" class="py-24 px-6 bg-gradient-to-b from-black via-purple-950/20 to-black border-y border-purple-900/30">
         <div class="max-w-6xl mx-auto">
             <div class="text-center max-w-xl mx-auto mb-16 space-y-3">
                 <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-white">Quando e Onde</h2>
-                <div class="w-12 h-0.5 bg-amber-500 mx-auto"></div>
+                <div class="w-12 h-0.5 bg-purple-600 mx-auto"></div>
                 <p class="text-slate-400 text-sm">Informações essenciais para você não perder nada.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Card Data -->
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-4 hover:border-amber-500/40 transition">
-                    <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center text-amber-400 text-2xl mx-auto">
+                <div class="bg-gradient-to-b from-slate-900 to-black border border-purple-900/40 rounded-3xl p-8 text-center space-y-4 hover:border-purple-500 transition shadow-xl">
+                    <div class="w-14 h-14 bg-purple-950 border border-purple-500/30 rounded-2xl flex items-center justify-center text-purple-400 text-2xl mx-auto">
                         <i class="fa-solid fa-calendar-days"></i>
                     </div>
                     <h3 class="font-cinzel font-bold text-lg text-white">Data</h3>
-                    <p class="text-slate-300 text-sm">Sábado, 25 de Julho de 2026</p>
-                    <p class="text-xs text-amber-400/80 font-medium">Recepção às 20h00</p>
+                    <p class="text-slate-200 text-sm font-semibold">14 e 15 de Novembro</p>
+                    <p class="text-xs text-purple-400 font-medium">Finais de semana inesquecíveis</p>
                 </div>
 
                 <!-- Card Local -->
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-4 hover:border-amber-500/40 transition">
-                    <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center text-amber-400 text-2xl mx-auto">
+                <div class="bg-gradient-to-b from-slate-900 to-black border border-purple-900/40 rounded-3xl p-8 text-center space-y-4 hover:border-purple-500 transition shadow-xl">
+                    <div class="w-14 h-14 bg-purple-950 border border-purple-500/30 rounded-2xl flex items-center justify-center text-purple-400 text-2xl mx-auto">
                         <i class="fa-solid fa-location-dot"></i>
                     </div>
                     <h3 class="font-cinzel font-bold text-lg text-white">Local</h3>
-                    <p class="text-slate-300 text-sm">Espaço de Festas Grand Royal</p>
-                    <p class="text-xs text-slate-400">Rua das Acácias, 150 - Centro</p>
+                    <p class="text-slate-200 text-sm font-semibold">A Definir</p>
+                    <p class="text-xs text-slate-400">Em breve divulgaremos o endereço completo</p>
                 </div>
 
                 <!-- Card Traje -->
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-4 hover:border-amber-500/40 transition">
-                    <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center text-amber-400 text-2xl mx-auto">
+                <div class="bg-gradient-to-b from-slate-900 to-black border border-purple-900/40 rounded-3xl p-8 text-center space-y-4 hover:border-purple-500 transition shadow-xl">
+                    <div class="w-14 h-14 bg-purple-950 border border-purple-500/30 rounded-2xl flex items-center justify-center text-purple-400 text-2xl mx-auto">
                         <i class="fa-solid fa-shirt"></i>
                     </div>
                     <h3 class="font-cinzel font-bold text-lg text-white">Traje</h3>
-                    <p class="text-slate-300 text-sm">Esporte Fino / Social</p>
-                    <p class="text-xs text-amber-400/80 font-medium">Sinta-se elegante e confortável</p>
+                    <p class="text-slate-200 text-sm font-semibold">Esporte Fino / Social</p>
+                    <p class="text-xs text-purple-400 font-medium">Temática Roxo e Preto (Opcional)</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- SEÇÃO SUGESTÃO DE PRESENTES -->
+    <!-- SEÇÃO CONTRIBUIÇÃO / PIX -->
     <section id="presentes" class="py-24 px-6 max-w-4xl mx-auto text-center space-y-8">
         <div class="space-y-3">
-            <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-white">Sugestão de Presentes</h2>
-            <div class="w-12 h-0.5 bg-amber-500 mx-auto"></div>
-            <p class="text-slate-400 text-sm max-w-md mx-auto">Sua presença é o meu maior presente! Mas se quiser me dar uma lembrança, aqui está uma sugestão:</p>
+            <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-white">Contribuição para a Festa</h2>
+            <div class="w-12 h-0.5 bg-purple-600 mx-auto"></div>
+            <p class="text-slate-400 text-sm max-w-lg mx-auto">Sua presença é o mais importante! Quem puder contribuir com algum dinheiro para ajudar a custear a festa, disponibilizamos o Pix abaixo:</p>
         </div>
 
-        <div class="bg-slate-900 border border-amber-500/20 rounded-3xl p-8 max-w-lg mx-auto space-y-6 shadow-xl">
-            <div class="w-16 h-16 bg-amber-500/10 border border-amber-500/30 rounded-full flex items-center justify-center text-amber-400 text-2xl mx-auto">
-                <i class="fa-solid fa-gift"></i>
+        <div class="bg-gradient-to-b from-purple-950/40 to-slate-900 border border-purple-700/30 rounded-3xl p-8 max-w-lg mx-auto space-y-6 shadow-2xl">
+            <div class="w-16 h-16 bg-purple-900/50 border border-purple-500/40 rounded-full flex items-center justify-center text-purple-300 text-2xl mx-auto shadow-inner">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
             </div>
             <div class="space-y-2">
-                <h3 class="font-cinzel font-bold text-xl text-white">Chove ou Pix?</h3>
-                <p class="text-xs text-slate-400 leading-relaxed">Como estou guardando para projetos futuros e novas conquistas, optei por receber presentes em formato de contribuição via Pix.</p>
+                <h3 class="font-cinzel font-bold text-xl text-white">Chave Pix (CPF)</h3>
+                <p class="text-xs text-slate-400 leading-snug">Qualquer valor é super bem-vindo e vai ajudar a tornar esta festa de 15 anos ainda mais incrível!</p>
             </div>
-            <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+            <div class="bg-black border border-purple-900/60 p-4 rounded-2xl flex items-center justify-between">
                 <div class="text-left">
-                    <span class="text-[10px] uppercase text-slate-500 block font-semibold">Chave Pix (E-mail)</span>
-                    <span id="chavePixText" class="text-xs md:text-sm font-mono text-amber-400">murilo.gabriel15@email.com</span>
+                    <span class="text-[10px] uppercase text-slate-500 block font-semibold">Chave Pix - CPF</span>
+                    <span id="chavePixText" class="text-sm md:text-base font-mono text-purple-400 font-bold">55285205840</span>
                 </div>
-                <button onclick="copiarPix()" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs px-4 py-2 rounded-xl transition font-medium">
+                <button onclick="copiarPix()" class="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs px-4 py-2.5 rounded-xl transition font-medium">
                     <i class="fa-regular fa-copy mr-1"></i> Copiar
                 </button>
             </div>
@@ -166,64 +166,42 @@
     </section>
 
     <!-- SEÇÃO RSVP / CONFIRMAÇÃO DE PRESENÇA -->
-    <section id="rsvp" class="py-24 px-6 bg-slate-900/50 border-t border-amber-500/10">
-        <div class="max-w-xl mx-auto bg-slate-900 border border-amber-500/20 rounded-3xl p-8 md:p-12 shadow-2xl relative">
+    <section id="rsvp" class="py-24 px-6 bg-gradient-to-b from-black to-purple-950/20 border-t border-purple-900/30">
+        <div class="max-w-xl mx-auto bg-gradient-to-b from-slate-900 to-black border border-purple-800/40 rounded-3xl p-8 md:p-12 shadow-2xl relative">
             <div class="text-center space-y-3 mb-8">
                 <h2 class="font-cinzel text-3xl font-bold text-white">Confirmação de Presença</h2>
-                <p class="text-xs text-amber-400 uppercase tracking-widest font-semibold">RSVP até o dia 10 de Julho</p>
-                <p class="text-slate-400 text-sm">Por favor, preencha os dados abaixo para confirmar sua ida à festa.</p>
+                <p class="text-xs text-purple-400 uppercase tracking-widest font-semibold">Grupo Oficial do WhatsApp</p>
+                <p class="text-slate-400 text-sm">Digite seu nome e clique em confirmar para entrar no grupo e enviar sua confirmação automaticamente.</p>
             </div>
 
-            <form onsubmit="enviarRsvpFirebase(event)" class="space-y-5">
+            <form onsubmit="confirmarPresencaWhatsApp(event)" class="space-y-5">
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Nome Completo do Convidado</label>
-                    <input type="text" id="rsvpNome" required placeholder="Ex: Lucas Silva" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Seu Nome Completo</label>
+                    <input type="text" id="rsvpNome" required placeholder="Ex: Lucas Silva" class="w-full bg-black border border-purple-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 transition text-white">
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Telefone / WhatsApp</label>
-                    <input type="text" id="rsvpTelefone" required placeholder="(11) 99999-9999" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition">
+                <div class="bg-purple-950/30 border border-purple-800/30 rounded-xl p-4 text-xs text-purple-300 space-y-1">
+                    <p class="font-bold flex items-center"><i class="fa-solid fa-circle-info mr-2"></i> O que vai acontecer ao confirmar:</p>
+                    <p class="text-slate-400">1. O texto <code class="text-purple-300">"Nome: [Seu Nome] - Eu [Seu Nome] confirmo minha presença na festa de 15 do murilo"</code> será copiado automaticamente.</p>
+                    <p class="text-slate-400">2. Você será direcionado para o grupo do WhatsApp para colar a mensagem no chat.</p>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Você irá comparecer?</label>
-                    <select id="rsvpStatus" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 transition">
-                        <option value="Sim, estarei presente!">Sim, estarei presente!</option>
-                        <option value="Infelizmente não poderei comparecer">Infelizmente não poderei comparecer</option>
-                    </select>
-                </div>
-
-                <button type="submit" id="btnRsvp" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold uppercase text-xs tracking-widest py-3.5 rounded-xl transition shadow-lg shadow-amber-500/20 mt-2">
-                    Enviar Confirmação
+                <button type="submit" id="btnRsvp" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold uppercase text-xs tracking-widest py-3.5 rounded-xl transition shadow-lg shadow-purple-900/40 mt-2">
+                    Confirmar e Entrar no Grupo
                 </button>
             </form>
         </div>
     </section>
 
     <!-- RODAPÉ -->
-    <footer class="py-12 px-6 text-center border-t border-slate-900 text-slate-500 text-xs space-y-2">
-        <p class="font-cinzel text-amber-400/80 font-bold tracking-widest text-sm">MURILO GABRIEL • 15 ANOS</p>
-        <p>Feito com carinho para esta data especial.</p>
+    <footer class="py-12 px-6 text-center border-t border-purple-950 text-slate-500 text-xs space-y-2">
+        <p class="font-cinzel text-purple-400 font-bold tracking-widest text-sm">MURILO GABRIEL • 15 ANOS</p>
+        <p>Feito com carinho para esta data especial em tons de roxo e preto.</p>
     </footer>
 
     <script>
-        // CONFIGURAÇÃO DO FIREBASE (Compartilhada do seu app anterior ou pronta para uso)
-        const firebaseConfig = {
-            apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
-            authDomain: "soares-app-61b17.firebaseapp.com",
-            projectId: "soares-app-61b17",
-            storageBucket: "soares-app-61b17.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef123456"
-        };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.firestore();
-
-        // CONTAGEM REGRESSIVA PARA 25 DE JULHO DE 2026
-        const dataFesta = new Date("Jul 25, 2026 20:00:00").getTime();
+        // CONTAGEM REGRESSIVA PARA 14 DE NOVEMBRO DE 2026
+        const dataFesta = new Date("Nov 14, 2026 20:00:00").getTime();
 
         const x = setInterval(function() {
             const agora = new Date().getTime();
@@ -234,58 +212,40 @@
             const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
             const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
 
-            document.getElementById("dias").innerText = String(dias).padStart(2, '0');
-            document.getElementById("horas").innerText = String(horas).padStart(2, '0');
-            document.getElementById("minutos").innerText = String(minutos).padStart(2, '0');
-            document.getElementById("segundos").innerText = String(segundos).padStart(2, '0');
-
-            if (distancia < 0) {
-                clearInterval(x);
-                document.getElementById("inicio").innerHTML = `<h1 class="font-cinzel text-4xl text-amber-400 font-bold">O grande dia chegou!</h1>`;
-            }
+            document.getElementById("dias").innerText = String(dias > 0 ? dias : 0).padStart(2, '0');
+            document.getElementById("horas").innerText = String(horas > 0 ? horas : 0).padStart(2, '0');
+            document.getElementById("minutos").innerText = String(minutos > 0 ? minutos : 0).padStart(2, '0');
+            document.getElementById("segundos").innerText = String(segundos > 0 ? segundos : 0).padStart(2, '0');
         }, 1000);
 
         // FUNÇÃO DE COPIAR PIX
         function copiarPix() {
             const chave = document.getElementById("chavePixText").innerText;
             navigator.clipboard.writeText(chave);
-            alert("Chave Pix copiada com sucesso!");
+            alert("Chave Pix (CPF) copiada com sucesso!");
         }
 
-        // ENVIAR RSVP PARA O FIREBASE
-        async function enviarRsvpFirebase(event) {
+        // CONFIRMAR PRESENÇA E COPIAR TEXTO PARA O WHATSAPP
+        function confirmarPresencaWhatsApp(event) {
             event.preventDefault();
             const nome = document.getElementById('rsvpNome').value.trim();
-            const telefone = document.getElementById('rsvpTelefone').value.trim();
-            const status = document.getElementById('rsvpStatus').value;
-            const btn = document.getElementById('btnRsvp');
+            
+            if(!nome) return;
 
-            btn.innerText = "Enviando...";
-            btn.disabled = true;
+            // Formata o texto solicitado
+            const textoMensagem = `Nome: ${nome}\nEu ${nome} confirmo minha presença na festa de 15 do murilo`;
 
-            try {
-                const agora = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR');
-
-                // Salva na coleção "convidados_15anos" do Firebase
-                await db.collection("convidados_15anos").add({
-                    nome: nome,
-                    telefone: telefone,
-                    status: status,
-                    dataEnvio: agora
-                });
-
-                alert("Obrigado, " + nome + "! Sua confirmação foi registrada com sucesso.");
-                document.getElementById('rsvpNome').value = '';
-                document.getElementById('rsvpTelefone').value = '';
-                btn.innerText = "Enviar Confirmação";
-                btn.disabled = false;
-
-            } catch (err) {
-                console.error("Erro ao salvar RSVP:", err);
-                alert("Houve um erro ao registrar. Tente novamente.");
-                btn.innerText = "Enviar Confirmação";
-                btn.disabled = false;
-            }
+            // Copia automaticamente para a área de transferência do usuário
+            navigator.clipboard.writeText(textoMensagem).then(() => {
+                alert(`Tudo pronto, ${nome}!\n\nA mensagem de confirmação foi copiada para a sua área de transferência.\n\nAgora você será levado para o grupo do WhatsApp. É só colar no chat!`);
+                
+                // Redireciona para o grupo do WhatsApp fornecido
+                window.location.href = "https://chat.whatsapp.com/HqeRPOhScpdKklrAm80B77";
+            }).catch(err => {
+                // Caso o navegador bloqueie a área de transferência direta por segurança
+                alert(`Erro ao copiar automaticamente. Copie este texto:\n\n${textoMensagem}`);
+                window.location.href = "https://chat.whatsapp.com/HqeRPOhScpdKklrAm80B77";
+            });
         }
     </script>
 </body>
