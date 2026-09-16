@@ -24,7 +24,7 @@
 </head>
 <body class="bg-darkBg text-white font-sans min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-    <!-- TELA DE IDENTIFICAÇÃO DO ELEITOR (VOTO ÚNICO POR R.A.) -->
+    <!-- TELA DE IDENTIFICAÇÃO DO ELEITOR -->
     <div id="screenVoterLogin" class="flex-1 flex flex-col justify-center items-center p-4">
         <div class="w-full max-w-md bg-cardBg border border-borderCol rounded-2xl p-8 shadow-2xl relative overflow-hidden">
             <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/20 rounded-full blur-2xl pointer-events-none"></div>
@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <!-- TELA DE VOTAÇÃO (CABINES DE VOTO) -->
+    <!-- TELA DE VOTAÇÃO -->
     <div id="screenVotingBooth" class="hidden flex-1 max-w-4xl mx-auto p-6 w-full flex flex-col justify-center">
         <div class="bg-cardBg border border-borderCol rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
             <div class="flex justify-between items-center border-b border-borderCol pb-4">
@@ -90,7 +90,7 @@
                 <i class="fa-solid fa-check"></i>
             </div>
             <h2 class="text-2xl font-bold text-green-400">Voto Computado com Sucesso!</h2>
-            <p class="text-sm text-indigo-200/80">Seu voto foi registrado com criptografia e sigilo na Urna do Soares. Obrigado por exercer sua cidadania estudantil!</p>
+            <p class="text-sm text-indigo-200/80">Seu voto foi registrado com sigilo na Urna do Soares. Este R.A. não poderá votar novamente.</p>
             <button onclick="sairUrna()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-medium text-sm transition shadow-lg mt-4">
                 Finalizar e Sair da Sessão
             </button>
@@ -98,11 +98,11 @@
     </div>
 
     <!-- PAINEL DE APURAÇÃO DO ADMIN / MESÁRIO -->
-    <div id="screenAdminPanel" class="hidden flex-1 max-w-4xl mx-auto p-6 w-full space-y-6">
+    <div id="screenAdminPanel" class="hidden flex-1 max-w-5xl mx-auto p-6 w-full space-y-6">
         <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl flex justify-between items-center">
             <div>
-                <h2 class="text-xl font-bold text-indigo-300"><i class="fa-solid fa-chart-pie mr-2"></i> Painel de Apuração • Urna do Soares</h2>
-                <p class="text-xs text-indigo-300/70 mt-0.5">Resultados parciais e controle de votos da eleição escolar.</p>
+                <h2 class="text-xl font-bold text-indigo-300"><i class="fa-solid fa-chart-pie mr-2"></i> Painel de Apuração & Log • Urna do Soares</h2>
+                <p class="text-xs text-indigo-300/70 mt-0.5">Resultados, horários de votação e controle de chapas.</p>
             </div>
             <button onclick="sairUrna()" class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl text-xs hover:bg-red-500/30 transition">
                 Sair do Painel
@@ -110,13 +110,13 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Placar de Votos -->
             <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
                 <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Placar Geral de Votos</h3>
-                <div id="placarResultados" class="space-y-3">
-                    <!-- Preenchido via JS -->
-                </div>
+                <div id="placarResultados" class="space-y-3"></div>
             </div>
 
+            <!-- Cadastro de Chapas -->
             <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
                 <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Gerenciamento de Chapas</h3>
                 <div class="space-y-3">
@@ -130,6 +130,28 @@
                     </div>
                     <button onclick="adicionarChapa()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-2.5 rounded-xl text-sm font-medium transition shadow">Cadastrar Nova Chapa</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Log Detalhado de Eleitores (Hora, R.A. e Voto) -->
+        <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide"><i class="fa-solid fa-clipboard-user mr-2"></i> Histórico de Eleitores que Votaram</h3>
+                <button onclick="limparHistorico()" class="text-xs text-red-400 hover:underline">Zerar Registros</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-darkBg text-indigo-300 border-b border-borderCol">
+                        <tr>
+                            <th class="p-3 rounded-tl-xl">R.A. do Aluno</th>
+                            <th class="p-3">Horário do Voto</th>
+                            <th class="p-3 rounded-tr-xl">Voto Registrado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaHistoricoVotos" class="divide-y divide-borderCol">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -150,14 +172,24 @@
     </div>
 
     <script>
-        // BANCO DE DADOS DE CHAPAS (COM VOTOS ZERADOS PARA TESTE)
-        let chapasDB = [
+        // BANCO DE DADOS PERSISTENTE VIA LOCALSTORAGE
+        let chapasDB = JSON.parse(localStorage.getItem('soares_chapas')) || [
             { id: 1, nome: "Chapa 1 - Renovação Total", proposta: "Mais eventos culturais, reforma das quadras e bebedouros modernos.", votos: 0, cor: "from-indigo-600 to-purple-600" },
             { id: 2, nome: "Chapa 2 - Conexão Estudantil", proposta: "Clubs de programação, campeonatos de e-sports e melhorias na cantina.", votos: 0, cor: "from-purple-600 to-pink-600" }
         ];
 
-        let eleitoresVotaram = new Set(); // Conjunto limpo para garantir teste sem restrições prévias
+        // Histórico detalhado de votos (armazena R.A., hora e nome da chapa escolhida)
+        let historicoVotos = JSON.parse(localStorage.getItem('soares_historico')) || [];
+        
+        // R.A.s que já votaram (salvos permanentemente para bloquear acesso duplicado)
+        let eleitoresVotaram = new Set(JSON.parse(localStorage.getItem('soares_bloqueio')) || []);
         let alunoLogadoRa = null;
+
+        function salvarDados() {
+            localStorage.setItem('soares_chapas', JSON.stringify(chapasDB));
+            localStorage.setItem('soares_historico', JSON.stringify(historicoVotos));
+            localStorage.setItem('soares_bloqueio', JSON.stringify(Array.from(eleitoresVotaram)));
+        }
 
         function entrarParaVotar(event) {
             event.preventDefault();
@@ -169,10 +201,13 @@
                 return;
             }
 
-            const identificadorCompleto = `${ra}-${digito}`;
+            const identificadorCompleto = `${ra}-${digito} (SP)`;
 
+            // BLOQUEIO: Verifica se já votou
             if(eleitoresVotaram.has(identificadorCompleto)) {
-                alert('Atenção: Este R.A. já registrou seu voto nesta urna! O voto é único por aluno.');
+                alert('BLOQUEIO DE SEGURANÇA: Este R.A. já votou nesta eleição e não pode acessar a urna novamente.');
+                document.getElementById('voterRa').value = '';
+                document.getElementById('voterDigito').value = '';
                 return;
             }
 
@@ -198,7 +233,7 @@
                             <h3 class="font-bold text-lg mb-2 text-white">${chapa.nome}</h3>
                             <p class="text-xs text-indigo-200/80 mb-6 leading-relaxed">${chapa.proposta}</p>
                         </div>
-                        <button onclick="confirmarVoto(${chapa.id})" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
+                        <button onclick="confirmarVoto(${chapa.id}, '${chapa.nome}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
                             Votar nesta Chapa
                         </button>
                     </div>
@@ -215,20 +250,33 @@
                         <h3 class="font-bold text-lg mb-2 text-white">Voto em Branco</h3>
                         <p class="text-xs text-gray-400 mb-6 leading-relaxed">Registrar voto em branco na urna eletrônica do Soares.</p>
                     </div>
-                    <button onclick="confirmarVoto(0)" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
+                    <button onclick="confirmarVoto(0, 'Voto em Branco')" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
                         Confirmar Branco
                     </button>
                 </div>
             `;
         }
 
-        function confirmarVoto(chapaId) {
+        function confirmarVoto(chapaId, nomeChapa) {
+            // Computa o voto
             if(chapaId !== 0) {
                 const chapa = chapasDB.find(c => c.id === chapaId);
                 if(chapa) chapa.votos++;
             }
             
+            // Registra bloqueio e horário exato
             eleitoresVotaram.add(alunoLogadoRa);
+            
+            const agora = new Date();
+            const horaFormatada = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR');
+
+            historicoVotos.unshift({
+                ra: alunoLogadoRa,
+                hora: horaFormatada,
+                voto: nomeChapa
+            });
+
+            salvarDados();
 
             document.getElementById('screenVotingBooth').classList.add('hidden');
             document.getElementById('screenVotedSuccess').classList.remove('hidden');
@@ -259,21 +307,20 @@
             if(senha === "soares2026" || senha === "123") {
                 fecharAdminModal();
                 document.getElementById('screenVoterLogin').classList.add('hidden');
-                atualizarPlacarAdmin();
+                atualizarPainelAdmin();
                 document.getElementById('screenAdminPanel').classList.remove('hidden');
             } else {
                 alert('Senha de administrador incorreta!');
             }
         }
 
-        function atualizarPlacarAdmin() {
-            const container = document.getElementById('placarResultados');
-            container.innerHTML = '';
+        function atualizarPainelAdmin() {
+            // Atualiza Placar
+            const containerPlacar = document.getElementById('placarResultados');
+            containerPlacar.innerHTML = '';
             
-            const totalVotosGeral = Array.from(eleitoresVotaram).length;
-
             chapasDB.forEach(c => {
-                container.innerHTML += `
+                containerPlacar.innerHTML += `
                     <div class="bg-darkBg border border-borderCol p-3.5 rounded-xl flex justify-between items-center">
                         <div>
                             <span class="font-bold text-sm text-white">${c.nome}</span>
@@ -287,11 +334,30 @@
                 `;
             });
 
-            container.innerHTML += `
+            containerPlacar.innerHTML += `
                 <div class="pt-2 text-xs text-indigo-300/80 text-center font-semibold">
-                    Total geral de eleitores que já votaram: ${totalVotosGeral} aluno(s)
+                    Total geral de eleitores que votaram: ${eleitoresVotaram.size} aluno(s)
                 </div>
             `;
+
+            // Atualiza Tabela de Histórico
+            const containerTabela = document.getElementById('tabelaHistoricoVotos');
+            containerTabela.innerHTML = '';
+
+            if(historicoVotos.length === 0) {
+                containerTabela.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-indigo-300/50">Nenhum voto registrado até o momento.</td></tr>`;
+                return;
+            }
+
+            historicoVotos.forEach(h => {
+                containerTabela.innerHTML += `
+                    <tr class="hover:bg-darkBg/50 transition">
+                        <td class="p-3 font-mono text-indigo-200">${h.ra}</td>
+                        <td class="p-3 text-indigo-300/80">${h.hora}</td>
+                        <td class="p-3 font-medium text-white">${h.voto}</td>
+                    </tr>
+                `;
+            });
         }
 
         function adicionarChapa() {
@@ -314,8 +380,23 @@
 
             document.getElementById('novaChapaNome').value = '';
             document.getElementById('novaChapaProposta').value = '';
-            atualizarPlacarAdmin();
+            salvarDados();
+            atualizarPainelAdmin();
             alert('Chapa cadastrada com sucesso na urna!');
+        }
+
+        function limparHistorico() {
+            if(confirm('Tem certeza que deseja apagar todos os registros, votos e bloqueios da eleição?')) {
+                localStorage.clear();
+                chapasDB = [
+                    { id: 1, nome: "Chapa 1 - Renovação Total", proposta: "Mais eventos culturais, reforma das quadras e bebedouros modernos.", votos: 0, cor: "from-indigo-600 to-purple-600" },
+                    { id: 2, nome: "Chapa 2 - Conexão Estudantil", proposta: "Clubs de programação, campeonatos de e-sports e melhorias na cantina.", votos: 0, cor: "from-purple-600 to-pink-600" }
+                ];
+                historicoVotos = [];
+                eleitoresVotaram.clear();
+                atualizarPainelAdmin();
+                alert('Urna zerada com sucesso!');
+            }
         }
     </script>
 </body>
