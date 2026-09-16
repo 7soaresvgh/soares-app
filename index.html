@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <!-- TELA DE VOTAÇÃO (CABines DE VOTO) -->
+    <!-- TELA DE VOTAÇÃO (CABINES DE VOTO) -->
     <div id="screenVotingBooth" class="hidden flex-1 max-w-4xl mx-auto p-6 w-full flex flex-col justify-center">
         <div class="bg-cardBg border border-borderCol rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
             <div class="flex justify-between items-center border-b border-borderCol pb-4">
@@ -150,13 +150,13 @@
     </div>
 
     <script>
-        // BANCO DE DADOS DE CHAPAS E ELEITORES QUE JÁ VOTARAM
+        // BANCO DE DADOS DE CHAPAS (COM VOTOS ZERADOS PARA TESTE)
         let chapasDB = [
-            { id: 1, nome: "Chapa 1 - Renovação Total", proposta: "Mais eventos culturais, reforma das quadras e bebedouros modernos.", votos: 42, cor: "from-indigo-600 to-purple-600" },
-            { id: 2, nome: "Chapa 2 - Conexão Estudantil", proposta: "Clubs de programação, campeonatos de e-sports e melhorias na cantina.", votos: 38, cor: "from-purple-600 to-pink-600" }
+            { id: 1, nome: "Chapa 1 - Renovação Total", proposta: "Mais eventos culturais, reforma das quadras e bebedouros modernos.", votos: 0, cor: "from-indigo-600 to-purple-600" },
+            { id: 2, nome: "Chapa 2 - Conexão Estudantil", proposta: "Clubs de programação, campeonatos de e-sports e melhorias na cantina.", votos: 0, cor: "from-purple-600 to-pink-600" }
         ];
 
-        let eleitoresVotaram = new Set(); // Armazena R.A.s que já votaram para impedir voto duplo
+        let eleitoresVotaram = new Set(); // Conjunto limpo para garantir teste sem restrições prévias
         let alunoLogadoRa = null;
 
         function entrarParaVotar(event) {
