@@ -3,843 +3,454 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urna do Soares - Votação Online (E.E Soares Club)</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Urna do Soares - Eleição Online do Grêmio Estudantil</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+    <!-- Firebase SDKs (Compat Mode para Nuvem em Tempo Real) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        darkBg: '#05070b',
-                        cardBg: '#0f1420',
-                        cardHover: '#161e30',
-                        borderCol: '#1e293b',
-                        neonPurple: '#8b5cf6',
-                        neonBlue: '#3b82f6',
-                        neonGreen: '#10b981',
-                        accentYellow: '#f59e0b',
-                        roseAccent: '#f43f5e'
+                        primary: '#4f46e5',
+                        darkBg: '#0f172a',
+                        cardBg: '#1e293b',
+                        borderCol: '#334155'
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #05070b; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #8b5cf6; }
-        @keyframes beep {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-        .anim-beep { animation: beep 1s infinite; }
-    </style>
 </head>
-<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col antialiased selection:bg-neonPurple selection:text-white">
+<body class="bg-darkBg text-white font-sans min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, onSnapshot, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        window.firebaseModules = {
-            initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged,
-            getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, onSnapshot, addDoc, getDocs
-        };
-    </script>
-
-    <div id="loginModal" class="fixed inset-0 z-50 bg-darkBg flex items-center justify-center p-4 overflow-y-auto">
-        <div class="w-full max-w-6xl min-h-[90vh] bg-cardBg border border-borderCol rounded-3xl shadow-2xl grid grid-cols-1 lg:grid-cols-12 overflow-hidden relative">
+    <!-- TELA DE IDENTIFICAÇÃO DO ELEITOR -->
+    <div id="screenVoterLogin" class="flex-1 flex flex-col justify-center items-center p-4">
+        <div class="w-full max-w-md bg-cardBg border border-borderCol rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/20 rounded-full blur-2xl pointer-events-none"></div>
             
-            <!-- Left Info Panel -->
-            <div class="lg:col-span-7 bg-gradient-to-br from-darkBg via-cardBg to-[#090d16] p-8 md:p-12 flex flex-col justify-between border-r border-borderCol relative overflow-hidden">
-                <div class="absolute -right-32 -top-32 w-96 h-96 bg-neonPurple/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute -left-32 -bottom-32 w-96 h-96 bg-neonBlue/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                <div class="space-y-6 relative z-10">
-                    <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-neonPurple/10 border border-neonPurple/30 text-neonPurple text-xs font-extrabold uppercase tracking-widest">
-                        <i class="fa-solid fa-box-archive"></i> URNA DO SOARES • ONLINE
-                    </div>
-                    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                        Eleições Oficiais <br><span class="bg-gradient-to-r from-neonPurple via-indigo-400 to-neonBlue bg-clip-text text-transparent">E.E SOARES CLUB</span>
-                    </h1>
-                    <p class="text-slate-300 text-sm md:text-base leading-relaxed max-w-xl">
-                        Bem-vindo à <strong>Urna Eletrônica Online em Tempo Real</strong>. Cada estudante e servidor possui um voto único verificado por RA com sincronização segura na nuvem, impedindo voto duplo em qualquer dispositivo.
-                    </p>
-
-                    <div class="space-y-3 pt-2">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-neonPurple">RECURSOS DA URNA ONLINE:</h4>
-                        <div class="flex items-start gap-3 text-xs md:text-sm text-slate-300">
-                            <i class="fa-solid fa-check text-neonGreen mt-1"></i>
-                            <span><strong>Verificação em tempo real:</strong> Bloqueio automático após votação confirmada.</span>
-                        </div>
-                        <div class="flex items-start gap-3 text-xs md:text-sm text-slate-300">
-                            <i class="fa-solid fa-check text-neonGreen mt-1"></i>
-                            <span><strong>Painel de Apuração:</strong> Placar ao vivo e histórico detalhado para a Mesa Diretora.</span>
-                        </div>
-                    </div>
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 text-3xl mb-3 shadow-inner">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
                 </div>
-
-                <!-- Firebase Status & Config Toggle -->
-                <div class="pt-6 border-t border-borderCol/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400 relative z-10">
-                    <div class="flex items-center gap-2">
-                        <span id="firebaseStatusIndicator" class="w-2.5 h-2.5 rounded-full bg-amber-500 anim-beep"></span>
-                        <span id="firebaseStatusText">Conectando ao Firebase Cloud...</span>
-                    </div>
-                    <button onclick="toggleFirebaseConfigModal()" class="text-neonPurple hover:underline font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-gear"></i> Configurar Projeto Firebase
-                    </button>
-                </div>
+                <h1 class="text-2xl font-bold tracking-tight">URNA DO SOARES</h1>
+                <p class="text-xs text-indigo-300/70 mt-1">Eleição Oficial Online • E.E. Soares Club</p>
             </div>
 
-            <!-- Right Login Form Panel -->
-            <div class="lg:col-span-5 p-8 md:p-12 flex flex-col justify-between bg-cardBg relative">
-                <div class="flex justify-between items-center text-xs text-slate-400">
-                    <span class="font-bold tracking-widest uppercase text-neonPurple">IDENTIFICAÇÃO ELEITOR</span>
-                    <span>Modo Urna: <strong class="text-neonGreen">Ativo</strong></span>
-                </div>
-
-                <div class="space-y-6 my-auto py-6">
-                    <div class="space-y-1">
-                        <h3 class="text-2xl font-extrabold text-white">Entrar na Urna</h3>
-                        <p class="text-xs text-slate-400">Insira seu R.A. e dígito para computar seu voto online:</p>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="space-y-1.5">
-                            <label class="text-xs text-slate-400 font-medium">Perfil de Acesso</label>
-                            <select id="loginRole" onchange="handleLoginRoleChange()" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-neonPurple transition-all">
-                                <option value="eleitor">Eleitor (Aluno / Servidor)</option>
-                                <option value="mesario">Mesário / Administrador (Painel de Apuração)</option>
-                            </select>
-                        </div>
-
-                        <div id="eleitorInputsGroup" class="space-y-4">
-                            <div class="grid grid-cols-12 gap-2">
-                                <div class="col-span-8 space-y-1.5">
-                                    <label class="text-xs text-slate-400 font-medium">R.A. do Aluno / Servidor</label>
-                                    <input type="text" id="loginRa" placeholder="Ex: 9841201" value="9841201" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-slate-200 font-mono focus:outline-none focus:border-neonPurple">
-                                </div>
-                                <div class="col-span-2 space-y-1.5">
-                                    <label class="text-xs text-slate-400 font-medium">Díg.</label>
-                                    <input type="text" id="loginDig" placeholder="5" maxlength="1" value="5" class="w-full bg-darkBg border border-borderCol rounded-xl px-2 py-3 text-sm text-slate-200 text-center font-mono focus:outline-none focus:border-neonPurple">
-                                </div>
-                                <div class="col-span-2 space-y-1.5">
-                                    <label class="text-xs text-slate-400 font-medium">UF</label>
-                                    <input type="text" value="SP" readonly class="w-full bg-darkBg/60 border border-borderCol rounded-xl px-2 py-3 text-sm text-slate-300 text-center font-mono">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="mesarioInputsGroup" class="space-y-1.5 hidden">
-                            <label class="text-xs text-slate-400 font-medium">Senha de Mesário / Administrador</label>
-                            <input type="password" id="loginMesarioPass" placeholder="Senha mestre (ex: soares2026)" value="soares2026" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-slate-200 font-mono focus:outline-none focus:border-neonPurple">
-                        </div>
-
-                        <div class="p-3 rounded-xl bg-darkBg/60 border border-borderCol text-[11px] text-slate-400 space-y-1">
-                            <p class="font-semibold text-slate-300"><i class="fa-solid fa-circle-info text-neonPurple mr-1"></i> Exemplos de R.A. para Teste:</p>
-                            <p>• <strong>Gerson (6º Ano):</strong> 9841201-5</p>
-                            <p>• <strong>Erika (7º Ano):</strong> 9841202-3</p>
-                            <p>• <strong>Priscila (8º Ano):</strong> 9841203-7</p>
-                            <p>• <strong>Prof. Soares / Mesário:</strong> Selecione "Mesário" (Senha: soares2026)</p>
-                        </div>
-                    </div>
-
-                    <button onclick="performLogin()" class="w-full py-4 rounded-xl bg-gradient-to-r from-neonPurple to-neonBlue text-white font-extrabold text-sm shadow-xl shadow-neonPurple/25 hover:opacity-90 transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sessão na Urna
-                    </button>
-                </div>
-
-                <div class="text-center text-xs text-slate-500 pt-4 border-t border-borderCol">
-                    Urna do Soares • E.E Soares Club © 2026
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <div id="firebaseConfigModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
-        <div class="bg-cardBg border border-borderCol rounded-3xl w-full max-w-xl p-6 md:p-8 space-y-6 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-borderCol pb-4">
-                <h3 class="font-bold text-lg text-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-database text-neonPurple"></i> Configuração do Firebase Cloud
-                </h3>
-                <button onclick="toggleFirebaseConfigModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="space-y-4 text-xs">
-                <p class="text-slate-300">Cole abaixo o seu objeto de configuração do Firebase para habilitar a sincronização online em tempo real dos votos entre todos os dispositivos:</p>
-                <div class="space-y-1">
-                    <label class="text-slate-400 font-semibold">Firebase Config (JSON)</label>
-                    <textarea id="firebaseConfigInput" rows="6" class="w-full bg-darkBg border border-borderCol rounded-xl p-4 font-mono text-slate-200 text-xs focus:outline-none focus:border-neonPurple">{
-  "apiKey": "SUA_API_KEY",
-  "authDomain": "seu-projeto.firebaseapp.com",
-  "projectId": "seu-projeto-id",
-  "storageBucket": "seu-projeto.appspot.com",
-  "messagingSenderId": "123456789",
-  "appId": "1:123456:web:abcd"
-}</textarea>
-                </div>
-                <div class="flex justify-end gap-3 pt-2">
-                    <button onclick="toggleFirebaseConfigModal()" class="px-5 py-2.5 rounded-xl bg-cardBg border border-borderCol text-slate-300 font-semibold">Cancelar</button>
-                    <button onclick="saveCustomFirebaseConfig()" class="px-6 py-2.5 rounded-xl bg-neonPurple text-white font-bold hover:opacity-90">Salvar e Conectar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="appShell" class="flex-1 flex flex-col hidden">
-        <header class="h-20 bg-cardBg/90 backdrop-blur-md border-b border-borderCol flex items-center justify-between px-6 z-30 sticky top-0">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-neonPurple to-neonBlue flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-neonPurple/20">
-                    <i class="fa-solid fa-box-archive"></i>
-                </div>
+            <form onsubmit="verificarEleitorOnline(event)" class="space-y-4">
                 <div>
-                    <h2 id="headerTitle" class="font-extrabold text-base md:text-lg tracking-tight text-white">Urna do Soares • Votação Online</h2>
-                    <span id="headerSubtitle" class="text-xs text-neonGreen font-medium flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-neonGreen animate-pulse"></span> Sistema Online Ativo</span>
+                    <label class="block text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">R.A. do Aluno (Registro)</label>
+                    <input type="text" id="voterRa" required placeholder="Ex: 15894231" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition">
                 </div>
-            </div>
-
-            <div class="flex items-center gap-4">
-                <div class="text-right hidden sm:block">
-                    <span id="headerUserName" class="block text-sm font-semibold text-slate-200">Eleitor</span>
-                    <span id="headerUserRa" class="block text-[11px] text-neonPurple font-mono">RA: 000000-SP</span>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">Dígito</label>
+                        <input type="text" id="voterDigito" maxlength="1" required placeholder="5" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-center focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">UF</label>
+                        <input type="text" id="voterUf" maxlength="2" value="SP" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm text-center uppercase focus:outline-none focus:border-indigo-500 transition">
+                    </div>
                 </div>
-                <button onclick="logoutApp()" class="px-4 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500 hover:text-white transition-all text-xs font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-right-from-bracket"></i> Sair
+                <button type="submit" id="btnEntrar" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-indigo-900/40 mt-2">
+                    Verificar e Votar Online
                 </button>
-            </div>
-        </header>
+            </form>
 
-        <main id="mainContainer" class="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full">
-            <!-- Dynamically injected: Eleitor Urna Screen OR Mesario Panel -->
-        </main>
+            <div class="mt-6 pt-4 border-t border-borderCol flex justify-between items-center text-xs">
+                <span class="text-indigo-300/50">Servidor em Nuvem Ativo</span>
+                <button onclick="abrirAdminModal()" class="text-indigo-400 hover:underline font-medium">Acesso Mesário / Admin</button>
+            </div>
+        </div>
     </div>
 
-    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-cardBg border border-neonPurple text-slate-100 px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3">
-        <i class="fa-solid fa-circle-check text-neonPurple text-lg"></i>
-        <span id="toastMessage" class="text-sm font-medium">Ação realizada com sucesso!</span>
+    <!-- TELA DE VOTAÇÃO -->
+    <div id="screenVotingBooth" class="hidden flex-1 max-w-4xl mx-auto p-6 w-full flex flex-col justify-center">
+        <div class="bg-cardBg border border-borderCol rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+            <div class="flex justify-between items-center border-b border-borderCol pb-4">
+                <div>
+                    <h2 class="text-xl font-bold">Cédula Eletrônica Online</h2>
+                    <p class="text-xs text-indigo-300/70">Eleitor autenticado: <span id="displayVoterRa" class="font-mono text-white"></span></p>
+                </div>
+                <div class="bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 text-xs px-3 py-1.5 rounded-lg">
+                    Escolha 1 Chapa
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="listaChapasVotacao">
+                <!-- Preenchido dinamicamente via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA DE CONFIRMAÇÃO DO VOTO -->
+    <div id="screenVotedSuccess" class="hidden flex-1 flex flex-col justify-center items-center p-4">
+        <div class="w-full max-w-md bg-cardBg border border-borderCol rounded-2xl p-8 text-center space-y-4 shadow-2xl">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/20 text-green-400 text-4xl mb-2">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-green-400">Voto Enviado com Sucesso!</h2>
+            <p class="text-sm text-indigo-200/80">Seu voto foi registrado com segurança no banco de dados online. Este R.A. foi bloqueado permanentemente.</p>
+            <button onclick="sairUrna()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-medium text-sm transition shadow-lg mt-4">
+                Encerrar Sessão
+            </button>
+        </div>
+    </div>
+
+    <!-- PAINEL DE APURAÇÃO DO ADMIN / MESÁRIO -->
+    <div id="screenAdminPanel" class="hidden flex-1 max-w-5xl mx-auto p-6 w-full space-y-6">
+        <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-bold text-indigo-300"><i class="fa-solid fa-chart-pie mr-2"></i> Painel Online • Urna do Soares</h2>
+                <p class="text-xs text-indigo-300/70 mt-0.5">Apuração em tempo real sincronizada via Nuvem.</p>
+            </div>
+            <button onclick="sairUrna()" class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl text-xs hover:bg-red-500/30 transition">
+                Sair do Painel
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Placar de Votos -->
+            <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
+                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Placar Geral Online</h3>
+                <div id="placarResultados" class="space-y-3"></div>
+            </div>
+
+            <!-- Cadastro de Chapas -->
+            <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
+                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Gerenciamento de Chapas</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs mb-1 text-indigo-200">Nome da Nova Chapa</label>
+                        <input type="text" id="novaChapaNome" placeholder="Ex: Chapa 3 - Inovação" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs mb-1 text-indigo-200">Proposta Principal</label>
+                        <input type="text" id="novaChapaProposta" placeholder="Ex: Wi-Fi livre e campeonatos" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <button onclick="adicionarChapaOnline()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-2.5 rounded-xl text-sm font-medium transition shadow">Cadastrar Chapa na Nuvem</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Detalhado de Eleitores -->
+        <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
+            <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide"><i class="fa-solid fa-clipboard-user mr-2"></i> Histórico em Tempo Real de Votação</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-darkBg text-indigo-300 border-b border-borderCol">
+                        <tr>
+                            <th class="p-3 rounded-tl-xl">R.A. do Aluno</th>
+                            <th class="p-3">Horário do Voto</th>
+                            <th class="p-3 rounded-tr-xl">Voto Registrado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaHistoricoVotos" class="divide-y divide-borderCol">
+                        <tr><td colspan="3" class="p-4 text-center text-indigo-300/50">Carregando dados da nuvem...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE SENHA DO ADMIN -->
+    <div id="adminModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+        <div class="bg-cardBg border border-borderCol w-full max-w-sm p-6 rounded-2xl space-y-4 shadow-2xl">
+            <h3 class="font-bold text-base">Acesso Restrito - Mesário</h3>
+            <div>
+                <label class="block text-xs mb-1 text-indigo-200">Senha do Administrador</label>
+                <input type="password" id="adminSenhaInput" placeholder="••••" class="w-full bg-darkBg border border-borderCol rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="fecharAdminModal()" class="flex-1 bg-darkBg border border-borderCol py-2.5 rounded-xl text-xs font-medium hover:bg-borderCol transition">Cancelar</button>
+                <button onclick="validarAdmin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 py-2.5 rounded-xl text-xs font-medium transition">Entrar</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Global variables for Firebase & State
-        let db = null;
-        let auth = null;
-        let appId = typeof __app_id !== 'undefined' ? __app_id : 'urna-soares-online-2026';
-        let currentUser = null;
-        let isMesario = false;
-
-        // Default Default Chaps (Chapas)
-        let defaultChapas = [
-            { id: "chapa1", number: "10", name: "Chapa 10 • Inovação & Futuro", desc: "Focada em tecnologia nas salas de aula, melhorias na quadra esportiva e eventos culturais mensais.", votes: 0 },
-            { id: "chapa2", number: "20", name: "Chapa 20 • Soares Unido", desc: "Valorização da cantina estudantil, campeonatos interclasse de eSports e bibliotecas abertas.", votes: 0 },
-            { id: "chapa3", number: "30", name: "Chapa 30 • Voz Ativa", desc: "Transparência total nos gastos da escola, grêmio estudantil atuante e parcerias com empresas locais.", votes: 0 }
-        ];
-
-        let chapas = [...defaultChapas];
-        let votesHistory = [];
-        let hasVotedOnline = false;
-
-        // Initialization on window load
-        window.onload = async function() {
-            initFirebaseConnection();
+        // CONFIGURAÇÃO DO FIREBASE (Nuvem em Tempo Real)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDummyKeyForSoaresUrnaApp123456",
+            authDomain: "urna-soares.firebaseapp.com",
+            projectId: "urna-soares-online",
+            storageBucket: "urna-soares.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456:web:abcdef"
         };
 
-        function initFirebaseConnection() {
-            try {
-                let configToUse;
-                const customConfigStr = localStorage.getItem('soares_firebase_config');
-                if (customConfigStr) {
-                    configToUse = JSON.parse(customConfigStr);
-                } else if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                    configToUse = JSON.parse(__firebase_config);
-                } else {
-                    // Fallback mock config for initial standalone testing before user inputs theirs
-                    configToUse = {
-                        apiKey: "AIzaSyDummyKeyForSoaresUrna2026",
-                        authDomain: "soares-urna.firebaseapp.com",
-                        projectId: "soares-urna-db",
-                        storageBucket: "soares-urna.appspot.com",
-                        messagingSenderId: "123456789",
-                        appId: "1:123456:web:mock"
-                    };
-                }
-
-                const { initializeApp, getAuth, signInAnonymously, signInWithCustomToken, getFirestore, collection, onSnapshot } = window.firebaseModules;
-                const app = initializeApp(configToUse);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : undefined;
-                if (token) {
-                    signInWithCustomToken(auth, token).catch(() => signInAnonymously(auth));
-                } else {
-                    signInAnonymously(auth).catch(err => console.log("Auth fallback:", err));
-                }
-
-                document.getElementById('firebaseStatusIndicator').className = 'w-2.5 h-2.5 rounded-full bg-neonGreen';
-                document.getElementById('firebaseStatusText').innerText = 'Firebase Sincronizado na Nuvem';
-
-                // Real-time listener for Votes Collection
-                const votesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'voters_registry');
-                onSnapshot(votesColRef, (snapshot) => {
-                    votesHistory = [];
-                    let counts = { "brancochapa": 0, "nulo": 0 };
-                    chapas.forEach(c => counts[c.number] = 0);
-
-                    snapshot.forEach(docSnap => {
-                        const data = docSnap.data();
-                        votesHistory.push(data);
-                        if (counts[data.voto] !== undefined) {
-                            counts[data.voto]++;
-                        }
-                    });
-
-                    chapas.forEach(c => {
-                        c.votes = counts[c.number] || 0;
-                    });
-
-                    // If currently logged in user has voted, update status
-                    if (currentUser && !isMesario) {
-                        const found = votesHistory.find(v => v.ra === currentUser.fullRa);
-                        if (found) {
-                            hasVotedOnline = true;
-                        }
-                    }
-
-                    if (isMesario) {
-                        renderMesarioPanel();
-                    }
-                }, (error) => {
-                    console.log("Firestore sync note:", error);
-                });
-
-                // Real-time listener for Chapas Collection
-                const chapasColRef = collection(db, 'artifacts', appId, 'public', 'data', 'chapas_list');
-                onSnapshot(chapasColRef, (snapshot) => {
-                    if (!snapshot.empty) {
-                        let remoteChapas = [];
-                        snapshot.forEach(docSnap => {
-                            remoteChapas.push(docSnap.data());
-                        });
-                        if (remoteChapas.length > 0) {
-                            chapas = remoteChapas;
-                        }
-                    }
-                    if (isMesario) {
-                        renderMesarioPanel();
-                    }
-                }, (err) => {
-                    console.log("Chapas listener note:", err);
-                });
-
-            } catch (e) {
-                console.error("Firebase init error:", e);
-                document.getElementById('firebaseStatusIndicator').className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
-                document.getElementById('firebaseStatusText').innerText = 'Erro ao conectar Firebase (Verifique config)';
-            }
+        // Inicializa Firebase com tratamento para evitar duplicidade
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
+        const db = firebase.firestore();
 
-        function toggleFirebaseConfigModal() {
-            const modal = document.getElementById('firebaseConfigModal');
-            modal.classList.toggle('hidden');
-            modal.classList.toggle('flex');
-        }
+        let alunoLogadoRa = null;
+        let chapasCache = [];
+        let historicoCache = [];
 
-        function saveCustomFirebaseConfig() {
-            const val = document.getElementById('firebaseConfigInput').value;
-            try {
-                const parsed = JSON.parse(val);
-                localStorage.setItem('soares_firebase_config', JSON.stringify(parsed));
-                toggleFirebaseConfigModal();
-                showToast('Configuração salva! Reiniciando conexão...');
-                setTimeout(() => location.reload(), 1000);
-            } catch (e) {
-                showToast('JSON inválido. Verifique a sintaxe.');
-            }
-        }
-
-        function handleLoginRoleChange() {
-            const role = document.getElementById('loginRole').value;
-            if (role === 'mesario') {
-                document.getElementById('eleitorInputsGroup').classList.add('hidden');
-                document.getElementById('mesarioInputsGroup').classList.remove('hidden');
+        // Ouve atualizações em tempo real das chapas e votos na nuvem
+        db.collection("eleicao_soares").doc("chapas_dados").onSnapshot((doc) => {
+            if (doc.exists) {
+                chapasCache = doc.data().lista || [];
             } else {
-                document.getElementById('eleitorInputsGroup').classList.remove('hidden');
-                document.getElementById('mesarioInputsGroup').classList.add('hidden');
+                // Dados padrão iniciais se o banco estiver vazio
+                chapasCache = [
+                    { id: 1, nome: "Chapa 1 - Renovação Total", proposta: "Mais eventos culturais, reforma das quadras e bebedouros modernos.", votos: 0, cor: "from-indigo-600 to-purple-600" },
+                    { id: 2, nome: "Chapa 2 - Conexão Estudantil", proposta: "Clubs de programação, campeonatos de e-sports e melhorias na cantina.", votos: 0, cor: "from-purple-600 to-pink-600" }
+                ];
+                db.collection("eleicao_soares").doc("chapas_dados").set({ lista: chapasCache });
             }
-        }
+            atualizarPlacarAdminNaTela();
+        });
 
-        async function performLogin() {
-            const role = document.getElementById('loginRole').value;
-
-            if (role === 'mesario') {
-                const pass = document.getElementById('loginMesarioPass').value;
-                if (pass === 'soares2026' || pass === 'admin123') {
-                    isMesario = true;
-                    currentUser = { name: "Mesa Diretora (Prof. Soares)", fullRa: "ADMIN-MESARIO" };
-                    document.getElementById('loginModal').classList.add('hidden');
-                    document.getElementById('appShell').classList.remove('hidden');
-                    setupShellHeader();
-                    renderMesarioPanel();
-                    showToast('Painel de Apuração e Mesário ativado!');
-                } else {
-                    showToast('Senha de mesário incorreta (Use: soares2026)');
-                }
+        // Ouve atualizações em tempo real do histórico de votantes na nuvem
+        db.collection("eleicao_soares").doc("historico_votos").onSnapshot((doc) => {
+            if (doc.exists) {
+                historicoCache = doc.data().registros || [];
             } else {
-                isMesario = false;
-                const ra = document.getElementById('loginRa').value.trim();
-                const dig = document.getElementById('loginDig').value.trim();
-                if (!ra || !dig) {
-                    showToast('Insira o R.A. e o dígito válidos.');
+                historicoCache = [];
+            }
+            atualizarTabelaHistoricoNaTela();
+        });
+
+        async function verificarEleitorOnline(event) {
+            event.preventDefault();
+            const ra = document.getElementById('voterRa').value.trim();
+            const digito = document.getElementById('voterDigito').value.trim();
+
+            if(!ra || !digito) {
+                alert('Preencha o R.A. e o Dígito.');
+                return;
+            }
+
+            const identificadorCompleto = `${ra}-${digito} (SP)`;
+            const btn = document.getElementById('btnEntrar');
+            btn.innerText = "Verificando na Nuvem...";
+            btn.disabled = true;
+
+            try {
+                // Consulta online para ver se o aluno já votou
+                const docRef = await db.collection("eleitores_votaram").doc(identificadorCompleto).get();
+
+                if(docRef.exists) {
+                    alert('BLOQUEIO DE SEGURANÇA ONLINE: O R.A. ' + identificadorCompleto + ' já registrou voto nesta eleição!');
+                    document.getElementById('voterRa').value = '';
+                    document.getElementById('voterDigito').value = '';
+                    btn.innerText = "Verificar e Votar Online";
+                    btn.disabled = false;
                     return;
                 }
 
-                const fullRa = `${ra}-${dig}-SP`;
-                currentUser = {
-                    name: `Eleitor (RA ${ra})`,
-                    fullRa: fullRa,
-                    ra: ra,
-                    dig: dig
-                };
+                alunoLogadoRa = identificadorCompleto;
+                document.getElementById('displayVoterRa').innerText = identificadorCompleto;
 
-                // Check in Firestore if already voted
-                try {
-                    const { getDocs, collection } = window.firebaseModules;
-                    const querySnapshot = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'voters_registry'));
-                    hasVotedOnline = false;
-                    querySnapshot.forEach(docSnap => {
-                        if (docSnap.data().ra === fullRa) {
-                            hasVotedOnline = true;
-                        }
-                    });
-                } catch (e) {
-                    console.log("Check vote offline fallback:", e);
-                    const foundLocally = votesHistory.find(v => v.ra === fullRa);
-                    if (foundLocally) hasVotedOnline = true;
-                }
+                document.getElementById('screenVoterLogin').classList.add('hidden');
+                renderizarChapasVotacao();
+                document.getElementById('screenVotingBooth').classList.remove('hidden');
 
-                document.getElementById('loginModal').classList.add('hidden');
-                document.getElementById('appShell').classList.remove('hidden');
-                setupShellHeader();
-                renderVotacaoBooth();
-                if (hasVotedOnline) {
-                    showToast('Atenção: Este R.A. já registrou seu voto na nuvem!');
-                } else {
-                    showToast(`Sessão iniciada para ${fullRa}`);
-                }
+            } catch (error) {
+                console.error("Erro ao verificar online:", error);
+                alert("Erro de conexão com o servidor online. Verifique sua internet.");
+                btn.innerText = "Verificar e Votar Online";
+                btn.disabled = false;
             }
         }
 
-        function logoutApp() {
-            location.reload();
-        }
+        function renderizarChapasVotacao() {
+            const container = document.getElementById('listaChapasVotacao');
+            container.innerHTML = '';
 
-        function setupShellHeader() {
-            document.getElementById('headerUserName').innerText = currentUser.name;
-            document.getElementById('headerUserRa').innerText = isMesario ? "Painel Administrativo" : `RA: ${currentUser.fullRa}`;
-        }
-
-        // VOTING BOOTH INTERFACE FOR STUDENTS
-        function renderVotacaoBooth() {
-            const main = document.getElementById('mainContainer');
-            if (hasVotedOnline) {
-                main.innerHTML = `
-                    <div class="max-w-2xl mx-auto bg-cardBg border border-borderCol rounded-3xl p-8 md:p-12 text-center space-y-6 shadow-2xl">
-                        <div class="w-20 h-20 mx-auto rounded-full bg-neonGreen/10 text-neonGreen flex items-center justify-center text-3xl">
-                            <i class="fa-solid fa-circle-check"></i>
+            chapasCache.forEach(chapa => {
+                container.innerHTML += `
+                    <div class="bg-darkBg border border-borderCol rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500 transition shadow-lg">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr ${chapa.cor} flex items-center justify-center text-white text-xl font-bold mb-4 shadow">
+                                ${chapa.id}
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 text-white">${chapa.nome}</h3>
+                            <p class="text-xs text-indigo-200/80 mb-6 leading-relaxed">${chapa.proposta}</p>
                         </div>
-                        <div class="space-y-2">
-                            <h3 class="text-3xl font-extrabold text-white">Voto Registrado com Sucesso!</h3>
-                            <p class="text-slate-400 text-sm">Obrigado por participar das eleições do E.E Soares Club. Seu voto está criptografado e sincronizado na nuvem.</p>
-                        </div>
-                        <div class="p-4 rounded-2xl bg-darkBg border border-borderCol text-xs text-slate-300 font-mono">
-                            Eleitor: ${currentUser.fullRa} • Horário: ${new Date().toLocaleTimeString()}
-                        </div>
-                        <button onclick="logoutApp()" class="px-6 py-3 rounded-xl bg-neonPurple text-white font-bold text-sm hover:opacity-95 shadow-lg shadow-neonPurple/20">
-                            Encerrar Sessão
+                        <button onclick="confirmarVotoOnline(${chapa.id}, '${chapa.nome}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
+                            Votar nesta Chapa
                         </button>
                     </div>
                 `;
-                return;
-            }
+            });
 
-            main.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <!-- Left: Urna Keypad & Screen -->
-                    <div class="lg:col-span-7 bg-cardBg border border-borderCol rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
-                        <div class="border-b border-borderCol pb-4 flex justify-between items-center">
-                            <div>
-                                <span class="px-2.5 py-1 rounded-full bg-neonPurple/10 text-neonPurple text-xs font-bold uppercase">Urna Eletrônica • SEU VOTO</span>
-                                <h3 class="text-xl font-extrabold text-white mt-1">SEU VOTO PARA:</h3>
-                            </div>
-                            <span class="text-xs text-slate-400 font-mono">Eleitor: ${currentUser.fullRa}</span>
+            // Opção de Voto em Branco
+            container.innerHTML += `
+                <div class="bg-darkBg border border-borderCol rounded-2xl p-6 flex flex-col justify-between hover:border-gray-500 transition shadow-lg">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-gray-700 flex items-center justify-center text-white text-xl font-bold mb-4 shadow">
+                            <i class="fa-solid fa-ban"></i>
                         </div>
-
-                        <!-- Urna Screen Box -->
-                        <div class="bg-darkBg border-2 border-borderCol rounded-2xl p-6 md:p-8 min-h-[220px] flex flex-col justify-between relative overflow-hidden">
-                            <div id="urnaScreenContent" class="space-y-4">
-                                <p class="text-xs uppercase tracking-widest text-slate-500 font-bold">SEU VOTO PARA CHAPA</p>
-                                <div class="flex items-center gap-4">
-                                    <div id="digit1Box" class="w-16 h-20 rounded-xl bg-cardBg border-2 border-neonPurple flex items-center justify-center text-3xl font-bold font-mono text-white shadow-inner">_</div>
-                                    <div id="digit2Box" class="w-16 h-20 rounded-xl bg-cardBg border-2 border-neonPurple flex items-center justify-center text-3xl font-bold font-mono text-white shadow-inner">_</div>
-                                </div>
-                                <div id="chapaPreviewName" class="text-sm font-semibold text-slate-300 pt-2">
-                                    Digite o número da chapa no teclado ao lado.
-                                </div>
-                            </div>
-                            <div class="text-[11px] text-slate-500 pt-4 border-t border-borderCol/60 flex justify-between">
-                                <span>APERTE: <strong class="text-slate-300">CONFIRMA</strong> para validar</span>
-                                <span>APERTE: <strong class="text-slate-300">CORRIGE</strong> para reiniciar</span>
-                            </div>
-                        </div>
-
-                        <!-- Chapa Quick List Cards -->
-                        <div class="space-y-3">
-                            <h4 class="text-xs font-bold text-slate-400 uppercase">Chapas Cadastradas na Eleição:</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                ${chapas.map(c => `
-                                    <div onclick="selectChapaQuick('${c.number}')" class="p-3.5 rounded-xl bg-darkBg border border-borderCol hover:border-neonPurple cursor-pointer transition-all space-y-1">
-                                        <div class="flex justify-between items-center">
-                                            <span class="font-extrabold text-neonPurple text-base">Nº ${c.number}</span>
-                                            <span class="text-[10px] px-2 py-0.5 rounded bg-neonPurple/10 text-neonPurple font-bold">Chapa</span>
-                                        </div>
-                                        <h5 class="font-bold text-xs text-slate-200 truncate">${c.name}</h5>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
+                        <h3 class="font-bold text-lg mb-2 text-white">Voto em Branco</h3>
+                        <p class="text-xs text-gray-400 mb-6 leading-relaxed">Registrar voto em branco na urna eletrônica do Soares.</p>
                     </div>
-
-                    <!-- Right: Urna Physical Style Keypad -->
-                    <div class="lg:col-span-5 bg-gradient-to-br from-cardBg to-slate-900 border border-borderCol rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl flex flex-col items-center">
-                        <div class="text-center space-y-1">
-                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-800 to-slate-700 border border-borderCol mx-auto flex items-center justify-center text-white font-bold text-lg shadow">
-                                <i class="fa-solid fa-calculator"></i>
-                            </div>
-                            <h4 class="font-extrabold text-base text-white">TECLADO DA URNA</h4>
-                            <p class="text-xs text-slate-400">Justiça Eleitoral do Soares</p>
-                        </div>
-
-                        <!-- Numeric Grid -->
-                        <div class="grid grid-cols-3 gap-3 w-full max-w-xs">
-                            ${[1,2,3,4,5,6,7,8,9,0].map(n => `
-                                <button onclick="pressUrnaKey('${n}')" class="py-4 rounded-xl bg-darkBg border border-borderCol hover:border-neonPurple text-white font-mono font-extrabold text-lg shadow hover:bg-slate-800 transition-all ${n === 0 ? 'col-start-2' : ''}">${n}</button>
-                            `).join('')}
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="grid grid-cols-3 gap-2 w-full pt-4 border-t border-borderCol">
-                            <button onclick="pressBranco()" class="py-3 px-2 rounded-xl bg-slate-200 text-slate-900 font-extrabold text-xs hover:bg-white shadow transition-all">BRANCO</button>
-                            <button onclick="pressCorrige()" class="py-3 px-2 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 font-extrabold text-xs hover:bg-amber-500 hover:text-white transition-all">CORRIGE</button>
-                            <button onclick="pressConfirma()" class="py-3 px-2 rounded-xl bg-neonGreen/20 border border-neonGreen/40 text-neonGreen font-extrabold text-xs hover:bg-neonGreen hover:text-slate-950 transition-all">CONFIRMA</button>
-                        </div>
-                    </div>
+                    <button onclick="confirmarVotoOnline(0, 'Voto em Branco')" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
+                        Confirmar Branco
+                    </button>
                 </div>
             `;
         }
 
-        let typedDigits = "";
-
-        function pressUrnaKey(num) {
-            if (typedDigits.length < 2) {
-                typedDigits += num.toString();
-                updateUrnaScreen();
-            }
-        }
-
-        function selectChapaQuick(numStr) {
-            typedDigits = numStr;
-            updateUrnaScreen();
-        }
-
-        function pressCorrige() {
-            typedDigits = "";
-            updateUrnaScreen();
-        }
-
-        function pressBranco() {
-            typedDigits = "BRANCO";
-            const screen = document.getElementById('urnaScreenContent');
-            screen.innerHTML = `
-                <p class="text-xs uppercase tracking-widest text-slate-400 font-bold">VOTO EM BRANCO</p>
-                <div class="text-3xl font-extrabold text-amber-400 py-4">SEU VOTO SERÁ BRANCO</div>
-                <p class="text-xs text-slate-300">Pressione <strong>CONFIRMA</strong> para registrar.</p>
-            `;
-        }
-
-        function updateUrnaScreen() {
-            const d1 = document.getElementById('digit1Box');
-            const d2 = document.getElementById('digit2Box');
-            const namePrev = document.getElementById('chapaPreviewName');
-
-            if (!d1 || !d2) return;
-
-            if (typedDigits.length === 0) {
-                d1.innerText = "_";
-                d2.innerText = "_";
-                namePrev.innerText = "Digite o número da chapa no teclado ao lado.";
-            } else if (typedDigits.length === 1) {
-                d1.innerText = typedDigits[0];
-                d2.innerText = "_";
-                namePrev.innerText = "Pesquisando número...";
-            } else if (typedDigits.length === 2) {
-                d1.innerText = typedDigits[0];
-                d2.innerText = typedDigits[1];
-
-                const found = chapas.find(c => c.number === typedDigits);
-                if (found) {
-                    namePrev.innerHTML = `<span class="text-neonGreen font-bold">${found.name}</span><br><span class="text-[11px] text-slate-400">${found.desc}</span>`;
-                } else {
-                    namePrev.innerHTML = `<span class="text-rose-400 font-bold">VOTO NULO</span><br><span class="text-[11px] text-slate-400">Número não corresponde a nenhuma chapa.</span>`;
+        async function confirmarVotoOnline(chapaId, nomeChapa) {
+            try {
+                // Atualiza contagem da chapa
+                if(chapaId !== 0) {
+                    const chapa = chapasCache.find(c => c.id === chapaId);
+                    if(chapa) chapa.votos++;
                 }
+
+                const agora = new Date();
+                const horaFormatada = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR');
+
+                // Adiciona ao histórico local de cache
+                historicoCache.unshift({
+                    ra: alunoLogadoRa,
+                    hora: horaFormatada,
+                    voto: nomeChapa
+                });
+
+                // Salva bloqueio na nuvem para impedir novo voto deste R.A. de qualquer celular/PC
+                await db.collection("eleitores_votaram").doc(alunoLogadoRa).set({
+                    votou: true,
+                    horario: horaFormatada,
+                    votoEscolhido: nomeChapa
+                });
+
+                // Atualiza placar e histórico na nuvem
+                await db.collection("eleicao_soares").doc("chapas_dados").set({ lista: chapasCache });
+                await db.collection("eleicao_soares").doc("historico_votos").set({ registros: historicoCache });
+
+                document.getElementById('screenVotingBooth').classList.add('hidden');
+                document.getElementById('screenVotedSuccess').classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Erro ao computar voto online:", error);
+                alert("Erro ao registrar voto na nuvem. Tente novamente.");
             }
         }
 
-        async function pressConfirma() {
-            if (typedDigits.length === 0 && typedDigits !== "BRANCO") {
-                showToast('Digite um número ou selecione Voto em Branco.');
-                return;
+        function sairUrna() {
+            alunoLogadoRa = null;
+            document.getElementById('voterRa').value = '';
+            document.getElementById('voterDigito').value = '';
+            const btn = document.getElementById('btnEntrar');
+            if(btn) {
+                btn.innerText = "Verificar e Votar Online";
+                btn.disabled = false;
             }
+            
+            document.getElementById('screenVotingBooth').classList.add('hidden');
+            document.getElementById('screenVotedSuccess').classList.add('hidden');
+            document.getElementById('screenAdminPanel').classList.add('hidden');
+            document.getElementById('screenVoterLogin').classList.remove('hidden');
+        }
 
-            let votoFinal = typedDigits;
-            if (typedDigits.length === 2) {
-                const found = chapas.find(c => c.number === typedDigits);
-                if (!found) {
-                    votoFinal = "nulo";
-                }
-            } else if (typedDigits === "BRANCO") {
-                votoFinal = "brancochapa";
+        function abrirAdminModal() {
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function fecharAdminModal() {
+            document.getElementById('adminSenhaInput').value = '';
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function validarAdmin() {
+            const senha = document.getElementById('adminSenhaInput').value.trim();
+            if(senha === "soares2026" || senha === "123") {
+                fecharAdminModal();
+                document.getElementById('screenVoterLogin').classList.add('hidden');
+                document.getElementById('screenAdminPanel').classList.remove('hidden');
             } else {
-                votoFinal = "nulo";
-            }
-
-            // Save to Firestore online
-            try {
-                const { addDoc, collection } = window.firebaseModules;
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'voters_registry'), {
-                    ra: currentUser.fullRa,
-                    voto: votoFinal,
-                    timestamp: new Date().toISOString()
-                });
-                hasVotedOnline = true;
-                showToast('Voto computado e registrado na nuvem com sucesso!');
-                renderVotacaoBooth();
-            } catch (e) {
-                console.error("Error saving vote:", e);
-                // Fallback local
-                votesHistory.push({ ra: currentUser.fullRa, voto: votoFinal, timestamp: new Date().toISOString() });
-                hasVotedOnline = true;
-                showToast('Voto registrado!');
-                renderVotacaoBooth();
+                alert('Senha de administrador incorreta!');
             }
         }
 
-
-        // MESARIO & APURACAO PANEL
-        function renderMesarioPanel() {
-            if (!isMesario) return;
-            const main = document.getElementById('mainContainer');
-
-            // Calculate totals
-            let totalVotes = votesHistory.length;
-            let totalBranco = votesHistory.filter(v => v.voto === 'brancochapa').length;
-            let totalNulo = votesHistory.filter(v => v.voto === 'nulo').length;
-
-            chapas.forEach(c => {
-                c.votes = votesHistory.filter(v => v.voto === c.number).length;
+        function atualizarPlacarAdminNaTela() {
+            const containerPlacar = document.getElementById('placarResultados');
+            if (!containerPlacar) return;
+            containerPlacar.innerHTML = '';
+            
+            let totalVotosGeral = 0;
+            chapasCache.forEach(c => {
+                totalVotosGeral += c.votos;
+                containerPlacar.innerHTML += `
+                    <div class="bg-darkBg border border-borderCol p-3.5 rounded-xl flex justify-between items-center">
+                        <div>
+                            <span class="font-bold text-sm text-white">${c.nome}</span>
+                            <div class="text-[11px] text-indigo-300/70">Total de votos apurados</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-extrabold text-indigo-400 text-lg">${c.votos}</span>
+                            <span class="text-xs text-indigo-300/50 block">votos</span>
+                        </div>
+                    </div>
+                `;
             });
 
-            // Sort chapas by votes
-            let sortedChapas = [...chapas].sort((a,b) => b.votes - a.votes);
-
-            main.innerHTML = `
-                <div class="space-y-8">
-                    <!-- Top Stats Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                        <div class="p-6 rounded-3xl bg-cardBg border border-borderCol flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-neonPurple/15 text-neonPurple flex items-center justify-center text-2xl"><i class="fa-solid fa-box-archive"></i></div>
-                            <div>
-                                <span class="text-xs text-slate-400 font-medium">Total de Votos</span>
-                                <h3 class="text-3xl font-extrabold mt-0.5 text-white">${totalVotes}</h3>
-                            </div>
-                        </div>
-                        <div class="p-6 rounded-3xl bg-cardBg border border-borderCol flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-neonGreen/15 text-neonGreen flex items-center justify-center text-2xl"><i class="fa-solid fa-users"></i></div>
-                            <div>
-                                <span class="text-xs text-slate-400 font-medium">Eleitores Registrados</span>
-                                <h3 class="text-3xl font-extrabold mt-0.5 text-white">140</h3>
-                            </div>
-                        </div>
-                        <div class="p-6 rounded-3xl bg-cardBg border border-borderCol flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-amber-500/15 text-amber-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-file-lines"></i></div>
-                            <div>
-                                <span class="text-xs text-slate-400 font-medium">Votos em Branco</span>
-                                <h3 class="text-3xl font-extrabold mt-0.5 text-white">${totalBranco}</h3>
-                            </div>
-                        </div>
-                        <div class="p-6 rounded-3xl bg-cardBg border border-borderCol flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-rose-500/15 text-rose-400 flex items-center justify-center text-2xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                            <div>
-                                <span class="text-xs text-slate-400 font-medium">Votos Nulos</span>
-                                <h3 class="text-3xl font-extrabold mt-0.5 text-white">${totalNulo}</h3>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Placar e Apuração em Tempo Real -->
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        <!-- Left: Live Ranking -->
-                        <div class="lg:col-span-7 bg-cardBg border border-borderCol rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
-                            <div class="flex items-center justify-between border-b border-borderCol pb-4">
-                                <div>
-                                    <h3 class="text-lg font-bold text-white">Placar e Apuração em Tempo Real</h3>
-                                    <p class="text-xs text-slate-400">Sincronizado via Firebase Firestore</p>
-                                </div>
-                                <span class="px-3 py-1 rounded-full bg-neonGreen/10 text-neonGreen text-xs font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-neonGreen animate-pulse"></span> Ao Vivo</span>
-                            </div>
-
-                            <div class="space-y-4">
-                                ${sortedChapas.map((c, index) => {
-                                    let percentage = totalVotes > 0 ? ((c.votes / totalVotes) * 100).toFixed(1) : 0;
-                                    return `
-                                        <div class="p-4 rounded-2xl bg-darkBg border border-borderCol space-y-2">
-                                            <div class="flex justify-between items-center text-xs">
-                                                <span class="font-extrabold text-white text-sm">#${index + 1} • ${c.name} (Nº ${c.number})</span>
-                                                <span class="font-bold text-neonPurple">${c.votes} votos (${percentage}%)</span>
-                                            </div>
-                                            <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                                                <div class="bg-gradient-to-r from-neonPurple to-neonBlue h-2.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
-                                            </div>
-                                        </div>
-                                    `;
-                                })}
-                            </div>
-                        </div>
-
-                        <!-- Right: Cadastrar Nova Chapa -->
-                        <div class="lg:col-span-5 bg-cardBg border border-borderCol rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
-                            <div class="border-b border-borderCol pb-4">
-                                <h3 class="text-lg font-bold text-white">Cadastrar Nova Chapa</h3>
-                                <p class="text-xs text-slate-400">Publica imediatamente na urna de todos os eleitores</p>
-                            </div>
-
-                            <div class="space-y-4 text-xs">
-                                <div class="space-y-1">
-                                    <label class="text-slate-400">Número da Chapa (Ex: 40)</label>
-                                    <input type="text" id="newChapaNum" placeholder="40" maxlength="2" class="w-full bg-darkBg border border-borderCol rounded-xl p-3 text-slate-200 font-mono">
-                                </div>
-                                <div class="space-y-1">
-                                    <label class="text-slate-400">Nome da Chapa</label>
-                                    <input type="text" id="newChapaName" placeholder="Chapa 40 • União Escolar" class="w-full bg-darkBg border border-borderCol rounded-xl p-3 text-slate-200">
-                                </div>
-                                <div class="space-y-1">
-                                    <label class="text-slate-400">Propostas / Descrição</label>
-                                    <textarea id="newChapaDesc" rows="3" placeholder="Resumo das propostas..." class="w-full bg-darkBg border border-borderCol rounded-xl p-3 text-slate-200"></textarea>
-                                </div>
-                                <button onclick="addNewChapaOnline()" class="w-full py-3 rounded-xl bg-neonPurple text-white font-bold hover:opacity-95 shadow-lg shadow-neonPurple/20">
-                                    Publicar Chapa na Nuvem
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Voter History Table -->
-                    <div class="bg-cardBg border border-borderCol rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
-                        <div class="border-b border-borderCol pb-4">
-                            <h3 class="text-lg font-bold text-white">Histórico Detalhado de Eleitores que Votaram</h3>
-                            <p class="text-xs text-slate-400">Registro oficial na nuvem com carimbo de data e hora</p>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs">
-                                <thead class="bg-darkBg text-slate-400 uppercase tracking-wider border-b border-borderCol">
-                                    <tr>
-                                        <th class="p-3">#</th>
-                                        <th class="p-3">R.A. do Eleitor</th>
-                                        <th class="p-3">Voto Computado</th>
-                                        <th class="p-3 text-right">Data / Hora</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-borderCol text-slate-300">
-                                    ${votesHistory.length === 0 ? `
-                                        <tr><td colspan="4" class="p-6 text-center text-slate-500">Nenhum voto registrado até o momento.</td></tr>
-                                    ` : votesHistory.map((v, idx) => `
-                                        <tr>
-                                            <td class="p-3 font-mono text-slate-500">${idx + 1}</td>
-                                            <td class="p-3 font-mono font-semibold text-white">${v.ra}</td>
-                                            <td class="p-3">
-                                                <span class="px-2.5 py-0.5 rounded font-bold ${v.voto === 'brancochapa' ? 'bg-amber-500/10 text-amber-400' : v.voto === 'nulo' ? 'bg-rose-500/10 text-rose-400' : 'bg-neonPurple/10 text-neonPurple'}">
-                                                    ${v.voto === 'brancochapa' ? 'Branco' : v.voto === 'nulo' ? 'Nulo' : 'Chapa Nº ' + v.voto}
-                                                </span>
-                                            </td>
-                                            <td class="p-3 text-right font-mono text-slate-400">${new Date(v.timestamp || Date.now()).toLocaleString()}</td>
-                                        </tr>
-                                    `).reverse().join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            containerPlacar.innerHTML += `
+                <div class="pt-2 text-xs text-indigo-300/80 text-center font-semibold">
+                    Total geral de votos apurados online: ${totalVotosGeral}
                 </div>
             `;
         }
 
-        async function addNewChapaOnline() {
-            const num = document.getElementById('newChapaNum').value.trim();
-            const name = document.getElementById('newChapaName').value.trim();
-            const desc = document.getElementById('newChapaDesc').value.trim();
+        function atualizarTabelaHistoricoNaTela() {
+            const containerTabela = document.getElementById('tabelaHistoricoVotos');
+            if (!containerTabela) return;
+            containerTabela.innerHTML = '';
 
-            if (!num || !name) {
-                showToast('Informe o número e o nome da chapa.');
+            if(historicoCache.length === 0) {
+                containerTabela.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-indigo-300/50">Nenhum voto registrado online até o momento.</td></tr>`;
                 return;
             }
 
-            chapas.push({
-                id: `chapa_${num}`,
-                number: num,
-                name: name,
-                desc: desc || 'Sem descrição cadastrada.',
-                votes: 0
+            historicoCache.forEach(h => {
+                containerTabela.innerHTML += `
+                    <tr class="hover:bg-darkBg/50 transition">
+                        <td class="p-3 font-mono text-indigo-200">${h.ra}</td>
+                        <td class="p-3 text-indigo-300/80">${h.hora}</td>
+                        <td class="p-3 font-medium text-white">${h.voto}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function adicionarChapaOnline() {
+            const nome = document.getElementById('novaChapaNome').value.trim();
+            const proposta = document.getElementById('novaChapaProposta').value.trim();
+
+            if(!nome || !proposta) {
+                alert('Preencha o nome e a proposta da nova chapa.');
+                return;
+            }
+
+            const novaId = chapasCache.length + 1;
+            chapasCache.push({
+                id: novaId,
+                nome: nome,
+                proposta: proposta,
+                votos: 0,
+                cor: "from-blue-600 to-indigo-600"
             });
 
             try {
-                const { addDoc, collection } = window.firebaseModules;
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'chapas_list'), {
-                    id: `chapa_${num}`,
-                    number: num,
-                    name: name,
-                    desc: desc || 'Sem descrição cadastrada.',
-                    votes: 0
-                });
-                showToast(`Chapa ${num} publicada com sucesso na nuvem!`);
-                document.getElementById('newChapaNum').value = '';
-                document.getElementById('newChapaName').value = '';
-                document.getElementById('newChapaDesc').value = '';
-                renderMesarioPanel();
-            } catch (e) {
-                console.error("Error adding chapa:", e);
-                showToast('Chapa adicionada localmente.');
-                renderMesarioPanel();
+                await db.collection("eleicao_soares").doc("chapas_dados").set({ lista: chapasCache });
+                document.getElementById('novaChapaNome').value = '';
+                document.getElementById('novaChapaProposta').value = '';
+                alert('Chapa cadastrada com sucesso na nuvem para todos os dispositivos!');
+            } catch (error) {
+                console.error("Erro ao adicionar chapa:", error);
+                alert("Erro ao salvar chapa no servidor online.");
             }
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').innerText = message;
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-24', 'opacity-0');
-            }, 3500);
         }
     </script>
 </body>
