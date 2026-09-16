@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urna do Soares - Eleição Online do Grêmio Estudantil</title>
+    <title>Urna do Soares - Eleição Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     
-    <!-- Firebase SDKs (Compat Mode para Nuvem em Tempo Real) -->
+    <!-- Firebase SDKs (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
 
@@ -36,13 +36,13 @@
             
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 text-3xl mb-3 shadow-inner">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <i class="fa-solid fa-box-archive"></i>
                 </div>
                 <h1 class="text-2xl font-bold tracking-tight">URNA DO SOARES</h1>
-                <p class="text-xs text-indigo-300/70 mt-1">Eleição Oficial Online • E.E. Soares Club</p>
+                <p class="text-xs text-indigo-300/70 mt-1">Eleição Oficial Sincronizada • E.E. Soares Club</p>
             </div>
 
-            <form onsubmit="verificarEleitorOnline(event)" class="space-y-4">
+            <form onsubmit="verificarEleitorFirebase(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">R.A. do Aluno (Registro)</label>
                     <input type="text" id="voterRa" required placeholder="Ex: 15894231" class="w-full bg-darkBg border border-borderCol rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition">
@@ -58,12 +58,12 @@
                     </div>
                 </div>
                 <button type="submit" id="btnEntrar" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition shadow-lg shadow-indigo-900/40 mt-2">
-                    Verificar e Votar Online
+                    Verificar e Votar
                 </button>
             </form>
 
             <div class="mt-6 pt-4 border-t border-borderCol flex justify-between items-center text-xs">
-                <span class="text-indigo-300/50">Servidor em Nuvem Ativo</span>
+                <span class="text-indigo-300/50">Firebase Conectado</span>
                 <button onclick="abrirAdminModal()" class="text-indigo-400 hover:underline font-medium">Acesso Mesário / Admin</button>
             </div>
         </div>
@@ -74,7 +74,7 @@
         <div class="bg-cardBg border border-borderCol rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
             <div class="flex justify-between items-center border-b border-borderCol pb-4">
                 <div>
-                    <h2 class="text-xl font-bold">Cédula Eletrônica Online</h2>
+                    <h2 class="text-xl font-bold">Cédula Eletrônica</h2>
                     <p class="text-xs text-indigo-300/70">Eleitor autenticado: <span id="displayVoterRa" class="font-mono text-white"></span></p>
                 </div>
                 <div class="bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 text-xs px-3 py-1.5 rounded-lg">
@@ -83,31 +83,31 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="listaChapasVotacao">
-                <!-- Preenchido dinamicamente via JS -->
+                <!-- Renderizado via JS -->
             </div>
         </div>
     </div>
 
-    <!-- TELA DE CONFIRMAÇÃO DO VOTO -->
+    <!-- TELA DE SUCESSO -->
     <div id="screenVotedSuccess" class="hidden flex-1 flex flex-col justify-center items-center p-4">
         <div class="w-full max-w-md bg-cardBg border border-borderCol rounded-2xl p-8 text-center space-y-4 shadow-2xl">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/20 text-green-400 text-4xl mb-2">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-500/25 text-green-400 text-4xl mb-2">
                 <i class="fa-solid fa-check"></i>
             </div>
-            <h2 class="text-2xl font-bold text-green-400">Voto Enviado com Sucesso!</h2>
-            <p class="text-sm text-indigo-200/80">Seu voto foi registrado com segurança no banco de dados online. Este R.A. foi bloqueado permanentemente.</p>
+            <h2 class="text-2xl font-bold text-green-400">Voto Computado com Sucesso!</h2>
+            <p class="text-sm text-indigo-200/80">Seu voto foi gravado com segurança na base de dados do Firebase. Este R.A. foi invalidado para novos votos.</p>
             <button onclick="sairUrna()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-medium text-sm transition shadow-lg mt-4">
-                Encerrar Sessão
+                Encerrar / Próximo Eleitor
             </button>
         </div>
     </div>
 
-    <!-- PAINEL DE APURAÇÃO DO ADMIN / MESÁRIO -->
+    <!-- PAINEL DO MESÁRIO / ADMIN -->
     <div id="screenAdminPanel" class="hidden flex-1 max-w-5xl mx-auto p-6 w-full space-y-6">
         <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl flex justify-between items-center">
             <div>
-                <h2 class="text-xl font-bold text-indigo-300"><i class="fa-solid fa-chart-pie mr-2"></i> Painel Online • Urna do Soares</h2>
-                <p class="text-xs text-indigo-300/70 mt-0.5">Apuração em tempo real sincronizada via Nuvem.</p>
+                <h2 class="text-xl font-bold text-indigo-300"><i class="fa-solid fa-screwdriver-wrench mr-2"></i> Painel do Mesário • Firebase Ativo</h2>
+                <p class="text-xs text-indigo-300/70 mt-0.5">Gerenciamento completo e apuração instantânea.</p>
             </div>
             <button onclick="sairUrna()" class="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-2 rounded-xl text-xs hover:bg-red-500/30 transition">
                 Sair do Painel
@@ -117,41 +117,41 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Placar de Votos -->
             <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
-                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Placar Geral Online</h3>
+                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Placar da Eleição</h3>
                 <div id="placarResultados" class="space-y-3"></div>
             </div>
 
             <!-- Cadastro de Chapas -->
             <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
-                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Gerenciamento de Chapas</h3>
+                <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide">Adicionar Nova Chapa</h3>
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs mb-1 text-indigo-200">Nome da Nova Chapa</label>
-                        <input type="text" id="novaChapaNome" placeholder="Ex: Chapa 3 - Inovação" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs mb-1 text-indigo-200">Nome da Chapa</label>
+                        <input type="text" id="novaChapaNome" placeholder="Ex: Chapa 3 - União" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-indigo-500">
                     </div>
                     <div>
-                        <label class="block text-xs mb-1 text-indigo-200">Proposta Principal</label>
-                        <input type="text" id="novaChapaProposta" placeholder="Ex: Wi-Fi livre e campeonatos" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs mb-1 text-indigo-200">Proposta</label>
+                        <input type="text" id="novaChapaProposta" placeholder="Ex: Melhorias gerais" class="w-full bg-darkBg border border-borderCol rounded-xl p-2.5 text-sm focus:outline-none focus:border-indigo-500">
                     </div>
-                    <button onclick="adicionarChapaOnline()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-2.5 rounded-xl text-sm font-medium transition shadow">Cadastrar Chapa na Nuvem</button>
+                    <button onclick="adicionarChapaFirebase()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-2.5 rounded-xl text-sm font-medium transition shadow">Salvar Chapa no Firebase</button>
                 </div>
             </div>
         </div>
 
-        <!-- Log Detalhado de Eleitores -->
+        <!-- Histórico de Eleitores que Votaram -->
         <div class="bg-cardBg border border-borderCol p-6 rounded-2xl space-y-4 shadow-xl">
-            <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide"><i class="fa-solid fa-clipboard-user mr-2"></i> Histórico em Tempo Real de Votação</h3>
+            <h3 class="font-bold text-sm text-indigo-400 uppercase tracking-wide"><i class="fa-solid fa-users-viewfinder mr-2"></i> Registro de Eleitores</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
                     <thead class="bg-darkBg text-indigo-300 border-b border-borderCol">
                         <tr>
                             <th class="p-3 rounded-tl-xl">R.A. do Aluno</th>
-                            <th class="p-3">Horário do Voto</th>
+                            <th class="p-3">Horário</th>
                             <th class="p-3 rounded-tr-xl">Voto Registrado</th>
                         </tr>
                     </thead>
                     <tbody id="tabelaHistoricoVotos" class="divide-y divide-borderCol">
-                        <tr><td colspan="3" class="p-4 text-center text-indigo-300/50">Carregando dados da nuvem...</td></tr>
+                        <tr><td colspan="3" class="p-4 text-center text-indigo-300/50">Carregando registros do Firebase...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -161,9 +161,9 @@
     <!-- MODAL DE SENHA DO ADMIN -->
     <div id="adminModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center p-4 z-50">
         <div class="bg-cardBg border border-borderCol w-full max-w-sm p-6 rounded-2xl space-y-4 shadow-2xl">
-            <h3 class="font-bold text-base">Acesso Restrito - Mesário</h3>
+            <h3 class="font-bold text-base">Acesso do Mesário</h3>
             <div>
-                <label class="block text-xs mb-1 text-indigo-200">Senha do Administrador</label>
+                <label class="block text-xs mb-1 text-indigo-200">Senha</label>
                 <input type="password" id="adminSenhaInput" placeholder="••••" class="w-full bg-darkBg border border-borderCol rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500">
             </div>
             <div class="flex space-x-2 pt-2">
@@ -174,17 +174,19 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO FIREBASE (Nuvem em Tempo Real)
+        // ==========================================
+        // COLE A SUA API / CONFIGURAÇÃO DO FIREBASE AQUI
+        // ==========================================
         const firebaseConfig = {
-            apiKey: "AIzaSyDummyKeyForSoaresUrnaApp123456",
-            authDomain: "urna-soares.firebaseapp.com",
-            projectId: "urna-soares-online",
-            storageBucket: "urna-soares.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456:web:abcdef"
+            apiKey: "SUA_API_KEY_AQUI",
+            authDomain: "seu-projeto.firebaseapp.com",
+            projectId: "seu-projeto-id",
+            storageBucket: "seu-projeto.appspot.com",
+            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+            appId: "SEU_APP_ID"
         };
 
-        // Inicializa Firebase com tratamento para evitar duplicidade
+        // Inicialização do Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -194,70 +196,74 @@
         let chapasCache = [];
         let historicoCache = [];
 
-        // Ouve atualizações em tempo real das chapas e votos na nuvem
-        db.collection("eleicao_soares").doc("chapas_dados").onSnapshot((doc) => {
+        // Escuta chapas em tempo real do Firestore
+        db.collection("eleicao_soares").doc("dados_gerais").onSnapshot((doc) => {
             if (doc.exists) {
-                chapasCache = doc.data().lista || [];
+                chapasCache = doc.data().chapas || [];
             } else {
-                // Dados padrão iniciais se o banco estiver vazio
+                // Chapas iniciais caso o banco esteja vazio
                 chapasCache = [
-                    { id: 1, nome: "Chapa 1 - Renovação Total", proposta: "Mais eventos culturais, reforma das quadras e bebedouros modernos.", votos: 0, cor: "from-indigo-600 to-purple-600" },
-                    { id: 2, nome: "Chapa 2 - Conexão Estudantil", proposta: "Clubs de programação, campeonatos de e-sports e melhorias na cantina.", votos: 0, cor: "from-purple-600 to-pink-600" }
+                    { id: 1, nome: "Chapa 1 - Inovação", proposta: "Novos eventos, melhorias nos bebedouros e quadras esportivas.", votos: 0, cor: "from-indigo-600 to-purple-600" },
+                    { id: 2, nome: "Chapa 2 - Ação Estudantil", proposta: "Campeonatos de e-sports, música nos intervalos e integração.", votos: 0, cor: "from-purple-600 to-pink-600" }
                 ];
-                db.collection("eleicao_soares").doc("chapas_dados").set({ lista: chapasCache });
+                db.collection("eleicao_soares").doc("dados_gerais").set({ chapas: chapasCache });
             }
             atualizarPlacarAdminNaTela();
+        }, (error) => {
+            console.error("Erro ao sincronizar chapas:", error);
         });
 
-        // Ouve atualizações em tempo real do histórico de votantes na nuvem
-        db.collection("eleicao_soares").doc("historico_votos").onSnapshot((doc) => {
+        // Escuta histórico de eleitores em tempo real do Firestore
+        db.collection("eleicao_soares").doc("historico").onSnapshot((doc) => {
             if (doc.exists) {
-                historicoCache = doc.data().registros || [];
+                historicoCache = doc.data().votos || [];
             } else {
                 historicoCache = [];
             }
             atualizarTabelaHistoricoNaTela();
+        }, (error) => {
+            console.error("Erro ao sincronizar histórico:", error);
         });
 
-        async function verificarEleitorOnline(event) {
+        async function verificarEleitorFirebase(event) {
             event.preventDefault();
             const ra = document.getElementById('voterRa').value.trim();
             const digito = document.getElementById('voterDigito').value.trim();
 
             if(!ra || !digito) {
-                alert('Preencha o R.A. e o Dígito.');
+                alert('Preencha todos os campos do R.A.');
                 return;
             }
 
-            const identificadorCompleto = `${ra}-${digito} (SP)`;
+            const identificador = `${ra}-${digito} (SP)`;
             const btn = document.getElementById('btnEntrar');
-            btn.innerText = "Verificando na Nuvem...";
+            btn.innerText = "Consultando Firebase...";
             btn.disabled = true;
 
             try {
-                // Consulta online para ver se o aluno já votou
-                const docRef = await db.collection("eleitores_votaram").doc(identificadorCompleto).get();
+                // Verifica no Firestore se o R.A. já registrou voto
+                const docRef = await db.collection("eleitores_bloqueados").doc(identificador).get();
 
                 if(docRef.exists) {
-                    alert('BLOQUEIO DE SEGURANÇA ONLINE: O R.A. ' + identificadorCompleto + ' já registrou voto nesta eleição!');
+                    alert('BLOQUEIO: O R.A. ' + identificador + ' já votou nesta eleição!');
                     document.getElementById('voterRa').value = '';
                     document.getElementById('voterDigito').value = '';
-                    btn.innerText = "Verificar e Votar Online";
+                    btn.innerText = "Verificar e Votar";
                     btn.disabled = false;
                     return;
                 }
 
-                alunoLogadoRa = identificadorCompleto;
-                document.getElementById('displayVoterRa').innerText = identificadorCompleto;
+                alunoLogadoRa = identificador;
+                document.getElementById('displayVoterRa').innerText = identificador;
 
                 document.getElementById('screenVoterLogin').classList.add('hidden');
                 renderizarChapasVotacao();
                 document.getElementById('screenVotingBooth').classList.remove('hidden');
 
-            } catch (error) {
-                console.error("Erro ao verificar online:", error);
-                alert("Erro de conexão com o servidor online. Verifique sua internet.");
-                btn.innerText = "Verificar e Votar Online";
+            } catch (err) {
+                console.error("Erro ao verificar eleitor:", err);
+                alert("Falha de comunicação com o Firebase. Verifique suas credenciais de API.");
+                btn.innerText = "Verificar e Votar";
                 btn.disabled = false;
             }
         }
@@ -276,14 +282,14 @@
                             <h3 class="font-bold text-lg mb-2 text-white">${chapa.nome}</h3>
                             <p class="text-xs text-indigo-200/80 mb-6 leading-relaxed">${chapa.proposta}</p>
                         </div>
-                        <button onclick="confirmarVotoOnline(${chapa.id}, '${chapa.nome}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
+                        <button onclick="confirmarVotoFirebase(${chapa.id}, '${chapa.nome}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
                             Votar nesta Chapa
                         </button>
                     </div>
                 `;
             });
 
-            // Opção de Voto em Branco
+            // Voto em Branco
             container.innerHTML += `
                 <div class="bg-darkBg border border-borderCol rounded-2xl p-6 flex flex-col justify-between hover:border-gray-500 transition shadow-lg">
                     <div>
@@ -291,18 +297,17 @@
                             <i class="fa-solid fa-ban"></i>
                         </div>
                         <h3 class="font-bold text-lg mb-2 text-white">Voto em Branco</h3>
-                        <p class="text-xs text-gray-400 mb-6 leading-relaxed">Registrar voto em branco na urna eletrônica do Soares.</p>
+                        <p class="text-xs text-gray-400 mb-6 leading-relaxed">Registrar voto em branco na urna eletrônica.</p>
                     </div>
-                    <button onclick="confirmarVotoOnline(0, 'Voto em Branco')" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
+                    <button onclick="confirmarVotoFirebase(0, 'Voto em Branco')" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 rounded-xl text-xs transition shadow">
                         Confirmar Branco
                     </button>
                 </div>
             `;
         }
 
-        async function confirmarVotoOnline(chapaId, nomeChapa) {
+        async function confirmarVotoFirebase(chapaId, nomeChapa) {
             try {
-                // Atualiza contagem da chapa
                 if(chapaId !== 0) {
                     const chapa = chapasCache.find(c => c.id === chapaId);
                     if(chapa) chapa.votos++;
@@ -311,30 +316,29 @@
                 const agora = new Date();
                 const horaFormatada = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR');
 
-                // Adiciona ao histórico local de cache
                 historicoCache.unshift({
                     ra: alunoLogadoRa,
                     hora: horaFormatada,
                     voto: nomeChapa
                 });
 
-                // Salva bloqueio na nuvem para impedir novo voto deste R.A. de qualquer celular/PC
-                await db.collection("eleitores_votaram").doc(alunoLogadoRa).set({
+                // Grava o bloqueio do eleitor no Firebase para impedir novo voto
+                await db.collection("eleitores_bloqueados").doc(alunoLogadoRa).set({
                     votou: true,
                     horario: horaFormatada,
                     votoEscolhido: nomeChapa
                 });
 
-                // Atualiza placar e histórico na nuvem
-                await db.collection("eleicao_soares").doc("chapas_dados").set({ lista: chapasCache });
-                await db.collection("eleicao_soares").doc("historico_votos").set({ registros: historicoCache });
+                // Salva o novo placar e o histórico atualizado no Firebase
+                await db.collection("eleicao_soares").doc("dados_gerais").set({ chapas: chapasCache });
+                await db.collection("eleicao_soares").doc("historico").set({ votos: historicoCache });
 
                 document.getElementById('screenVotingBooth').classList.add('hidden');
                 document.getElementById('screenVotedSuccess').classList.remove('hidden');
 
-            } catch (error) {
-                console.error("Erro ao computar voto online:", error);
-                alert("Erro ao registrar voto na nuvem. Tente novamente.");
+            } catch (err) {
+                console.error("Erro ao computar voto:", err);
+                alert("Erro ao enviar o voto para o Firebase.");
             }
         }
 
@@ -344,7 +348,7 @@
             document.getElementById('voterDigito').value = '';
             const btn = document.getElementById('btnEntrar');
             if(btn) {
-                btn.innerText = "Verificar e Votar Online";
+                btn.innerText = "Verificar e Votar";
                 btn.disabled = false;
             }
             
@@ -370,7 +374,7 @@
                 document.getElementById('screenVoterLogin').classList.add('hidden');
                 document.getElementById('screenAdminPanel').classList.remove('hidden');
             } else {
-                alert('Senha de administrador incorreta!');
+                alert('Senha incorreta!');
             }
         }
 
@@ -379,14 +383,14 @@
             if (!containerPlacar) return;
             containerPlacar.innerHTML = '';
             
-            let totalVotosGeral = 0;
+            let totalGeral = 0;
             chapasCache.forEach(c => {
-                totalVotosGeral += c.votos;
+                totalGeral += c.votos;
                 containerPlacar.innerHTML += `
                     <div class="bg-darkBg border border-borderCol p-3.5 rounded-xl flex justify-between items-center">
                         <div>
                             <span class="font-bold text-sm text-white">${c.nome}</span>
-                            <div class="text-[11px] text-indigo-300/70">Total de votos apurados</div>
+                            <div class="text-[11px] text-indigo-300/70">Votos apurados</div>
                         </div>
                         <div class="text-right">
                             <span class="font-extrabold text-indigo-400 text-lg">${c.votos}</span>
@@ -398,7 +402,7 @@
 
             containerPlacar.innerHTML += `
                 <div class="pt-2 text-xs text-indigo-300/80 text-center font-semibold">
-                    Total geral de votos apurados online: ${totalVotosGeral}
+                    Total geral de votos: ${totalGeral}
                 </div>
             `;
         }
@@ -409,7 +413,7 @@
             containerTabela.innerHTML = '';
 
             if(historicoCache.length === 0) {
-                containerTabela.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-indigo-300/50">Nenhum voto registrado online até o momento.</td></tr>`;
+                containerTabela.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-indigo-300/50">Nenhum voto registrado ainda.</td></tr>`;
                 return;
             }
 
@@ -424,12 +428,12 @@
             });
         }
 
-        async function adicionarChapaOnline() {
+        async function adicionarChapaFirebase() {
             const nome = document.getElementById('novaChapaNome').value.trim();
             const proposta = document.getElementById('novaChapaProposta').value.trim();
 
             if(!nome || !proposta) {
-                alert('Preencha o nome e a proposta da nova chapa.');
+                alert('Preencha os campos da chapa.');
                 return;
             }
 
@@ -443,13 +447,13 @@
             });
 
             try {
-                await db.collection("eleicao_soares").doc("chapas_dados").set({ lista: chapasCache });
+                await db.collection("eleicao_soares").doc("dados_gerais").set({ chapas: chapasCache });
                 document.getElementById('novaChapaNome').value = '';
                 document.getElementById('novaChapaProposta').value = '';
-                alert('Chapa cadastrada com sucesso na nuvem para todos os dispositivos!');
-            } catch (error) {
-                console.error("Erro ao adicionar chapa:", error);
-                alert("Erro ao salvar chapa no servidor online.");
+                alert('Chapa cadastrada com sucesso no Firebase!');
+            } catch (err) {
+                console.error("Erro ao salvar chapa:", err);
+                alert("Erro ao gravar chapa no Firebase.");
             }
         }
     </script>
