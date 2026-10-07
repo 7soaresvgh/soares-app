@@ -1,82 +1,263 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Urna Eletrônica - Grêmio Poitena (v0.3)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Urna Eletrônica Escolar - E.E. Soares</title>
   
-  <!-- Firebase SDK (v9 Compat) -->
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Firebase App & Database (SDK v9 Compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap');
-    body { font-family: 'Poppins', sans-serif; }
-    .highlight-text { color: #38bdf8; font-weight: 800; }
+    @keyframes pulse-soft {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+    .animate-pulse-soft {
+      animation: pulse-soft 2s infinite ease-in-out;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    }
   </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900 min-h-screen text-white flex flex-col justify-between">
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col justify-between">
 
-  <div class="max-w-4xl mx-auto w-full p-4 sm:p-6">
-    <header class="flex flex-col sm:flex-row items-center justify-between bg-slate-900/90 backdrop-blur border border-purple-500/30 p-4 rounded-2xl mb-6 shadow-xl gap-3">
-      <div class="flex items-center space-x-4">
-        <div class="relative w-16 h-16 flex-shrink-0 bg-purple-900/50 p-1 rounded-full border-2 border-indigo-400">
-          <svg viewBox="0 0 200 200" class="w-full h-full">
-            <path d="M 30 110 C 10 120 10 150 25 160 C 35 150 35 130 45 120 Z" fill="#e11d48"/>
-            <path d="M 170 110 C 190 120 190 150 175 160 C 165 150 165 130 155 120 Z" fill="#e11d48"/>
-            <path d="M 20 80 C 0 60 10 30 35 40 C 45 45 40 70 30 80 Z" fill="#f43f5e"/>
-            <path d="M 180 80 C 200 60 190 30 165 40 C 155 45 160 70 170 80 Z" fill="#f43f5e"/>
-            <circle cx="100" cy="100" r="50" fill="#e11d48"/>
-            <path d="M 60 95 Q 100 85 140 95 L 135 145 Q 100 150 65 145 Z" fill="#2563eb"/>
-            <path d="M 85 90 L 100 105 L 115 90" stroke="#ffffff" stroke-width="4" fill="none"/>
-            <text x="100" y="132" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="sans-serif">P</text>
-            <circle cx="80" cy="65" r="10" fill="#ffffff"/>
-            <circle cx="120" cy="65" r="10" fill="#ffffff"/>
-            <circle cx="82" cy="65" r="5" fill="#000000"/>
-            <circle cx="118" cy="65" r="5" fill="#000000"/>
-            <path d="M 88 80 Q 100 90 112 80" stroke="#ffffff" stroke-width="3" fill="none"/>
-          </svg>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-300">Grêmio Poitena</h1>
-            <span class="px-2 py-0.5 bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 rounded-full text-[10px] font-black">v0.3</span>
+  <!-- CABEÇALHO -->
+  <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-lg sticky top-0 z-50">
+    <div class="flex items-center space-x-3 cursor-pointer" onclick="navegarPara('identificacao')">
+      <div class="bg-indigo-600 p-2 rounded-lg text-white">
+        <i data-lucide="vote" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+          Urna Escolar <span class="text-xs bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v0.6</span>
+        </h1>
+        <p class="text-xs text-slate-400">Eleições de Grêmio Estudantil</p>
+      </div>
+    </div>
+
+    <!-- Navegação de Abas Protegidas -->
+    <nav class="flex items-center gap-2">
+      <button onclick="navegarPara('identificacao')" class="px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 bg-slate-700/60 hover:bg-slate-700 transition">
+        <i data-lucide="user-check" class="w-4 h-4 text-emerald-400"></i> Votante
+      </button>
+
+      <button onclick="pedirAcesso('apuracao')" class="px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 bg-slate-700/60 hover:bg-slate-700 transition">
+        <i data-lucide="tv" class="w-4 h-4 text-amber-400"></i> Apuração (Telão)
+      </button>
+
+      <button onclick="pedirAcesso('mesario')" class="px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 bg-slate-700/60 hover:bg-slate-700 transition">
+        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i> Mesário
+      </button>
+    </nav>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="container mx-auto p-4 md:p-6 flex-1 max-w-5xl">
+
+    <!-- 1. TELA DE IDENTIFICAÇÃO (R.A) -->
+    <section id="tela-identificacao" class="space-y-6">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 md:p-8 max-w-lg mx-auto shadow-2xl">
+        <div class="text-center mb-6">
+          <div class="inline-flex p-3 bg-indigo-500/10 text-indigo-400 rounded-full mb-3">
+            <i data-lucide="id-card" class="w-8 h-8"></i>
           </div>
-          <p class="text-xs text-purple-200">Escola Milton Martins Poitena</p>
+          <h2 class="text-2xl font-bold text-white">Identificação do Aluno</h2>
+          <p class="text-slate-400 text-sm mt-1">Informe o seu R.A com 0000 no início e dígito SP no final.</p>
+        </div>
+
+        <form id="form-ra" onsubmit="validarRA(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Registro do Aluno (R.A)</label>
+            <input type="text" id="input-ra" placeholder="Ex: 00001153083280SP" required
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-lg font-mono tracking-wider uppercase focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition text-white">
+          </div>
+
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+            Iniciar Votação <i data-lucide="arrow-right" class="w-5 h-5"></i>
+          </button>
+        </form>
+
+        <!-- Botões Rápidos de Teste Fictícios -->
+        <div class="mt-6 pt-6 border-t border-slate-700/60">
+          <p class="text-xs text-slate-400 text-center mb-3">Exemplos de R.A fictícios para testes rápidos:</p>
+          <div class="flex flex-wrap gap-2 justify-center">
+            <button onclick="preencherRATeste('00001111111111SP')" class="text-xs bg-slate-700/50 hover:bg-slate-700 border border-slate-600 px-2.5 py-1.5 rounded-lg font-mono text-slate-300">
+              00001111111111SP
+            </button>
+            <button onclick="preencherRATeste('00002222222222SP')" class="text-xs bg-slate-700/50 hover:bg-slate-700 border border-slate-600 px-2.5 py-1.5 rounded-lg font-mono text-slate-300">
+              00002222222222SP
+            </button>
+            <button onclick="preencherRATeste('00003333333333SP')" class="text-xs bg-slate-700/50 hover:bg-slate-700 border border-slate-600 px-2.5 py-1.5 rounded-lg font-mono text-slate-300">
+              00003333333333SP
+            </button>
+          </div>
         </div>
       </div>
+    </section>
 
-      <div class="flex items-center gap-2">
-        <div id="status-badge" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-[11px] font-semibold flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Offline / Local
+    <!-- 2. TELA DE VOTAÇÃO DA URNA -->
+    <section id="tela-votacao" class="hidden space-y-6">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-6">
+          <div>
+            <span class="text-xs font-mono uppercase text-slate-400 block">Aluno Identificado</span>
+            <span id="aluno-nome" class="text-lg font-bold text-indigo-300">---</span>
+            <span id="aluno-turma" class="text-xs text-slate-400 ml-2 bg-slate-700 px-2 py-0.5 rounded">---</span>
+          </div>
+          <span class="text-xs font-mono text-slate-400 bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg" id="aluno-ra-display">0000...</span>
         </div>
-        <button onclick="toggleMesarioModal()" class="px-3.5 py-2 bg-purple-800/80 hover:bg-purple-700 text-xs rounded-xl border border-purple-400/40 flex items-center gap-2 font-semibold shadow">
-          <i class="fa-solid fa-user-shield text-cyan-400"></i> Área do Mesário
-        </button>
+
+        <h2 class="text-xl font-bold text-center mb-6 text-slate-100">Escolha sua Chapa ou Vote em Branco</h2>
+
+        <!-- Lista de Chapas Cadastradas -->
+        <div id="grid-chapas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- As chapas serão injetadas via JS -->
+        </div>
+
+        <!-- Opção de Voto em Branco -->
+        <div class="mt-8 pt-6 border-t border-slate-700 text-center">
+          <button onclick="confirmarVoto('BRANCO', 'Voto em Branco')"
+            class="bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-200 font-bold px-8 py-3 rounded-xl transition inline-flex items-center gap-2">
+            <i data-lucide="circle-slash" class="w-5 h-5 text-slate-400"></i> Votar em Branco
+          </button>
+        </div>
       </div>
-    </header>
+    </section>
 
-    <main id="screen-container"></main>
-  </div>
+    <!-- 3. TELA DE APURAÇÃO AO VIVO (TELÃO DA ESCOLA) -->
+    <section id="tela-apuracao" class="hidden space-y-6">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-700 pb-6 mb-6">
+          <div>
+            <div class="flex items-center gap-2 text-amber-400 font-bold text-sm uppercase tracking-wider">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span> Apuração Ao Vivo
+            </div>
+            <h2 class="text-2xl font-bold text-white mt-1">Resultados da Eleição</h2>
+          </div>
 
-  <footer class="text-center py-4 text-xs text-purple-300/70 border-t border-purple-500/10 bg-slate-950/40">
-    Desenvolvido por <span class="highlight-text">Gabriel Soares (2º EM)</span> • <a href="https://instagram.com/7soaresvgh" target="_blank" class="hover:underline text-cyan-400 font-bold">@7soaresvgh</a> • Sistema Urna Online <span class="text-cyan-400 font-bold">v0.3</span>
+          <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 text-right">
+            <span class="text-xs text-slate-400 uppercase tracking-wider block">Total de Votantes</span>
+            <span id="total-votos-display" class="text-3xl font-extrabold font-mono text-indigo-400">0</span>
+          </div>
+        </div>
+
+        <!-- Gráfico e Estatísticas -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+          <!-- Gráfico -->
+          <div class="lg:col-span-1 bg-slate-900/60 border border-slate-700/60 p-4 rounded-xl flex items-center justify-center">
+            <div class="w-full max-w-[280px]">
+              <canvas id="graficoResultados"></canvas>
+            </div>
+          </div>
+
+          <!-- Tabela de Resultados detalhada com % -->
+          <div class="lg:col-span-2 space-y-3" id="lista-resultados-chapas">
+            <!-- Injetado via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. TELA ÁREA DO MESÁRIO (CONTROLE COMPLETO) -->
+    <section id="tela-mesario" class="hidden space-y-6">
+      <!-- Painel de Ações Rápidas do Mesário -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-700 pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-indigo-400 flex items-center gap-2">
+              <i data-lucide="shield-check" class="w-6 h-6"></i> Painel do Mesário
+            </h2>
+            <p class="text-slate-400 text-xs mt-1">Gerenciamento completo do sistema de votação.</p>
+          </div>
+
+          <!-- BOTÃO RESETAR R.A / ZERAR TUDO -->
+          <button onclick="confirmarResetGeral()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-4 py-2 rounded-xl font-semibold text-sm transition flex items-center gap-2">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Resetar R.As & Zerar Votos
+          </button>
+        </div>
+
+        <!-- Formulário para Criar/Editar Chapas -->
+        <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-5">
+          <h3 class="text-md font-bold text-white mb-4 flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i> Cadastrar Nova Chapa
+          </h3>
+
+          <form id="form-cadastrar-chapa" onsubmit="salvarChapa(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Nome da Chapa</label>
+              <input type="text" id="chapa-nome" placeholder="Ex: Chapa Renovação" required
+                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Número da Chapa</label>
+              <input type="number" id="chapa-numero" placeholder="Ex: 10" required
+                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Integrantes / Slogan</label>
+              <input type="text" id="chapa-descricao" placeholder="Ex: Maria (Presidente), João (Vice)" required
+                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">URL da Foto / Logo (Opcional)</label>
+              <input type="url" id="chapa-foto" placeholder="https://exemplo.com/foto.jpg"
+                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <div class="md:col-span-2 flex justify-end mt-2">
+              <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 py-2.5 rounded-lg text-sm transition flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> Salvar Chapa
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tabela de Registros de Votação por R.A (Auditoria) -->
+        <div class="space-y-3">
+          <h3 class="text-md font-bold text-white flex items-center gap-2">
+            <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i> Registro de Votantes (Auditoria)
+          </h3>
+          <div class="overflow-x-auto border border-slate-700 rounded-xl bg-slate-900/40">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-800/80 text-slate-400 uppercase font-mono text-[11px]">
+                <tr>
+                  <th class="p-3">R.A Votante</th>
+                  <th class="p-3">Nome do Aluno</th>
+                  <th class="p-3">Turma</th>
+                  <th class="p-3">Votou Em (Chapa)</th>
+                  <th class="p-3">Data/Hora</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-votantes-corpo" class="divide-y divide-slate-800">
+                <!-- Injetado via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RODAPÉ -->
+  <footer class="bg-slate-800/50 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-500">
+    Urna Eletrônica Escolar &copy; 2026 - E.E. Soares • Sistema Seguro de Votação
   </footer>
 
-  <!-- Modal do Mesário -->
-  <div id="mesario-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-purple-500/40 p-6 rounded-2xl max-w-sm w-full relative shadow-2xl">
-      <button onclick="toggleMesarioModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-      <h3 class="text-lg font-bold mb-4 text-purple-300 flex items-center gap-2"><i class="fa-solid fa-lock text-cyan-400"></i> Acesso do Mesário</h3>
-      <input type="password" id="mesario-pass" placeholder="Senha (Padrão: 1234)" class="w-full bg-slate-800 border border-purple-500/30 p-3 rounded-lg text-white mb-4 focus:outline-none focus:border-cyan-400 text-center font-bold">
-      <button onclick="loginMesario()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 font-bold py-3 rounded-lg hover:brightness-110 shadow-lg">Entrar no Painel</button>
-    </div>
-  </div>
-
+  <!-- SCRIPT DA APLICAÇÃO -->
   <script>
-    // CREDENCIAIS DA API FIREBASE
+    // CONFIGURAÇÃO DO FIREBASE COM A CHAVE API
     const firebaseConfig = {
       apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
       authDomain: "gremio-poitena.firebaseapp.com",
@@ -87,272 +268,586 @@
       appId: "1:123456789012:web:abcdef123456"
     };
 
-    let db = null;
-    let isOnline = false;
-
-    try {
-      if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "SUA_API_KEY") {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-        isOnline = true;
-      }
-    } catch (e) {
-      console.warn("Rodando no modo local (offline)");
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
     }
+    const db = firebase.database();
 
-    const alunosDB = {
-      // 8º ANO A
-      "00001165759573SP": "Alice De Araujo Lobato Da Silva",
-      "00001142596618SP": "Alice De Moraes Dedini",
-      "00001130872543SP": "Ana Clara Silva Moura",
-      "00001130872841SP": "Anna Beatriz Santana Dias",
-      "00001201556831SP": "Beatriz Valentim Da Luz",
-      "00001140105371SP": "Davi Gabriel Fernandes Da Silva Pereira",
-      "00001134221009SP": "Davi Santos Bezerra",
-      "00001137870734SP": "Eloa Dos Santos Trindade",
-      "00001142047349SP": "Emilly Pinto De Paula",
-      "00001134940488SP": "Emily De Almeida Alegreti",
-      "00001124230671SP": "Ennzo Victor Santos De Oliveira",
-      "00001130872476SP": "Enzo Gabriel Silva Moura",
-      "00001139238553SP": "Evellyn Victória Dos Santos França",
-      "00001135348649SP": "Giulia Dias Dalmazzo De Medeiros Cruz",
-      "0000114421080XSP": "Giulia Pereira Cardozo",
-      "00001144922604SP": "Gustavo Da Silva De Oliveira",
-      "00001137858114SP": "Isabella Sophia Batista Souza Mendonça",
-      "00001164003768SP": "Jade Ferreira Jorge",
-      "00001165557290SP": "Jonatan Adriano De Oliveira Santos",
-      "00001147769321SP": "Kelly Lopes Correia Diniz De Carvalho",
-      "00001134183756SP": "Laerte Soares Da Silva Junior",
-      "00001133032473SP": "Lorena Godoi Cabral",
-      "00001142636641SP": "Lucca Neto Pieroni",
-      "00001133890726SP": "Lukas Augusto De Oliveira",
-      "00001124262659SP": "Matheus Henrique De Almeida Lara",
-      "00001124285180SP": "Rafaela Aparecida Ferreira Marques",
-      "00001137860303SP": "Sofia Santana Gonçalves",
-      "00001115520180SP": "Stefany Karolyn Ribeiros Dos Santos",
-      "00001146520463SP": "Tayna Cipriano Ramos",
-      "00001128792199SP": "Valentina Zelante Geib Garcia De Sousa",
-      "00001135667275SP": "Victor Lorenzo Oliveira Santos",
+    // --- BANCO DE DADOS DE R.A DOS ALUNOS ---
+    const BANCO_ALUNOS = [
+      // 6º Ano A
+      { ra: "00001153083280SP", nome: "Alice Souza Delfino Cruz", turma: "6º A" },
+      { ra: "00001164207660SP", nome: "Ana Laura Mendes Santos", turma: "6º A" },
+      { ra: "00001164208433SP", nome: "Ana Lívia Mendes Santos", turma: "6º A" },
+      { ra: "00001163482274SP", nome: "Bryan Yago Novaes Dos Santos", turma: "6º A" },
+      { ra: "00001151029865SP", nome: "Cadu Augusto Alves Ferreira", turma: "6º A" },
+      { ra: "00001143579574SP", nome: "Catarina Operman Felix", turma: "6º A" },
+      { ra: "00001203760395SP", nome: "Davi Lukas Ramalho Muniz", turma: "6º A" },
+      { ra: "00001209943402SP", nome: "Davi Messias De Souza Duraes", turma: "6º A" },
+      { ra: "00001212594307SP", nome: "Eliza Mariely Pessoa Santos", turma: "6º A" },
+      { ra: "00001163479111SP", nome: "Emanoel Messias Martins Maiorquino", turma: "6º A" },
+      { ra: "00001202858892SP", nome: "Ester Lorena Conceição De Jesus", turma: "6º A" },
+      { ra: "00001142985817SP", nome: "Fábio Matheus De Souza Pereira", turma: "6º A" },
+      { ra: "00001210958752SP", nome: "Gabriel Rossoni Luz", turma: "6º A" },
+      { ra: "00001164781893SP", nome: "Giovana Condota Ijanques", turma: "6º A" },
+      { ra: "00001154870418SP", nome: "Guilherme Gimenez De Mattos", turma: "6º A" },
+      { ra: "0000114773057XSP", nome: "Henzo Sousa Dos Anjos", turma: "6º A" },
+      { ra: "00001205953541SP", nome: "Jhonny De Oliveira Peixoto", turma: "6º A" },
+      { ra: "00001242673143SP", nome: "Joao Lucas Carvalho Ribeiro De Araujo", turma: "6º A" },
+      { ra: "00001153783551SP", nome: "João Vitor Dias Mattos", turma: "6º A" },
+      { ra: "00001148244578SP", nome: "Lívia Alves Lucas Da Silva", turma: "6º A" },
+      { ra: "00001157623311SP", nome: "Manuelly Costa Dominiscki Luz", turma: "6º A" },
+      { ra: "00001154941085SP", nome: "Marcio Silvestre Pedroso Neto", turma: "6º A" },
+      { ra: "00001163295668SP", nome: "Maria Clara Carvalho Batista Ferreira", turma: "6º A" },
+      { ra: "00001166369237SP", nome: "Maria Eduarda Andrade Da Silva Teixeira", turma: "6º A" },
+      { ra: "00001154711456SP", nome: "Mario Valentim Lourenço", turma: "6º A" },
+      { ra: "00001149435641SP", nome: "Melissa Pinto De Paula", turma: "6º A" },
+      { ra: "00001154247971SP", nome: "Miguel Alves Guelfi", turma: "6º A" },
+      { ra: "00001142986160SP", nome: "Miguel Ray Novaes", turma: "6º A" },
+      { ra: "0000115494198XSP", nome: "Nicolle Gabriely Matos De Souza", turma: "6º A" },
+      { ra: "00001148070412SP", nome: "Rafael Alves Rodrigues", turma: "6º A" },
+      { ra: "00001156854714SP", nome: "Raphael Nathan Da Silva Germano", turma: "6º A" },
+      { ra: "00001153659542SP", nome: "Raquel Kamilly Souza Luiz", turma: "6º A" },
+      { ra: "00001128187188SP", nome: "Rebeca Benedito Domingos Cabral", turma: "6º A" },
+      { ra: "0000116541854XSP", nome: "Samuel Alencar Dos Santos", turma: "6º A" },
+      { ra: "00001148438117SP", nome: "Sophia Couto De Oliveira", turma: "6º A" },
+      { ra: "0000120214259XSP", nome: "Vanessa Alexandra Pereira Santos", turma: "6º A" },
+      { ra: "00001162397196SP", nome: "Yasmim Gonçalves Beco", turma: "6º A" },
+      { ra: "00001211036923SP", nome: "Yasmin Araujo De Moraes", turma: "6º A" },
 
-      // 1º ANO EM
-      "00001122712832SP": "Agatha Pilcsuk De Oliveira Guilherme",
-      "00001113565524SP": "Beatriz Rosa Teixeira Pimentel",
-      "00001163903000SP": "Brian Lobo Zamperlin",
-      "00001130986524SP": "Bryan De Souza Bueno",
-      "0000111905784XSP": "Bryan Felipe De Lima",
-      "00001109790867SP": "Carlos Henrique Dos Santos",
-      "00001143898837SP": "Cauan Eduardo Dias Freitas De Souza",
-      "00001106976782SP": "Eloisa Teodoro Dos Santos",
-      "00001117593794SP": "Gabriel Barreto Feitoza",
-      "00001111577353SP": "Gabrielly Godoi Leal Oliveira",
-      "00001111745134SP": "Guilherme Da Silva Germano",
-      "00001143703236SP": "Heitor Goldszmidt",
-      "00001124876376SP": "Heloysa Rodrigues Dos Santos",
-      "00001148164406SP": "Isabelly Franca Dos Passos",
-      "00001105730141SP": "Ismael Rocha Menezes",
-      "00001116923397SP": "João Hélio Pio Patrocinio",
-      "00001108419938SP": "Keirrison Augusto Ramos Da Silva",
-      "00001142699845SP": "Keven Kauan Da Silva Guimarães",
-      "00001127631226SP": "Lais Hiromi Pereira Takahashi",
-      "00001118854986SP": "Laura Silva Saubier",
-      "0000110786625XSP": "Letícia Da Silva Alves",
-      "00001106393247SP": "Levi Anthony Rodrigues Dos Santos",
-      "00001116540885SP": "Manuela Freitas Alves",
-      "0000112425674XSP": "Melissa Eduarda Castilho Ramos Diogo",
-      "00001146153697SP": "Murillo Ribeiro Dos Santos",
-      "0000114876995XSP": "Natally Liandra Da Silva Ramos Duarte",
-      "00001123899551SP": "Ominaye Zuffo Nogueira",
-      "00001119058053SP": "Pedro Lucas Dias Dos Santos",
-      "00001111765492SP": "Pietro Edmilson Dos Santos Mota",
-      "00001132898031SP": "Ramesés Cabral De Sousa Silva",
-      "00001121761112SP": "Yago Henrique Da Silva Reis",
+      // 7º Ano A
+      { ra: "00001201577354SP", nome: "Aline Bitencourt Martins Felix", turma: "7º A" },
+      { ra: "00001140548475SP", nome: "Ana Vitória Da Silva Santos", turma: "7º A" },
+      { ra: "00001139456477SP", nome: "Analua Miyuki Dominiski Ichihashi", turma: "7º A" },
+      { ra: "0000114966888XSP", nome: "Arthur Dias Dalmazzo De Medeiros Cruz", turma: "7º A" },
+      { ra: "00001155350960SP", nome: "Arthur Gama De Oliveira", turma: "7º A" },
+      { ra: "00001144150000SP", nome: "Arthur Pereira Cardozo", turma: "7º A" },
+      { ra: "00001139456611SP", nome: "Aruana Sayuri Dominiski Ichihashi", turma: "7º A" },
+      { ra: "00001202605369SP", nome: "Brena Martins Da Silva", turma: "7º A" },
+      { ra: "00001148970150SP", nome: "Carolina Ribeiro Carreira Da Costa", turma: "7º A" },
+      { ra: "00001201569084SP", nome: "Diogo Marques Waltrick Junior", turma: "7º A" },
+      { ra: "00001165025656SP", nome: "Eduarda Isabelly Oliveira Carvalho", turma: "7º A" },
+      { ra: "00001167102150SP", nome: "Eloá Odette Ruiz Dos Reis", turma: "7º A" },
+      { ra: "00001163506011SP", nome: "Emanuel Bernardo Ventura De Andrade Dos Santos", turma: "7º A" },
+      { ra: "00001134399194SP", nome: "Emanuelly Garcia Ribeiro Santana", turma: "7º A" },
+      { ra: "00001144149678SP", nome: "Enzo Pereira Cardozo", turma: "7º A" },
+      { ra: "00001142974212SP", nome: "Erick Pereira Da Silva Lima", turma: "7º A" },
+      { ra: "00001133940900SP", nome: "Fernanda Luiza Marques De Mendonça", turma: "7º A" },
+      { ra: "00001152289251SP", nome: "Heloisa Leona Costa Ferraz", turma: "7º A" },
+      { ra: "00001156686040SP", nome: "Heloisa Zuffo Nogueira", turma: "7º A" },
+      { ra: "00001141932052SP", nome: "Isabelly Do Nascimento Santos Borges", turma: "7º A" },
+      { ra: "00001138745789SP", nome: "Isis Cadilha Bezdan", turma: "7º A" },
+      { ra: "00001234042952SP", nome: "João Henrique Ijanques De Souza", turma: "7º A" },
+      { ra: "00001140987240SP", nome: "Kaue Vinicius Dos Santos Trindade", turma: "7º A" },
+      { ra: "00001143434900SP", nome: "Kevin Pereira Bacaneli", turma: "7º A" },
+      { ra: "00001202344379SP", nome: "Laura Lima Domingues", turma: "7º A" },
+      { ra: "00001145785979SP", nome: "Laura Victória Da Silva Neves", turma: "7º A" },
+      { ra: "00001137153878SP", nome: "Luan Rasga De Moura Silva Oliveira", turma: "7º A" },
+      { ra: "00001137068188SP", nome: "Lucas Godinho Von Weidebach", turma: "7º A" },
+      { ra: "00001146247503SP", nome: "Luna Souza D'Aragão", turma: "7º A" },
+      { ra: "00001165388662SP", nome: "Manuella De Carvalho Granado Moya Da Silva", turma: "7º A" },
+      { ra: "00001142973815SP", nome: "Marcos Ibrahin Ribeiro De Andrade Matos", turma: "7º A" },
+      { ra: "00001214901177SP", nome: "Miguel Arthur Ramalho Dos Santos", turma: "7º A" },
+      { ra: "0000120156959XSP", nome: "Murilo De Oliveira Silva", turma: "7º A" },
+      { ra: "00001150374500SP", nome: "Rayssa Lorraynne Cardozo Ocampo", turma: "7º A" },
+      { ra: "00001151569847SP", nome: "Rebeca Rumão Batista", turma: "7º A" },
+      { ra: "0000113900184XSP", nome: "Vitória Maria Maciel", turma: "7º A" },
+      { ra: "0000115862654XSP", nome: "Ysabelli De Melo Marques", turma: "7º A" },
+      { ra: "00001137870618SP", nome: "Yuriki Andrade Dietrich", turma: "7º A" },
 
-      // 2º ANO EM
-      "00001229376306SP": "Ana Esther Do Carmo Santos",
-      "00001206365286SP": "Ana Júlia Ramalho Guimarães",
-      "00001111417829SP": "Arthur Henrique Barbosa Martins",
-      "00001106282310SP": "Bryan Henrique Almeida Rodrigues",
-      "00001104702666SP": "Davi Teixeira Gomes Pupo",
-      "00001108891949SP": "Emanoel Henrique Dos Santos Araujo",
-      "0000109712762XSP": "Gabriel De Lima Soares Da Silva",
-      "00001127995182SP": "Guilherme Souza Luiz",
-      "00001116599193SP": "Gustavo Lima Brito Dos Santos",
-      "00001129364422SP": "Jayane Giselle Barbosa Da Rocha Souza",
-      "0000111532178XSP": "João Guilherme Thomaz Rodrigues",
-      "0000112503791XSP": "João Victor Ferreira Bragaia",
-      "0000110264366XSP": "Lucas Rasga De Moura Silva Oliveira",
-      "00001116907550SP": "Manuella Luiza Parrila Piccinini",
-      "0000109765929XSP": "Maria Eduarda Tissori Antonio De Sá",
-      "00001118917066SP": "Matheus Da Silva Gomes Cardial",
-      "00001126655892SP": "Matheus Henrick Barbosa Dos Santos",
-      "00001107538038SP": "Monize Maria Ribeiro Silva",
-      "00001106296382SP": "Pedro Henrique Martins Luciano Tissori",
-      "00001229377335SP": "Renan Gabriel Do Carmo Santos",
-      "00001133754181SP": "Ryan Paulino Santana",
-      "00001118213695SP": "Samuel Silvino Novais Dos Reis",
-      "00001095488971SP": "Vitória Dos Santos Meireles",
-      "00001121585127SP": "Yasmin Kathelyn Ribeiro Alves Da Silva"
+      // 8º Ano A
+      { ra: "00001165759573SP", nome: "Alice De Araujo Lobato Da Silva", turma: "8º A" },
+      { ra: "00001142596618SP", nome: "Alice De Moraes Dedini", turma: "8º A" },
+      { ra: "00001130872543SP", nome: "Ana Clara Silva Moura", turma: "8º A" },
+      { ra: "00001130872841SP", nome: "Anna Beatriz Santana Dias", turma: "8º A" },
+      { ra: "00001201556831SP", nome: "Beatriz Valentim Da Luz", turma: "8º A" },
+      { ra: "00001140105371SP", nome: "Davi Gabriel Fernandes Da Silva Pereira", turma: "8º A" },
+      { ra: "00001134221009SP", nome: "Davi Santos Bezerra", turma: "8º A" },
+      { ra: "00001137870734SP", nome: "Eloa Dos Santos Trindade", turma: "8º A" },
+      { ra: "00001142047349SP", nome: "Emilly Pinto De Paula", turma: "8º A" },
+      { ra: "00001134940488SP", nome: "Emily De Almeida Alegreti", turma: "8º A" },
+      { ra: "00001124230671SP", nome: "Ennzo Victor Santos De Oliveira", turma: "8º A" },
+      { ra: "00001130872476SP", nome: "Enzo Gabriel Silva Moura", turma: "8º A" },
+      { ra: "00001139238553SP", nome: "Evellyn Victória Dos Santos França", turma: "8º A" },
+      { ra: "00001135348649SP", nome: "Giulia Dias Dalmazzo De Medeiros Cruz", turma: "8º A" },
+      { ra: "0000114421080XSP", nome: "Giulia Pereira Cardozo", turma: "8º A" },
+      { ra: "00001144922604SP", nome: "Gustavo Da Silva De Oliveira", turma: "8º A" },
+      { ra: "00001137858114SP", nome: "Isabella Sophia Batista Souza Mendonça", turma: "8º A" },
+      { ra: "00001164003768SP", nome: "Jade Ferreira Jorge", turma: "8º A" },
+      { ra: "00001165557290SP", nome: "Jonatan Adriano De Oliveira Santos", turma: "8º A" },
+      { ra: "00001147769321SP", nome: "Kelly Lopes Correia Diniz De Carvalho", turma: "8º A" },
+      { ra: "00001134183756SP", nome: "Laerte Soares Da Silva Junior", turma: "8º A" },
+      { ra: "00001133032473SP", nome: "Lorena Godoi Cabral", turma: "8º A" },
+      { ra: "00001142636641SP", nome: "Lucca Neto Pieroni", turma: "8º A" },
+      { ra: "00001133890726SP", nome: "Lukas Augusto De Oliveira", turma: "8º A" },
+      { ra: "00001124262659SP", nome: "Matheus Henrique De Almeida Lara", turma: "8º A" },
+      { ra: "00001124285180SP", nome: "Rafaela Aparecida Ferreira Marques", turma: "8º A" },
+      { ra: "00001137860303SP", nome: "Sofia Santana Gonçalves", turma: "8º A" },
+      { ra: "00001115520180SP", nome: "Stefany Karolyn Ribeiros Dos Santos", turma: "8º A" },
+      { ra: "00001146520463SP", nome: "Tayna Cipriano Ramos", turma: "8º A" },
+      { ra: "00001128792199SP", nome: "Valentina Zelante Geib Garcia De Sousa", turma: "8º A" },
+      { ra: "00001135667275SP", nome: "Victor Lorenzo Oliveira Santos", turma: "8º A" },
+
+      // 8º Ano B
+      { ra: "00001154291856SP", nome: "Alice Micaelle Silva Do Nascimento", turma: "8º B" },
+      { ra: "00001134081157SP", nome: "Ariella Cintra Do Nascimento", turma: "8º B" },
+      { ra: "00001152988037SP", nome: "Brenda Vieira Diniz Barrochello", turma: "8º B" },
+      { ra: "00001140105462SP", nome: "Carlos Eduardo Da Silva Oliveira", turma: "8º B" },
+      { ra: "00001153174212SP", nome: "Dalila Suelen Andrade Da Silva", turma: "8º B" },
+      { ra: "00001133833962SP", nome: "Danilo Lopes De Lima", turma: "8º B" },
+      { ra: "00001143101881SP", nome: "Felipe Cardoso De Lima", turma: "8º B" },
+      { ra: "00001159265744SP", nome: "Guilherme Venâncio Dias Freitas De Souza", turma: "8º B" },
+      { ra: "00001137869240SP", nome: "Jacob Vitorio Camargo Dos Santos Padua", turma: "8º B" },
+      { ra: "00001135254606SP", nome: "João Pedro Kutz Souza", turma: "8º B" },
+      { ra: "00001143071438SP", nome: "Letícia Elizabete Gomes Souza", turma: "8º B" },
+      { ra: "00001140698485SP", nome: "Letícya Gracio Ribeiro", turma: "8º B" },
+      { ra: "00001146164543SP", nome: "Manuelly Dutra De Freitas", turma: "8º B" },
+      { ra: "00001143947459SP", nome: "Maria Clara Gonçalves Borges", turma: "8º B" },
+      { ra: "00001144299007SP", nome: "Maria Eduarda Araújo Rodrigues", turma: "8º B" },
+      { ra: "00001163745546SP", nome: "Maria Eduarda Menêses Félix Dos Santos", turma: "8º B" },
+      { ra: "00001146246663SP", nome: "Milena Silva De Almeida", turma: "8º B" },
+      { ra: "00001142973153SP", nome: "Myrela Pereira Da Silva De Moraes", turma: "8º B" },
+      { ra: "00001132426224SP", nome: "Rafael Nicolas Das Dores De França", turma: "8º B" },
+      { ra: "00001123054241SP", nome: "Rafaela Dos Santos Barletta", turma: "8º B" },
+      { ra: "00001146599638SP", nome: "Raiana Yasmin Santos De Oliveira", turma: "8º B" },
+      { ra: "00001124697573SP", nome: "Rayssa Francielly Candido Da Silva", turma: "8º B" },
+      { ra: "00001148985335SP", nome: "Rayssa Gabrielli Souza Ramos", turma: "8º B" },
+      { ra: "00001143093628SP", nome: "Richard Marques", turma: "8º B" },
+      { ra: "00001127598132SP", nome: "Sabriny Bianca Mathias Barbosa", turma: "8º B" },
+      { ra: "00001205340555SP", nome: "Salvina Maria Pessoa Santos", turma: "8º B" },
+      { ra: "00001155233116SP", nome: "Sophia Dias Mattos", turma: "8º B" },
+      { ra: "00001164746844SP", nome: "Sophia Nathalia Paulo Morais", turma: "8º B" },
+      { ra: "00001147129666SP", nome: "Vicenzo Brites Lima", turma: "8º B" },
+      { ra: "00001127581478SP", nome: "Yohanna Carollaine Cipriano Prestes Campos", turma: "8º B" },
+
+      // 9º Ano A
+      { ra: "00001201762467SP", nome: "Ana Beatriz Conceição Fabri", turma: "9º A" },
+      { ra: "00001123721221SP", nome: "Ana Luiza Dias Cristovao Silva", turma: "9º A" },
+      { ra: "00001127649139SP", nome: "Beatriz Harumi Pereira Takahashi", turma: "9º A" },
+      { ra: "0000113500237XSP", nome: "Bruno Rafael Parrila Pimentel", turma: "9º A" },
+      { ra: "0000114624454XSP", nome: "Daniel Pereira Da Silva", turma: "9º A" },
+      { ra: "00001130729679SP", nome: "Davi Alves Lucas Da Silva", turma: "9º A" },
+      { ra: "00001139053322SP", nome: "Ester Kamilly Souza Luiz", turma: "9º A" },
+      { ra: "0000111397025XSP", nome: "Felipe Gabriel Santana De Oliveira", turma: "9º A" },
+      { ra: "00001122497210SP", nome: "Francisco Da Silva Souza", turma: "9º A" },
+      { ra: "00001155888704SP", nome: "Jhonsmar Marques Da Silva", turma: "9º A" },
+      { ra: "00001146744638SP", nome: "Julio Cesar Andrade De Oliveira", turma: "9º A" },
+      { ra: "00001133390857SP", nome: "Kelvin Lucena Lopes", turma: "9º A" },
+      { ra: "00001159723795SP", nome: "Leandro Henrique Freitas Da Silva Sereia", turma: "9º A" },
+      { ra: "00001133120350SP", nome: "Lorena Silva Santos", turma: "9º A" },
+      { ra: "00001146303993SP", nome: "Marcella Gabriella Dos Santos Thomaz", turma: "9º A" },
+      { ra: "00001132815782SP", nome: "Maria Clara De Jesus Heszki", turma: "9º A" },
+      { ra: "00001154830184SP", nome: "Maria Clara Goldszmidt", turma: "9º A" },
+      { ra: "00001140495690SP", nome: "Maria Clara Warumby Costa Ruiz", turma: "9º A" },
+      { ra: "00001139031004SP", nome: "Miguel Botelho Da Silva", turma: "9º A" },
+      { ra: "00001124269009SP", nome: "Miguel Dos Santos Ribeiro", turma: "9º A" },
+      { ra: "00001138427901SP", nome: "Murilo Gabriel Alves Teixeira De Fontes Carneiro", turma: "9º A" },
+      { ra: "00001114167368SP", nome: "Pedro Da Silva Medeiros", turma: "9º A" },
+      { ra: "00001135736844SP", nome: "Pedro Luca De Sa Martins Fernandes", turma: "9º A" },
+      { ra: "00001121560106SP", nome: "Rafael Gomes Dos Santos", turma: "9º A" },
+      { ra: "00001117749939SP", nome: "Ray Pereira Prudencio", turma: "9º A" },
+      { ra: "00001148046653SP", nome: "Richard Vargas Dos Santos", turma: "9º A" },
+
+      // 1º Ano EM
+      { ra: "00001122712832SP", nome: "Agatha Pilcsuk De Oliveira Guilherme", turma: "1º EM" },
+      { ra: "00001113565524SP", nome: "Beatriz Rosa Teixeira Pimentel", turma: "1º EM" },
+      { ra: "00001163903000SP", nome: "Brian Lobo Zamperlin", turma: "1º EM" },
+      { ra: "00001130986524SP", nome: "Bryan De Souza Bueno", turma: "1º EM" },
+      { ra: "0000111905784XSP", nome: "Bryan Felipe De Lima", turma: "1º EM" },
+      { ra: "00001109790867SP", nome: "Carlos Henrique Dos Santos", turma: "1º EM" },
+      { ra: "00001143898837SP", nome: "Cauan Eduardo Dias Freitas De Souza", turma: "1º EM" },
+      { ra: "00001106976782SP", nome: "Eloisa Teodoro Dos Santos", turma: "1º EM" },
+      { ra: "00001117593794SP", nome: "Gabriel Barreto Feitoza", turma: "1º EM" },
+      { ra: "00001111577353SP", nome: "Gabrielly Godoi Leal Oliveira", turma: "1º EM" },
+      { ra: "00001111745134SP", nome: "Guilherme Da Silva Germano", turma: "1º EM" },
+      { ra: "00001143703236SP", nome: "Heitor Goldszmidt", turma: "1º EM" },
+      { ra: "00001124876376SP", nome: "Heloysa Rodrigues Dos Santos", turma: "1º EM" },
+      { ra: "00001148164406SP", nome: "Isabelly Franca Dos Passos", turma: "1º EM" },
+      { ra: "00001105730141SP", nome: "Ismael Rocha Menezes", turma: "1º EM" },
+      { ra: "00001116923397SP", nome: "João Hélio Pio Patrocinio", turma: "1º EM" },
+      { ra: "00001108419938SP", nome: "Keirrison Augusto Ramos Da Silva", turma: "1º EM" },
+      { ra: "00001142699845SP", nome: "Keven Kauan Da Silva Guimarães", turma: "1º EM" },
+      { ra: "00001127631226SP", nome: "Lais Hiromi Pereira Takahashi", turma: "1º EM" },
+      { ra: "00001118854986SP", nome: "Laura Silva Saubier", turma: "1º EM" },
+      { ra: "0000110786625XSP", nome: "Letícia Da Silva Alves", turma: "1º EM" },
+      { ra: "00001106393247SP", nome: "Levi Anthony Rodrigues Dos Santos", turma: "1º EM" },
+      { ra: "00001116540885SP", nome: "Manuela Freitas Alves", turma: "1º EM" },
+      { ra: "0000112425674XSP", nome: "Melissa Eduarda Castilho Ramos Diogo", turma: "1º EM" },
+      { ra: "00001146153697SP", nome: "Murillo Ribeiro Dos Santos", turma: "1º EM" },
+      { ra: "0000114876995XSP", nome: "Natally Liandra Da Silva Ramos Duarte", turma: "1º EM" },
+      { ra: "00001123899551SP", nome: "Ominaye Zuffo Nogueira", turma: "1º EM" },
+      { ra: "00001119058053SP", nome: "Pedro Lucas Dias Dos Santos", turma: "1º EM" },
+      { ra: "00001111765492SP", nome: "Pietro Edmilson Dos Santos Mota", turma: "1º EM" },
+      { ra: "00001132898031SP", nome: "Ramesés Cabral De Sousa Silva", turma: "1º EM" },
+      { ra: "00001121761112SP", nome: "Yago Henrique Da Silva Reis", turma: "1º EM" },
+
+      // 2º Ano EM
+      { ra: "00001229376306SP", nome: "Ana Esther Do Carmo Santos", turma: "2º EM" },
+      { ra: "00001206365286SP", nome: "Ana Júlia Ramalho Guimarães", turma: "2º EM" },
+      { ra: "00001111417829SP", nome: "Arthur Henrique Barbosa Martins", turma: "2º EM" },
+      { ra: "00001106282310SP", nome: "Bryan Henrique Almeida Rodrigues", turma: "2º EM" },
+      { ra: "00001104702666SP", nome: "Davi Teixeira Gomes Pupo", turma: "2º EM" },
+      { ra: "00001108891949SP", nome: "Emanoel Henrique Dos Santos Araujo", turma: "2º EM" },
+      { ra: "0000109712762XSP", nome: "Gabriel De Lima Soares Da Silva", turma: "2º EM" },
+      { ra: "00001127995182SP", nome: "Guilherme Souza Luiz", turma: "2º EM" },
+      { ra: "00001116599193SP", nome: "Gustavo Lima Brito Dos Santos", turma: "2º EM" },
+      { ra: "00001129364422SP", nome: "Jayane Giselle Barbosa Da Rocha Souza", turma: "2º EM" },
+      { ra: "0000111532178XSP", nome: "João Guilherme Thomaz Rodrigues", turma: "2º EM" },
+      { ra: "0000112503791XSP", nome: "João Victor Ferreira Bragaia", turma: "2º EM" },
+      { ra: "0000110264366XSP", nome: "Lucas Rasga De Moura Silva Oliveira", turma: "2º EM" },
+      { ra: "00001116907550SP", nome: "Manuella Luiza Parrila Piccinini", turma: "2º EM" },
+      { ra: "0000109765929XSP", nome: "Maria Eduarda Tissori Antonio De Sá", turma: "2º EM" },
+      { ra: "00001118917066SP", nome: "Matheus Da Silva Gomes Cardial", turma: "2º EM" },
+      { ra: "00001126655892SP", nome: "Matheus Henrick Barbosa Dos Santos", turma: "2º EM" },
+      { ra: "00001107538038SP", nome: "Monize Maria Ribeiro Silva", turma: "2º EM" },
+      { ra: "00001106296382SP", nome: "Pedro Henrique Martins Luciano Tissori", turma: "2º EM" },
+      { ra: "00001229377335SP", nome: "Renan Gabriel Do Carmo Santos", turma: "2º EM" },
+      { ra: "00001133754181SP", nome: "Ryan Paulino Santana", turma: "2º EM" },
+      { ra: "00001118213695SP", nome: "Samuel Silvino Novais Dos Reis", turma: "2º EM" },
+      { ra: "00001095488971SP", nome: "Vitória Dos Santos Meireles", turma: "2º EM" },
+      { ra: "00001121585127SP", nome: "Yasmin Kathelyn Ribeiro Alves Da Silva", turma: "2º EM" },
+
+      // R.As Fictícios de Exemplo para Testes
+      { ra: "00001111111111SP", nome: "Aluno Teste Exemplo 1", turma: "Teste" },
+      { ra: "00002222222222SP", nome: "Aluno Teste Exemplo 2", turma: "Teste" },
+      { ra: "00003333333333SP", nome: "Aluno Teste Exemplo 3", turma: "Teste" }
+    ];
+
+    // SENHAS DE ACESSO DIVERSIFICADAS
+    const SENHA_MESARIO = "soaresmesario";
+    const SENHA_APURACAO = "soaresapuraçao";
+    const SENHA_APURACAO_ALT = "soaresapuracao"; // Sem acento para facilidade
+
+    // VARIÁVEIS DE ESTADO LOCAL DE BACKUP (Caso Firebase falhe)
+    let estadoLocal = {
+      chapas: [
+        { id: "chapa_1", numero: 10, nome: "Chapa Ação & Voz", descricao: "Liderança estudantil e cultura.", foto: "" },
+        { id: "chapa_2", numero: 20, nome: "Chapa Futuro Escolar", descricao: "Esportes, lazer e melhorias.", foto: "" }
+      ],
+      votos: {},
+      votoBranco: 0,
+      alunosVotaram: {}
     };
 
-    let currentScreen = 'welcome';
-    let activeDashboardTab = 'apuracao'; // 'apuracao' ou 'gestao'
-    let currentStudentName = '';
-    let currentRA = '';
-    let selectedChapa = null;
-    let editingChapaId = null;
-    let currentUploadedImage = '';
+    let alunoAtual = null;
+    let graficoChart = null;
 
-    let chapas = JSON.parse(localStorage.getItem('gremio_chapas_v03') || '[]');
-    let votosEmBranco = parseInt(localStorage.getItem('gremio_brancos_v03') || '0');
-    let rasVotaram = new Set(JSON.parse(localStorage.getItem('gremio_ras_v03') || '[]'));
+    // INICIALIZAÇÃO
+    window.onload = function() {
+      lucide.createIcons();
+      carregarEstadoLocalStorage();
+      sincronizarFirebase();
+      renderizarUrna();
+      renderizarApuracao();
+      renderizarMesario();
+    };
 
-    function playBeep(type) {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (type === 'click') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.08);
-        } else if (type === 'confirm') {
-          const freqs = [659.25, 659.25, 659.25];
-          freqs.forEach((freq, idx) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.12));
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime + (idx * 0.12));
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(audioCtx.currentTime + (idx * 0.12));
-            osc.stop(audioCtx.currentTime + (idx * 0.12) + 0.1);
-          });
+    function sincronizarFirebase() {
+      db.ref("eleicao").on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          if (data.chapas) estadoLocal.chapas = Object.values(data.chapas);
+          if (data.votos) estadoLocal.votos = data.votos;
+          if (data.votoBranco !== undefined) estadoLocal.votoBranco = data.votoBranco;
+          if (data.alunosVotaram) estadoLocal.alunosVotaram = data.alunosVotaram;
+          
+          salvarEstadoLocalStorage();
+          renderizarUrna();
+          renderizarApuracao();
+          renderizarMesario();
         }
-      } catch(e){}
+      });
     }
 
-    function syncStatusUI() {
-      const badge = document.getElementById('status-badge');
-      if (!badge) return;
-      if (isOnline) {
-        badge.className = "px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-[11px] font-semibold flex items-center gap-1.5";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Firebase Online`;
-      } else {
-        badge.className = "px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full text-[11px] font-semibold flex items-center gap-1.5";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> Modo Local`;
+    function carregarEstadoLocalStorage() {
+      const salvo = localStorage.getItem("urna_escola_soares");
+      if (salvo) {
+        try { estadoLocal = JSON.parse(salvo); } catch(e){}
       }
     }
 
-    function initFirebaseSync() {
-      if (!isOnline || !db) return;
-
-      db.ref('eleicao/chapas').on('value', (snapshot) => {
-        const val = snapshot.val();
-        if (val) {
-          chapas = Object.values(val);
-          localStorage.setItem('gremio_chapas_v03', JSON.stringify(chapas));
-          if (currentScreen === 'voting' || currentScreen === 'dashboard') render();
-        }
-      });
-
-      db.ref('eleicao/votosEmBranco').on('value', (snapshot) => {
-        votosEmBranco = snapshot.val() || 0;
-        localStorage.setItem('gremio_brancos_v03', votosEmBranco.toString());
-        if (currentScreen === 'dashboard') render();
-      });
-
-      db.ref('eleicao/rasVotaram').on('value', (snapshot) => {
-        const val = snapshot.val() || {};
-        rasVotaram = new Set(Object.keys(val));
-        localStorage.setItem('gremio_ras_v03', JSON.stringify(Array.from(rasVotaram)));
-        if (currentScreen === 'dashboard') render();
-      });
+    function salvarEstadoLocalStorage() {
+      localStorage.setItem("urna_escola_soares", JSON.stringify(estadoLocal));
+      db.ref("eleicao").set(estadoLocal);
     }
 
-    function saveState() {
-      localStorage.setItem('gremio_chapas_v03', JSON.stringify(chapas));
-      localStorage.setItem('gremio_brancos_v03', votosEmBranco.toString());
-      localStorage.setItem('gremio_ras_v03', JSON.stringify(Array.from(rasVotaram)));
+    // NAVEGAÇÃO DE TELAS
+    function navegarPara(telaId) {
+      document.getElementById("tela-identificacao").classList.add("hidden");
+      document.getElementById("tela-votacao").classList.add("hidden");
+      document.getElementById("tela-apuracao").classList.add("hidden");
+      document.getElementById("tela-mesario").classList.add("hidden");
 
-      if (isOnline && db) {
-        const chapasObj = {};
-        chapas.forEach(c => chapasObj[c.id] = c);
-        db.ref('eleicao/chapas').set(chapasObj);
-        db.ref('eleicao/votosEmBranco').set(votosEmBranco);
-        
-        const rasObj = {};
-        rasVotaram.forEach(ra => rasObj[ra] = true);
-        db.ref('eleicao/rasVotaram').set(rasObj);
-      }
-    }
-
-    function render() {
-      syncStatusUI();
-      const container = document.getElementById('screen-container');
+      document.getElementById("tela-" + telaId).classList.remove("hidden");
       
-      if (currentScreen === 'welcome') {
-        container.innerHTML = `
-          <div class="bg-slate-900/90 border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl">
-            <div class="text-center mb-6">
-              <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-xs font-semibold border border-cyan-500/30">Eleição Oficial do Grêmio v0.3</span>
-              <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 text-white">Votação Grêmio Estudantil</h2>
-              <p class="text-purple-300 text-sm">Escola Milton Martins Poitena</p>
-            </div>
+      if(telaId === 'apuracao') renderizarApuracao();
+      if(telaId === 'mesario') renderizarMesario();
+    }
 
-            <div class="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 p-5 rounded-2xl border border-indigo-500/30 mb-8 space-y-3">
-              <div class="flex items-center gap-3">
-                <i class="fa-solid fa-code text-cyan-400 text-xl"></i>
-                <h3 class="font-bold text-white text-sm sm:text-base">Criado por <span class="highlight-text">Gabriel Soares (2º EM)</span></h3>
-              </div>
-              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Este aplicativo foi desenvolvido por Gabriel Soares com o sonho de <span class="highlight-text">modernizar a democracia na Escola Poitena, trazendo votação visual acessível, sigilosa e com apuração em tempo real</span>.
-              </p>
-              <div class="pt-2 flex items-center justify-between text-xs border-t border-purple-500/20">
-                <a href="https://instagram.com/7soaresvgh" target="_blank" class="text-cyan-400 hover:underline flex items-center gap-1 font-semibold">
-                  <i class="fa-brands fa-instagram"></i> @7soaresvgh
-                </a>
-                <span class="text-purple-300">#DemocraciaPoitena</span>
-              </div>
-            </div>
-
-            <button onclick="goTo('ra-input')" class="w-full py-4 bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 rounded-2xl font-bold text-lg text-white shadow-lg shadow-indigo-500/30 hover:scale-[1.01] transition-all flex items-center justify-center gap-3">
-              <i class="fa-solid fa-user-check"></i> Acessar com meu R.A. de Aluno
-            </button>
-          </div>
-        `;
-      } 
-      else if (currentScreen === 'ra-input') {
-        container.innerHTML = `
-          <div class="bg-slate-900/90 border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl max-w-md mx-auto text-center">
-            <div class="w-16 h-16 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-400/40">
-              <i class="fa-solid fa-id-card text-2xl text-cyan-400"></i>
-            </div>
-            <h2 class="text-xl font-bold text-white mb-1">Identificação do Aluno</h2>
-            <p class="text-xs text-purple-300 mb-6">Insira o seu número de R.A. para liberar a urna</p>
-
-            <input type="text" id="ra-field" placeholder="Ex: 0000109712762XSP" class="w-full text-center text-sm font-bold bg-slate-800 border-2 border-purple-500/40 p-3.5 rounded-xl text-cyan-300 tracking-wider focus:outline-none focus:border-cyan-400 mb-3">
-            
-            <div id="ra-error" class="hidden text-red-400 text-xs font-semibold mb-4"></div>
-
-            <button onclick="submitRA()" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl font-bold text-white hover:brightness-110 flex items-center justify-center gap-2 shadow-lg">
-              Validar R.A. e Entrar <i class="fa-solid fa-arrow-right"></i>
-            </button>
-            
-            <button onclick="goTo('welcome')" class="mt-4 text-xs text-slate-400 hover:text-white block mx-auto">Voltar à tela inicial</button>
-          </div>
-        `;
+    // CONTROLE DE ACESSO POR SENHA
+    function pedirAcesso(destino) {
+      if (destino === 'mesario') {
+        const pass = prompt("Informe a senha do MESÁRIO:");
+        if (pass === SENHA_MESARIO) {
+          navegarPara('mesario');
+        } else if (pass !== null) {
+          alert("Senha de Mesário incorreta!");
+        }
+      } else if (destino === 'apuracao') {
+        const pass = prompt("Informe a senha da APURAÇÃO (Telão):");
+        if (pass === SENHA_APURACAO || pass === SENHA_APURACAO_ALT) {
+          navegarPara('apuracao');
+        } else if (pass !== null) {
+          alert("Senha de Apuração incorreta!");
+        }
       }
-      else if (currentScreen === 'voting') {
-        let chapasHtml = chapas.length === 0 ? `
-          <div class="col-span-full bg-slate-800/60 border border-purple-500/20 p-8 rounded-2xl text-center">
-            <i class="fa-solid fa-folder-open text-4xl text-purple-400 mb-3"></i>
-            <h3 class="text-lg font-bold text-white mb-1">Nenhuma chapa cadastrada no momento</h3>
-            <p class="text-xs text-purple-200 mb-4">Abra a Área do Mesário para cadastrar as chapas.</p>
-            <button onclick="toggleMesarioModal()" class="px-4 py-2 bg-purple-700 text-xs font-bold rounded-xl text-white hover:bg-purple-600">Abrir Área do Mesário</button>
+    }
+
+    // PREENCHER R.A DE TESTE RÁPIDO
+    function preencherRATeste(raTeste) {
+      document.getElementById("input-ra").value = raTeste;
+    }
+
+    // VALIDAR R.A
+    function validarRA(e) {
+      e.preventDefault();
+      const rawRA = document.getElementById("input-ra").value.trim().toUpperCase();
+      
+      const aluno = BANCO_ALUNOS.find(a => a.ra === rawRA);
+
+      if (!aluno) {
+        alert("R.A não cadastrado no sistema! Verifique se digitou os 4 zeros iniciais e o SP no final.");
+        return;
+      }
+
+      if (estadoLocal.alunosVotaram[aluno.ra]) {
+        alert(`O aluno(a) ${aluno.nome} (R.A: ${aluno.ra}) JÁ REALIZOU O VOTO!`);
+        return;
+      }
+
+      alunoAtual = aluno;
+      document.getElementById("aluno-nome").textContent = aluno.nome;
+      document.getElementById("aluno-turma").textContent = aluno.turma;
+      document.getElementById("aluno-ra-display").textContent = aluno.ra;
+      document.getElementById("input-ra").value = "";
+
+      renderizarUrna();
+      navegarPara('votacao');
+    }
+
+    // RENDERIZAR URNA DE VOTAÇÃO
+    function renderizarUrna() {
+      const grid = document.getElementById("grid-chapas");
+      grid.innerHTML = "";
+
+      if (estadoLocal.chapas.length === 0) {
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-400 py-8">Nenhuma chapa cadastrada pelo mesário ainda.</p>`;
+        return;
+      }
+
+      estadoLocal.chapas.forEach(chapa => {
+        const card = document.createElement("div");
+        card.className = "bg-slate-900 border border-slate-700 hover:border-indigo-500 rounded-xl p-5 flex flex-col justify-between transition shadow-lg";
+        card.innerHTML = `
+          <div>
+            ${chapa.foto ? `<img src="${chapa.foto}" alt="${chapa.nome}" class="w-full h-32 object-cover rounded-lg mb-4 border border-slate-700">` : ''}
+            <span class="bg-indigo-500/20 text-indigo-300 font-mono text-xs px-2.5 py-1 rounded-full font-bold">Chapa #${chapa.numero}</span>
+            <h3 class="text-xl font-bold text-white mt-2">${chapa.nome}</h3>
+            <p class="text-slate-400 text-xs mt-1 leading-relaxed">${chapa.descricao}</p>
           </div>
-        ` : chapas.map(c => `
-          <div onclick="selectChapa('${c.id}')" class="bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-purple-500/30 hover:border-cyan-400 rounded-2xl p-5 cursor-pointer transition-all hover:scale-[1.02] flex flex-col items-center text-center group shadow-xl">
-            <div class="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl overflow-hidden border-4 border-purple-400/40 mb-4 group-hover:border-cyan-400 shadow-md bg-black flex items-ce
+          <button onclick="confirmarVoto('${chapa.id}', '${chapa.nome}')"
+            class="mt-6 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-sm transition flex items-center justify-center gap-2">
+            <i data-lucide="vote" class="w-4 h-4"></i> Votar nesta Chapa
+          </button>
+        `;
+        grid.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    // CONFIRMAR E REGISTRAR VOTO
+    function confirmarVoto(chapaId, nomeChapa) {
+      if (!alunoAtual) return;
+
+      if (!confirm(`Confirma o seu voto em: "${nomeChapa}"?`)) return;
+
+      const dataHora = new Date().toLocaleString("pt-BR");
+
+      // Salva no registro de alunos votantes
+      estadoLocal.alunosVotaram[alunoAtual.ra] = {
+        nome: alunoAtual.nome,
+        turma: alunoAtual.turma,
+        chapaVotada: nomeChapa,
+        dataHora: dataHora
+      };
+
+      // Incrementa contagem de voto
+      if (chapaId === 'BRANCO') {
+        estadoLocal.votoBranco = (estadoLocal.votoBranco || 0) + 1;
+      } else {
+        estadoLocal.votos[chapaId] = (estadoLocal.votos[chapaId] || 0) + 1;
+      }
+
+      salvarEstadoLocalStorage();
+
+      alert("VOTO REGISTRADO COM SUCESSO!\nObrigado por participar.");
+      alunoAtual = null;
+      navegarPara('identificacao');
+    }
+
+    // RENDERIZAR TELA DE APURAÇÃO (TELÃO)
+    function renderizarApuracao() {
+      const container = document.getElementById("lista-resultados-chapas");
+      container.innerHTML = "";
+
+      let totalVotos = (estadoLocal.votoBranco || 0);
+      Object.values(estadoLocal.votos || {}).forEach(v => totalVotos += v);
+
+      document.getElementById("total-votos-display").textContent = totalVotos;
+
+      const labels = [];
+      const dataVotos = [];
+      const cores = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b'];
+
+      estadoLocal.chapas.forEach((chapa, index) => {
+        const qtdVotos = estadoLocal.votos[chapa.id] || 0;
+        const pct = totalVotos > 0 ? ((qtdVotos / totalVotos) * 100).toFixed(1) : 0;
+
+        labels.push(chapa.nome);
+        dataVotos.push(qtdVotos);
+
+        const cor = cores[index % cores.length];
+
+        const item = document.createElement("div");
+        item.className = "bg-slate-900 border border-slate-700/80 p-4 rounded-xl space-y-2";
+        item.innerHTML = `
+          <div class="flex justify-between items-center text-sm font-semibold">
+            <span class="text-white flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${cor}"></span>
+              #${chapa.numero} - ${chapa.nome}
+            </span>
+            <span class="font-mono text-indigo-300">${qtdVotos} voto(s) (${pct}%)</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+            <div class="h-3 rounded-full transition-all duration-500" style="width: ${pct}%; background-color: ${cor}"></div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+
+      // Votos em Branco
+      const qtdBranco = estadoLocal.votoBranco || 0;
+      const pctBranco = totalVotos > 0 ? ((qtdBranco / totalVotos) * 100).toFixed(1) : 0;
+      labels.push("Branco");
+      dataVotos.push(qtdBranco);
+
+      const itemBranco = document.createElement("div");
+      itemBranco.className = "bg-slate-900 border border-slate-700/80 p-4 rounded-xl space-y-2";
+      itemBranco.innerHTML = `
+        <div class="flex justify-between items-center text-sm font-semibold">
+          <span class="text-slate-400 flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-slate-500 inline-block"></span>
+            Votos em Branco
+          </span>
+          <span class="font-mono text-slate-400">${qtdBranco} voto(s) (${pctBranco}%)</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+          <div class="bg-slate-500 h-3 rounded-full transition-all duration-500" style="width: ${pctBranco}%"></div>
+        </div>
+      `;
+      container.appendChild(itemBranco);
+
+      // Gráfico Chart.js
+      const ctx = document.getElementById('graficoResultados').getContext('2d');
+
+      if (graficoChart) graficoChart.destroy();
+
+      graficoChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: dataVotos,
+            backgroundColor: cores.slice(0, estadoLocal.chapas.length).concat(['#64748b']),
+            borderWidth: 2,
+            borderColor: '#0f172a'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    // RENDERIZAR PAINEL DO MESÁRIO
+    function renderizarMesario() {
+      const tbody = document.getElementById("tabela-votantes-corpo");
+      tbody.innerHTML = "";
+
+      const chaves = Object.keys(estadoLocal.alunosVotaram || {});
+
+      if (chaves.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Nenhum voto registrado até o momento.</td></tr>`;
+        return;
+      }
+
+      chaves.forEach(ra => {
+        const item = estadoLocal.alunosVotaram[ra];
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-800/40 transition";
+        tr.innerHTML = `
+          <td class="p-3 font-mono text-indigo-300">${ra}</td>
+          <td class="p-3 font-semibold text-white">${item.nome}</td>
+          <td class="p-3 text-slate-400">${item.turma}</td>
+          <td class="p-3"><span class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">${item.chapaVotada}</span></td>
+          <td class="p-3 font-mono text-slate-400 text-[11px]">${item.dataHora}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // CADASTRAR/SALVAR NOVA CHAPA
+    function salvarChapa(e) {
+      e.preventDefault();
+      const nome = document.getElementById("chapa-nome").value.trim();
+      const numero = parseInt(document.getElementById("chapa-numero").value.trim());
+      const descricao = document.getElementById("chapa-descricao").value.trim();
+      const foto = document.getElementById("chapa-foto").value.trim();
+
+      const novaChapa = {
+        id: "chapa_" + Date.now(),
+        numero: numero,
+        nome: nome,
+        descricao: descricao,
+        foto: foto
+      };
+
+      estadoLocal.chapas.push(novaChapa);
+      salvarEstadoLocalStorage();
+
+      document.getElementById("form-cadastrar-chapa").reset();
+      alert(`Chapa "${nome}" cadastrada com sucesso!`);
+      renderizarUrna();
+      renderizarApuracao();
+      renderizarMesario();
+    }
+
+    // RESETAR DADOS
+    function confirmarResetGeral() {
+      const confirmacao = prompt("ATENÇÃO: Esta ação apagará TODOS os votos e libera todos os R.As novamente!\n\nDigite 'ZERAR' para confirmar:");
+      if (confirmacao === 'ZERAR') {
+        estadoLocal.votos = {};
+        estadoLocal.votoBranco = 0;
+        estadoLocal.alunosVotaram = {};
+        salvarEstadoLocalStorage();
+        alert("Sistema zerado com sucesso!");
+        renderizarApuracao();
+        renderizarMesario();
+      }
+    }
+  </script>
+</body>
+</html>
