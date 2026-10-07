@@ -1,251 +1,617 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Festa de 15 Anos - Murilo Gabriel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
-        
-        .font-cinzel { font-family: 'Cinzel', serif; }
-        .font-sans { font-family: 'Plus Jakarta Sans', sans-serif; }
-        
-        .bg-pattern {
-            background-image: radial-gradient(rgba(168, 85, 247, 0.08) 1px, transparent 1px);
-            background-size: 32px 32px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urna Eletrônica - Grêmio Poitena</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap');
+    body { font-family: 'Poppins', sans-serif; }
+    .highlight-text { color: #38bdf8; font-weight: 800; }
+  </style>
 </head>
-<body class="bg-black text-slate-100 font-sans bg-pattern antialiased selection:bg-purple-600 selection:text-white">
+<body class="bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-900 min-h-screen text-white flex flex-col justify-between">
 
-    <!-- HEADER / NAVEGAÇÃO FIXA -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-purple-900/40">
-        <div class="max-w-6xl mx-auto px-6 h-20 flex justify-between items-center">
-            <a href="#inicio" class="font-cinzel font-bold tracking-widest text-purple-400 text-lg">M G</a>
-            <nav class="hidden md:flex space-x-8 text-sm font-medium tracking-wider uppercase text-slate-300">
-                <a href="#sobre" class="hover:text-purple-400 transition">O Aniversário</a>
-                <a href="#local" class="hover:text-purple-400 transition">Programação</a>
-                <a href="#presentes" class="hover:text-purple-400 transition">Contribuição Pix</a>
-                <a href="#rsvp" class="hover:text-purple-400 transition text-purple-400 font-semibold">Confirmar Presença</a>
-            </nav>
-            <a href="#rsvp" class="bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs uppercase tracking-widest px-5 py-2.5 rounded-full transition shadow-lg shadow-purple-900/40">
-                Confirmar Presença
-            </a>
+  <div class="max-w-4xl mx-auto w-full p-4 sm:p-6">
+    <!-- CABEÇALHO COM MASCOTE -->
+    <header class="flex flex-col sm:flex-row items-center justify-between bg-slate-900/90 backdrop-blur border border-purple-500/30 p-4 rounded-2xl mb-6 shadow-xl">
+      <div class="flex items-center space-x-4 mb-3 sm:mb-0">
+        <div class="relative w-16 h-16 flex-shrink-0 bg-purple-900/50 p-1 rounded-full border-2 border-indigo-400">
+          <svg viewBox="0 0 200 200" class="w-full h-full">
+            <path d="M 30 110 C 10 120 10 150 25 160 C 35 150 35 130 45 120 Z" fill="#e11d48"/>
+            <path d="M 170 110 C 190 120 190 150 175 160 C 165 150 165 130 155 120 Z" fill="#e11d48"/>
+            <path d="M 20 80 C 0 60 10 30 35 40 C 45 45 40 70 30 80 Z" fill="#f43f5e"/>
+            <path d="M 180 80 C 200 60 190 30 165 40 C 155 45 160 70 170 80 Z" fill="#f43f5e"/>
+            <circle cx="100" cy="100" r="50" fill="#e11d48"/>
+            <path d="M 60 95 Q 100 85 140 95 L 135 145 Q 100 150 65 145 Z" fill="#2563eb"/>
+            <path d="M 85 90 L 100 105 L 115 90" stroke="#ffffff" stroke-width="4" fill="none"/>
+            <text x="100" y="132" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="sans-serif">P</text>
+            <circle cx="80" cy="65" r="10" fill="#ffffff"/>
+            <circle cx="120" cy="65" r="10" fill="#ffffff"/>
+            <circle cx="82" cy="65" r="5" fill="#000000"/>
+            <circle cx="118" cy="65" r="5" fill="#000000"/>
+            <path d="M 88 80 Q 100 90 112 80" stroke="#ffffff" stroke-width="3" fill="none"/>
+          </svg>
         </div>
+        <div>
+          <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-300">Grêmio Estudantil Poitena</h1>
+          <p class="text-xs text-purple-200">Escola Milton Martins Poitena</p>
+        </div>
+      </div>
+      <button onclick="toggleMesarioModal()" class="px-3.5 py-2 bg-purple-800/80 hover:bg-purple-700 text-xs rounded-xl border border-purple-400/40 flex items-center gap-2 font-semibold">
+        <i class="fa-solid fa-user-shield text-cyan-400"></i> Área do Mesário
+      </button>
     </header>
 
-    <!-- SEÇÃO HERO / CAPA -->
-    <section id="inicio" class="min-h-screen flex flex-col justify-center items-center text-center px-6 pt-28 pb-16 relative overflow-hidden">
-        <div class="absolute w-[500px] h-[500px] bg-purple-700/15 rounded-full blur-[120px] -top-20 -left-20 pointer-events-none"></div>
-        <div class="absolute w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[120px] -bottom-20 -right-20 pointer-events-none"></div>
+    <!-- CONTAINER DA TELA -->
+    <main id="screen-container"></main>
+  </div>
 
-        <div class="max-w-3xl mx-auto space-y-6 relative z-10">
-            <div class="inline-flex items-center space-x-2 border border-purple-500/30 bg-purple-950/40 px-4 py-1.5 rounded-full text-purple-300 text-xs tracking-widest uppercase font-semibold">
-                <i class="fa-solid fa-crown text-purple-400"></i>
-                <span>Você é meu convidado especial</span>
+  <!-- RODAPÉ -->
+  <footer class="text-center py-4 text-xs text-purple-300/70 border-t border-purple-500/10 bg-slate-950/40">
+    Desenvolvido por <span class="highlight-text">Gabriel Soares (2º EM)</span> • <a href="https://instagram.com/7soaresvgh" target="_blank" class="hover:underline text-cyan-400 font-bold">@7soaresvgh</a>
+  </footer>
+
+  <!-- MODAL DO MESÁRIO -->
+  <div id="mesario-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-purple-500/40 p-6 rounded-2xl max-w-sm w-full relative shadow-2xl">
+      <button onclick="toggleMesarioModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+      <h3 class="text-lg font-bold mb-4 text-purple-300 flex items-center gap-2"><i class="fa-solid fa-lock text-cyan-400"></i> Acesso do Mesário</h3>
+      <input type="password" id="mesario-pass" placeholder="Senha (Padrão: 1234)" class="w-full bg-slate-800 border border-purple-500/30 p-3 rounded-lg text-white mb-4 focus:outline-none focus:border-cyan-400">
+      <button onclick="loginMesario()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 font-bold py-3 rounded-lg hover:brightness-110 shadow-lg">Entrar no Painel</button>
+    </div>
+  </div>
+
+  <script>
+    // BASE DE DADOS DE ALUNOS
+    const alunosDB = {
+      // 8º ANO A
+      "00001165759573SP": "Alice De Araujo Lobato Da Silva",
+      "00001142596618SP": "Alice De Moraes Dedini",
+      "00001130872543SP": "Ana Clara Silva Moura",
+      "00001130872841SP": "Anna Beatriz Santana Dias",
+      "00001201556831SP": "Beatriz Valentim Da Luz",
+      "00001140105371SP": "Davi Gabriel Fernandes Da Silva Pereira",
+      "00001134221009SP": "Davi Santos Bezerra",
+      "00001137870734SP": "Eloa Dos Santos Trindade",
+      "00001142047349SP": "Emilly Pinto De Paula",
+      "00001134940488SP": "Emily De Almeida Alegreti",
+      "00001124230671SP": "Ennzo Victor Santos De Oliveira",
+      "00001130872476SP": "Enzo Gabriel Silva Moura",
+      "00001139238553SP": "Evellyn Victória Dos Santos França",
+      "00001135348649SP": "Giulia Dias Dalmazzo De Medeiros Cruz",
+      "0000114421080XSP": "Giulia Pereira Cardozo",
+      "00001144922604SP": "Gustavo Da Silva De Oliveira",
+      "00001137858114SP": "Isabella Sophia Batista Souza Mendonça",
+      "00001164003768SP": "Jade Ferreira Jorge",
+      "00001165557290SP": "Jonatan Adriano De Oliveira Santos",
+      "00001147769321SP": "Kelly Lopes Correia Diniz De Carvalho",
+      "00001134183756SP": "Laerte Soares Da Silva Junior",
+      "00001133032473SP": "Lorena Godoi Cabral",
+      "00001142636641SP": "Lucca Neto Pieroni",
+      "00001133890726SP": "Lukas Augusto De Oliveira",
+      "00001124262659SP": "Matheus Henrique De Almeida Lara",
+      "00001124285180SP": "Rafaela Aparecida Ferreira Marques",
+      "00001137860303SP": "Sofia Santana Gonçalves",
+      "00001115520180SP": "Stefany Karolyn Ribeiros Dos Santos",
+      "00001146520463SP": "Tayna Cipriano Ramos",
+      "00001128792199SP": "Valentina Zelante Geib Garcia De Sousa",
+      "00001135667275SP": "Victor Lorenzo Oliveira Santos",
+
+      // 1º ANO EM
+      "00001122712832SP": "Agatha Pilcsuk De Oliveira Guilherme",
+      "00001113565524SP": "Beatriz Rosa Teixeira Pimentel",
+      "00001163903000SP": "Brian Lobo Zamperlin",
+      "00001130986524SP": "Bryan De Souza Bueno",
+      "0000111905784XSP": "Bryan Felipe De Lima",
+      "00001109790867SP": "Carlos Henrique Dos Santos",
+      "00001143898837SP": "Cauan Eduardo Dias Freitas De Souza",
+      "00001106976782SP": "Eloisa Teodoro Dos Santos",
+      "00001117593794SP": "Gabriel Barreto Feitoza",
+      "00001111577353SP": "Gabrielly Godoi Leal Oliveira",
+      "00001111745134SP": "Guilherme Da Silva Germano",
+      "00001143703236SP": "Heitor Goldszmidt",
+      "00001124876376SP": "Heloysa Rodrigues Dos Santos",
+      "00001148164406SP": "Isabelly Franca Dos Passos",
+      "00001105730141SP": "Ismael Rocha Menezes",
+      "00001116923397SP": "João Hélio Pio Patrocinio",
+      "00001108419938SP": "Keirrison Augusto Ramos Da Silva",
+      "00001142699845SP": "Keven Kauan Da Silva Guimarães",
+      "00001127631226SP": "Lais Hiromi Pereira Takahashi",
+      "00001118854986SP": "Laura Silva Saubier",
+      "0000110786625XSP": "Letícia Da Silva Alves",
+      "00001106393247SP": "Levi Anthony Rodrigues Dos Santos",
+      "00001116540885SP": "Manuela Freitas Alves",
+      "0000112425674XSP": "Melissa Eduarda Castilho Ramos Diogo",
+      "00001146153697SP": "Murillo Ribeiro Dos Santos",
+      "0000114876995XSP": "Natally Liandra Da Silva Ramos Duarte",
+      "00001123899551SP": "Ominaye Zuffo Nogueira",
+      "00001119058053SP": "Pedro Lucas Dias Dos Santos",
+      "00001111765492SP": "Pietro Edmilson Dos Santos Mota",
+      "00001132898031SP": "Ramesés Cabral De Sousa Silva",
+      "00001121761112SP": "Yago Henrique Da Silva Reis",
+
+      // 2º ANO EM
+      "00001229376306SP": "Ana Esther Do Carmo Santos",
+      "00001206365286SP": "Ana Júlia Ramalho Guimarães",
+      "00001111417829SP": "Arthur Henrique Barbosa Martins",
+      "00001106282310SP": "Bryan Henrique Almeida Rodrigues",
+      "00001104702666SP": "Davi Teixeira Gomes Pupo",
+      "00001108891949SP": "Emanoel Henrique Dos Santos Araujo",
+      "0000109712762XSP": "Gabriel De Lima Soares Da Silva",
+      "00001127995182SP": "Guilherme Souza Luiz",
+      "00001116599193SP": "Gustavo Lima Brito Dos Santos",
+      "00001129364422SP": "Jayane Giselle Barbosa Da Rocha Souza",
+      "0000111532178XSP": "João Guilherme Thomaz Rodrigues",
+      "0000112503791XSP": "João Victor Ferreira Bragaia",
+      "0000110264366XSP": "Lucas Rasga De Moura Silva Oliveira",
+      "00001116907550SP": "Manuella Luiza Parrila Piccinini",
+      "0000109765929XSP": "Maria Eduarda Tissori Antonio De Sá",
+      "00001118917066SP": "Matheus Da Silva Gomes Cardial",
+      "00001126655892SP": "Matheus Henrick Barbosa Dos Santos",
+      "00001107538038SP": "Monize Maria Ribeiro Silva",
+      "00001106296382SP": "Pedro Henrique Martins Luciano Tissori",
+      "00001229377335SP": "Renan Gabriel Do Carmo Santos",
+      "00001133754181SP": "Ryan Paulino Santana",
+      "00001118213695SP": "Samuel Silvino Novais Dos Reis",
+      "00001095488971SP": "Vitória Dos Santos Meireles",
+      "00001121585127SP": "Yasmin Kathelyn Ribeiro Alves Da Silva"
+    };
+
+    let currentScreen = 'welcome';
+    let currentStudentName = '';
+    let currentRA = '';
+    let selectedChapa = null;
+    let editingChapaId = null;
+    let currentUploadedImage = '';
+
+    let chapas = [];
+    let votosEmBranco = 0;
+    let rasVotaram = new Set();
+
+    function playBeep(type) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.08);
+        } else if (type === 'confirm') {
+          const freqs = [659.25, 659.25, 659.25];
+          freqs.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.12));
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime + (idx * 0.12));
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(audioCtx.currentTime + (idx * 0.12));
+            osc.stop(audioCtx.currentTime + (idx * 0.12) + 0.1);
+          });
+        }
+      } catch(e){}
+    }
+
+    function render() {
+      const container = document.getElementById('screen-container');
+      
+      if (currentScreen === 'welcome') {
+        container.innerHTML = `
+          <div class="bg-slate-900/90 border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl">
+            <div class="text-center mb-6">
+              <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-xs font-semibold border border-cyan-500/30">Eleição Oficial do Grêmio</span>
+              <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 text-white">Votação Grêmio Estudantil</h2>
+              <p class="text-purple-300 text-sm">Escola Milton Martins Poitena</p>
             </div>
 
-            <h1 class="font-cinzel text-5xl md:text-7xl font-extrabold tracking-wider text-white">
-                Murilo Gabriel
-            </h1>
-            
-            <p class="text-purple-400 font-cinzel text-xl md:text-2xl tracking-widest uppercase">
-                Celebração de 15 Anos • 2 Dias de Festa!
-            </p>
-
-            <p class="text-slate-400 max-w-lg mx-auto text-sm md:text-base font-light leading-relaxed">
-                São dois dias de comemoração em tons de roxo e preto. Venha curtir do seu jeito, sem regras de roupa, e celebrar comigo!
-            </p>
-
-            <!-- CONTAGEM REGRESSIVA -->
-            <div class="grid grid-cols-4 gap-3 max-w-md mx-auto pt-4">
-                <div class="bg-gradient-to-b from-purple-950/60 to-black border border-purple-800/40 rounded-2xl p-3 text-center shadow-xl">
-                    <span id="dias" class="font-cinzel text-2xl md:text-3xl font-bold text-purple-400 block">00</span>
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Dias</span>
-                </div>
-                <div class="bg-gradient-to-b from-purple-950/60 to-black border border-purple-800/40 rounded-2xl p-3 text-center shadow-xl">
-                    <span id="horas" class="font-cinzel text-2xl md:text-3xl font-bold text-purple-400 block">00</span>
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Horas</span>
-                </div>
-                <div class="bg-gradient-to-b from-purple-950/60 to-black border border-purple-800/40 rounded-2xl p-3 text-center shadow-xl">
-                    <span id="minutos" class="font-cinzel text-2xl md:text-3xl font-bold text-purple-400 block">00</span>
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Min</span>
-                </div>
-                <div class="bg-gradient-to-b from-purple-950/60 to-black border border-purple-800/40 rounded-2xl p-3 text-center shadow-xl">
-                    <span id="segundos" class="font-cinzel text-2xl md:text-3xl font-bold text-purple-400 block">00</span>
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">Seg</span>
-                </div>
-            </div>
-
-            <div class="pt-6">
-                <a href="#local" class="inline-flex items-center space-x-2 text-slate-400 hover:text-purple-400 text-xs uppercase tracking-widest transition">
-                    <span>Ver programação completa</span>
-                    <i class="fa-solid fa-arrow-down animate-bounce text-purple-500"></i>
+            <!-- HISTÓRIA DO CRIADOR -->
+            <div class="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 p-5 rounded-2xl border border-indigo-500/30 mb-8 space-y-3">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-code text-cyan-400 text-xl"></i>
+                <h3 class="font-bold text-white text-sm sm:text-base">Criado por <span class="highlight-text">Gabriel Soares (2º EM)</span></h3>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Este aplicativo foi desenvolvido por Gabriel Soares com o sonho de <span class="highlight-text">modernizar a democracia na Escola Poitena, trazendo votação visual acessível, sigilosa e com apuração em tempo real</span>.
+              </p>
+              <div class="pt-2 flex items-center justify-between text-xs border-t border-purple-500/20">
+                <a href="https://instagram.com/7soaresvgh" target="_blank" class="text-cyan-400 hover:underline flex items-center gap-1 font-semibold">
+                  <i class="fa-brands fa-instagram"></i> @7soaresvgh
                 </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- SEÇÃO PROGRAMAÇÃO DETALHADA (DIAS 14 E 15) -->
-    <section id="local" class="py-24 px-6 bg-gradient-to-b from-black via-purple-950/20 to-black border-y border-purple-900/35">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center max-w-xl mx-auto mb-16 space-y-3">
-                <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-white">Programação do Fim de Semana</h2>
-                <div class="w-12 h-0.5 bg-purple-600 mx-auto"></div>
-                <p class="text-slate-400 text-sm">Dois dias de muita curtição. Veja os detalhes:</p>
+                <span class="text-purple-300">#DemocraciaPoitena</span>
+              </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                <!-- Dia 14 -->
-                <div class="bg-gradient-to-b from-slate-900 to-black border border-purple-900/50 rounded-3xl p-8 space-y-5 shadow-2xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 bg-purple-600 text-white text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-bl-2xl">Dia 14 de Novembro</div>
-                    <div class="w-14 h-14 bg-purple-950 border border-purple-500/40 rounded-2xl flex items-center justify-center text-purple-400 text-2xl">
-                        <i class="fa-solid fa-glass-cheers"></i>
-                    </div>
-                    <h3 class="font-cinzel font-bold text-xl text-white">A Grande Festa</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">
-                        No dia 14 rola a festa principal onde todos vão com a roupa que preferir! Sem regras, o importante é marcar presença e curtir a noite.
-                    </p>
-                    <div class="border-t border-purple-900/40 pt-4 flex items-center text-xs text-purple-300 space-x-2">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span>Local: A definir (Em breve)</span>
-                    </div>
-                </div>
-
-                <!-- Dia 15 -->
-                <div class="bg-gradient-to-b from-slate-900 to-black border border-purple-900/50 rounded-3xl p-8 space-y-5 shadow-2xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 bg-purple-500 text-black text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-bl-2xl">Dia 15 de Novembro</div>
-                    <div class="w-14 h-14 bg-purple-950 border border-purple-500/40 rounded-2xl flex items-center justify-center text-purple-400 text-2xl">
-                        <i class="fa-solid fa-fire-burner"></i>
-                    </div>
-                    <h3 class="font-cinzel font-bold text-xl text-white">Churrasco & Lazer</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">
-                        No dia 15 é onde fica mais legal! Todo mundo junto para curtir um churrasco animado, piscina refrescante, partidas de vôlei, futebol e muito mais!
-                    </p>
-                    <div class="border-t border-purple-900/40 pt-4 flex items-center text-xs text-purple-300 space-x-2">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <span>Local: A definir (Em breve)</span>
-                    </div>
-                </div>
+            <button onclick="goTo('ra-input')" class="w-full py-4 bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 rounded-2xl font-bold text-lg text-white shadow-lg shadow-indigo-500/30 hover:scale-[1.01] transition-all flex items-center justify-center gap-3">
+              <i class="fa-solid fa-user-check"></i> Acessar com meu R.A. de Aluno
+            </button>
+          </div>
+        `;
+      } 
+      else if (currentScreen === 'ra-input') {
+        container.innerHTML = `
+          <div class="bg-slate-900/90 border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl max-w-md mx-auto text-center">
+            <div class="w-16 h-16 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-400/40">
+              <i class="fa-solid fa-id-card text-2xl text-cyan-400"></i>
             </div>
+            <h2 class="text-xl font-bold text-white mb-1">Identificação do Aluno</h2>
+            <p class="text-xs text-purple-300 mb-6">Insira o seu número de R.A. para liberar a urna</p>
 
-            <!-- Card Destaque: Traje Livre -->
-            <div class="bg-purple-950/30 border border-purple-500/30 rounded-3xl p-6 md:p-8 text-center max-w-3xl mx-auto space-y-2">
-                <div class="text-purple-400 text-xl"><i class="fa-solid fa-shirt"></i></div>
-                <h4 class="font-cinzel font-bold text-lg text-white">Código de Vestimenta: Livre!</h4>
-                <p class="text-slate-300 text-sm">Lembrando: **não tem roupa definida, é você quem manda**! Venha com o que se sentir bem e confortável.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- SEÇÃO CONTRIBUIÇÃO / PIX -->
-    <section id="presentes" class="py-24 px-6 max-w-4xl mx-auto text-center space-y-8">
-        <div class="space-y-3">
-            <h2 class="font-cinzel text-3xl md:text-4xl font-bold text-white">Contribuição para a Festa</h2>
-            <div class="w-12 h-0.5 bg-purple-600 mx-auto"></th></div>
-            <p class="text-slate-400 text-sm max-w-lg mx-auto">Sua presença é o mais importante! Quem puder contribuir com algum dinheiro para ajudar a festa, quem quiser ajudar pode usar o Pix abaixo:</p>
-        </div>
-
-        <div class="bg-gradient-to-b from-purple-950/40 to-slate-900 border border-purple-700/30 rounded-3xl p-8 max-w-lg mx-auto space-y-6 shadow-2xl">
-            <div class="w-16 h-16 bg-purple-900/50 border border-purple-500/40 rounded-full flex items-center justify-center text-purple-300 text-2xl mx-auto shadow-inner">
-                <i class="fa-solid fa-hand-holding-dollar"></i>
-            </div>
-            <div class="space-y-2">
-                <h3 class="font-cinzel font-bold text-xl text-white">Chave Pix (CPF)</h3>
-                <p class="text-xs text-slate-400 leading-snug">Quem puder contribuir com algum dinheiro para festa, qualquer valor ajuda muito!</p>
-            </div>
-            <div class="bg-black border border-purple-900/60 p-4 rounded-2xl flex items-center justify-between">
-                <div class="text-left">
-                    <span class="text-[10px] uppercase text-slate-500 block font-semibold">Chave Pix - CPF</span>
-                    <span id="chavePixText" class="text-sm md:text-base font-mono text-purple-400 font-bold">55285205840</span>
-                </div>
-                <button onclick="copiarPix()" class="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs px-4 py-2.5 rounded-xl transition font-medium">
-                    <i class="fa-regular fa-copy mr-1"></i> Copiar
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- SEÇÃO RSVP / CONFIRMAÇÃO DE PRESENÇA -->
-    <section id="rsvp" class="py-24 px-6 bg-gradient-to-b from-black to-purple-950/20 border-t border-purple-900/30">
-        <div class="max-w-xl mx-auto bg-gradient-to-b from-slate-900 to-black border border-purple-800/40 rounded-3xl p-8 md:p-12 shadow-2xl relative">
-            <div class="text-center space-y-3 mb-8">
-                <h2 class="font-cinzel text-3xl font-bold text-white">Confirmação de Presença</h2>
-                <p class="text-xs text-purple-400 uppercase tracking-widest font-semibold">Grupo Oficial do WhatsApp</p>
-                <p class="text-slate-400 text-sm">Digite seu nome e clique em confirmar para entrar no grupo e enviar sua mensagem automática.</p>
-            </div>
-
-            <form onsubmit="confirmarPresencaWhatsApp(event)" class="space-y-5">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Seu Nome Completo</label>
-                    <input type="text" id="rsvpNome" required placeholder="Ex: Lucas Silva" class="w-full bg-black border border-purple-900/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 transition text-white">
-                </div>
-
-                <div class="bg-purple-950/30 border border-purple-800/30 rounded-xl p-4 text-xs text-purple-300 space-y-1">
-                    <p class="font-bold flex items-center"><i class="fa-solid fa-circle-info mr-2"></i> O que vai acontecer:</p>
-                    <p class="text-slate-400">1. O texto <code class="text-purple-300">"Nome: [Seu Nome] - Eu [Seu Nome] confirmo minha presença na festa de 15 do murilo"</code> será copiado automaticamente.</p>
-                    <p class="text-slate-400">2. Você será direcionado para o grupo do WhatsApp para colar a mensagem no chat.</p>
-                </div>
-
-                <button type="submit" id="btnRsvp" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold uppercase text-xs tracking-widest py-3.5 rounded-xl transition shadow-lg shadow-purple-900/40 mt-2">
-                    Confirmar e Entrar no Grupo
-                </button>
-            </form>
-        </div>
-    </section>
-
-    <!-- RODAPÉ -->
-    <footer class="py-12 px-6 text-center border-t border-purple-950 text-slate-500 text-xs space-y-2">
-        <p class="font-cinzel text-purple-400 font-bold tracking-widest text-sm">MURILO GABRIEL • 15 ANOS</p>
-        <p>Feito com carinho para esta data especial.</p>
-    </footer>
-
-    <script>
-        // CONTAGEM REGRESSIVA PARA 14 DE NOVEMBRO DE 2026
-        const dataFesta = new Date("Nov 14, 2026 20:00:00").getTime();
-
-        const x = setInterval(function() {
-            const agora = new Date().getTime();
-            const distancia = dataFesta - agora;
-
-            const dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
-            const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
-            const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
-
-            document.getElementById("dias").innerText = String(dias > 0 ? dias : 0).padStart(2, '0');
-            document.getElementById("horas").innerText = String(horas > 0 ? horas : 0).padStart(2, '0');
-            document.getElementById("minutos").innerText = String(minutos > 0 ? minutos : 0).padStart(2, '0');
-            document.getElementById("segundos").innerText = String(segundos > 0 ? segundos : 0).padStart(2, '0');
-        }, 1000);
-
-        // FUNÇÃO DE COPIAR PIX
-        function copiarPix() {
-            const chave = document.getElementById("chavePixText").innerText;
-            navigator.clipboard.writeText(chave);
-            alert("Chave Pix (CPF) copiada com sucesso!");
-        }
-
-        // CONFIRMAR PRESENÇA E COPIAR TEXTO PARA O WHATSAPP
-        function confirmarPresencaWhatsApp(event) {
-            event.preventDefault();
-            const nome = document.getElementById('rsvpNome').value.trim();
+            <input type="text" id="ra-field" placeholder="Ex: 0000109712762XSP" class="w-full text-center text-sm font-bold bg-slate-800 border-2 border-purple-500/40 p-3.5 rounded-xl text-cyan-300 tracking-wider focus:outline-none focus:border-cyan-400 mb-3">
             
-            if(!nome) return;
+            <div id="ra-error" class="hidden text-red-400 text-xs font-semibold mb-4"></div>
 
-            const textoMensagem = `Nome: ${nome}\nEu ${nome} confirmo minha presença na festa de 15 do murilo`;
+            <button onclick="submitRA()" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl font-bold text-white hover:brightness-110 flex items-center justify-center gap-2 shadow-lg">
+              Validar R.A. e Entrar <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            
+            <button onclick="goTo('welcome')" class="mt-4 text-xs text-slate-400 hover:text-white block mx-auto">Voltar à tela inicial</button>
+          </div>
+        `;
+      }
+      else if (currentScreen === 'voting') {
+        let chapasHtml = chapas.length === 0 ? `
+          <div class="col-span-full bg-slate-800/60 border border-purple-500/20 p-8 rounded-2xl text-center">
+            <i class="fa-solid fa-folder-open text-4xl text-purple-400 mb-3"></i>
+            <h3 class="text-lg font-bold text-white mb-1">Nenhuma chapa cadastrada no momento</h3>
+            <p class="text-xs text-purple-200 mb-4">Abra a Área do Mesário para cadastrar e enviar fotos das chapas pela galeria.</p>
+            <button onclick="toggleMesarioModal()" class="px-4 py-2 bg-purple-700 text-xs font-bold rounded-xl text-white hover:bg-purple-600">Abrir Área do Mesário</button>
+          </div>
+        ` : chapas.map(c => `
+          <div onclick="selectChapa(${c.id})" class="bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-purple-500/30 hover:border-cyan-400 rounded-2xl p-5 cursor-pointer transition-all hover:scale-[1.02] flex flex-col items-center text-center group shadow-xl">
+            <div class="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl overflow-hidden border-4 border-purple-400/40 mb-4 group-hover:border-cyan-400 shadow-md bg-black flex items-center justify-center">
+              <img src="${c.foto}" alt="${c.nome}" class="w-full h-full object-contain">
+            </div>
+            <span class="px-4 py-1 bg-gradient-to-r ${c.cor} text-white font-black text-base rounded-full mb-2 shadow">Nº ${c.numero}</span>
+            <h3 class="text-xl font-bold text-white mb-1">${c.nome}</h3>
+            <p class="text-xs text-cyan-300 font-semibold">Pres: ${c.presidente}</p>
+            <p class="text-xs text-purple-300 mb-2">Vice: ${c.vice}</p>
+            <p class="text-[11px] text-slate-400 italic">"${c.slogan}"</p>
+          </div>
+        `).join('');
 
-            navigator.clipboard.writeText(textoMensagem).then(() => {
-                alert(`Tudo pronto, ${nome}!\n\nA mensagem foi copiada para a sua área de transferência.\n\nAgora você será levado para o grupo do WhatsApp. É só colar no chat!`);
-                window.location.href = "https://chat.whatsapp.com/HqeRPOhScpdKklrAm80B77";
-            }).catch(err => {
-                alert(`Copie este texto manualmente:\n\n${textoMensagem}`);
-                window.location.href = "https://chat.whatsapp.com/HqeRPOhScpdKklrAm80B77";
-            });
+        container.innerHTML = `
+          <div>
+            <!-- SAUDAÇÃO PERSONALIZADA -->
+            <div class="bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-cyan-400/30 p-4 rounded-2xl text-center mb-6 shadow-lg">
+              <h2 class="text-lg sm:text-xl font-extrabold text-cyan-300">Olá, ${currentStudentName}! Vote com consciência.</h2>
+              <p class="text-xs text-purple-200">Escolha sua chapa clicando abaixo</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+              ${chapasHtml}
+            </div>
+
+            <div class="flex justify-center gap-4">
+              <button onclick="voteBranco()" class="px-6 py-3.5 bg-slate-200 hover:bg-white text-slate-900 font-bold rounded-xl shadow-lg transition-all">Votar em Branco</button>
+            </div>
+          </div>
+        `;
+      }
+      else if (currentScreen === 'confirm') {
+        const isBranco = selectedChapa === 'BRANCO';
+        container.innerHTML = `
+          <div class="bg-slate-900 border border-purple-500/40 rounded-3xl p-6 sm:p-8 max-w-lg mx-auto text-center shadow-2xl">
+            <h2 class="text-xl font-bold text-cyan-300 mb-4"><i class="fa-solid fa-clipboard-check"></i> Confirme seu Voto</h2>
+
+            ${isBranco ? `
+              <div class="py-12 bg-slate-800/80 rounded-2xl mb-6 border border-slate-700">
+                <i class="fa-regular fa-circle-dot text-6xl text-slate-400 mb-3"></i>
+                <h3 class="text-2xl font-black text-white">VOTO EM BRANCO</h3>
+              </div>
+            ` : `
+              <div class="bg-slate-800/80 p-6 rounded-2xl mb-6 flex flex-col items-center border border-purple-500/20">
+                <div class="w-48 h-48 rounded-2xl border-4 border-cyan-400 overflow-hidden mb-4 shadow-lg bg-black flex items-center justify-center">
+                  <img src="${selectedChapa.foto}" class="w-full h-full object-contain">
+                </div>
+                <span class="px-4 py-1 bg-gradient-to-r ${selectedChapa.cor} text-white font-black rounded-full text-base mb-2">Nº ${selectedChapa.numero}</span>
+                <h3 class="text-2xl font-bold text-white mb-1">${selectedChapa.nome}</h3>
+                <p class="text-sm text-cyan-300 font-semibold">Presidente: ${selectedChapa.presidente}</p>
+                <p class="text-sm text-purple-300">Vice: ${selectedChapa.vice}</p>
+              </div>
+            `}
+
+            <div class="grid grid-cols-2 gap-4">
+              <button onclick="goTo('voting')" class="py-3.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg">Corrigir</button>
+              <button onclick="confirmVote()" class="py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg">CONFIRMAR</button>
+            </div>
+          </div>
+        `;
+      }
+      else if (currentScreen === 'success') {
+        container.innerHTML = `
+          <div class="bg-slate-900 border border-purple-500/40 rounded-3xl p-8 max-w-md mx-auto text-center shadow-2xl">
+            <div class="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 border border-emerald-500/40">
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="text-3xl font-black text-white tracking-widest mb-2">F I M</h2>
+            <p class="text-sm text-purple-200 mb-6">Obrigado por votar, ${currentStudentName}!</p>
+            <button onclick="goTo('welcome')" class="px-6 py-3 bg-purple-800 text-white rounded-xl text-xs font-bold hover:bg-purple-700 shadow-lg">Próximo Eleitor</button>
+          </div>
+        `;
+      }
+      else if (currentScreen === 'dashboard') {
+        let totalVotos = chapas.reduce((acc, c) => acc + c.votos, 0) + votosEmBranco;
+
+        let chapasRows = chapas.length === 0 ? `
+          <div class="p-6 text-center text-slate-400 text-xs italic bg-slate-800/40 rounded-xl">
+            Nenhuma chapa cadastrada. Use o formulário abaixo para enviar fotos da galeria e cadastrar a primeira!
+          </div>
+        ` : chapas.map(c => `
+          <div class="bg-slate-800 border border-purple-500/20 p-4 rounded-xl mb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <img src="${c.foto}" class="w-16 h-16 rounded-lg object-contain bg-black border-2 border-purple-400">
+              <div>
+                <span class="text-xs font-bold text-cyan-300">Nº ${c.numero}</span>
+                <h4 class="font-bold text-white text-sm">${c.nome}</h4>
+                <p class="text-xs text-purple-200">Pres: ${c.presidente} | Vice: ${c.vice}</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between w-full sm:w-auto gap-4">
+              <span class="text-base font-black text-cyan-300 bg-slate-900 px-3 py-1 rounded-lg border border-cyan-500/20">${c.votos} Votos</span>
+              <div class="flex items-center gap-2">
+                <button onclick="editChapa(${c.id})" class="p-2 text-cyan-400 hover:bg-slate-700 rounded-lg text-xs" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                <button onclick="deleteChapa(${c.id})" class="p-2 text-red-400 hover:bg-slate-700 rounded-lg text-xs" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        let raListHtml = Array.from(rasVotaram).map(ra => `<span class="bg-slate-900 border border-purple-500/30 text-cyan-300 px-2.5 py-1 rounded-md text-xs font-mono">${alunosDB[ra] || ra}</span>`).join(' ') || '<span class="text-slate-400 text-xs">Nenhum voto registrado ainda.</span>';
+
+        container.innerHTML = `
+          <div class="bg-slate-900 border border-purple-500/40 rounded-3xl p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-chart-pie text-cyan-400"></i> Painel do Mesário / Apuração</h2>
+              <button onclick="goTo('welcome')" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg text-slate-300 font-semibold">Sair do Painel</button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 text-center mb-6">
+              <div class="bg-slate-800 p-3 rounded-xl border border-purple-500/20">
+                <span class="text-xs text-purple-300">Total Votos</span>
+                <p class="text-xl font-bold text-white">${totalVotos}</p>
+              </div>
+              <div class="bg-slate-800 p-3 rounded-xl border border-purple-500/20">
+                <span class="text-xs text-purple-300">Em Branco</span>
+                <p class="text-xl font-bold text-slate-300">${votosEmBranco}</p>
+              </div>
+              <div class="bg-slate-800 p-3 rounded-xl border border-purple-500/20">
+                <span class="text-xs text-purple-300">Alunos que Votaram</span>
+                <p class="text-xl font-bold text-cyan-400">${rasVotaram.size}</p>
+              </div>
+            </div>
+
+            <!-- REGISTRO DE ALUNOS QUE JA VOTARAM -->
+            <div class="bg-slate-800/60 p-4 rounded-xl border border-purple-500/20 mb-6">
+              <h3 class="font-bold text-purple-300 text-sm mb-2"><i class="fa-solid fa-users text-cyan-400"></i> Alunos Presentes (R.A.s Votantes)</h3>
+              <div class="flex flex-wrap gap-2 max-h-24 overflow-y-auto p-1">
+                ${raListHtml}
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="font-bold text-purple-300 text-sm mb-3">Chapas Cadastradas (${chapas.length})</h3>
+              ${chapasRows}
+            </div>
+
+            <!-- FORMULÁRIO DE CADASTRO/EDIÇÃO COM GALERIA -->
+            <div class="bg-slate-800/80 p-5 rounded-2xl border border-purple-500/30">
+              <h3 id="form-title" class="font-bold text-cyan-300 text-sm mb-3">+ Cadastrar Nova Chapa</h3>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <input type="text" id="new-num" placeholder="Número (ex: 10)" class="bg-slate-900 border border-purple-500/30 p-2.5 rounded-lg text-xs text-white focus:outline-none focus:border-cyan-400">
+                <input type="text" id="new-nome" placeholder="Nome da Chapa (ex: Jovens Extraordinários)" class="bg-slate-900 border border-purple-500/30 p-2.5 rounded-lg text-xs text-white focus:outline-none focus:border-cyan-400">
+                <input type="text" id="new-pres" placeholder="Nome do Presidente" class="bg-slate-900 border border-purple-500/30 p-2.5 rounded-lg text-xs text-white focus:outline-none focus:border-cyan-400">
+                <input type="text" id="new-vice" placeholder="Nome do Vice-Presidente" class="bg-slate-900 border border-purple-500/30 p-2.5 rounded-lg text-xs text-white focus:outline-none focus:border-cyan-400">
+                <input type="text" id="new-slogan" placeholder="Slogan ou lema" class="bg-slate-900 border border-purple-500/30 p-2.5 rounded-lg text-xs text-white focus:outline-none focus:border-cyan-400 col-span-full">
+              </div>
+
+              <!-- BOTÃO DE BUSCA NA GALERIA -->
+              <div class="mb-4">
+                <label class="block text-xs font-semibold text-purple-300 mb-2"><i class="fa-solid fa-image text-cyan-400"></i> Foto da Chapa (Buscar na Galeria):</label>
+                <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-700 file:text-white hover:file:bg-purple-600 cursor-pointer">
+                <div id="image-preview-container" class="mt-3 hidden items-center gap-3">
+                  <img id="image-preview" class="w-16 h-16 rounded-lg object-contain bg-black border border-cyan-400">
+                  <span class="text-xs text-emerald-400 font-semibold">Foto selecionada da galeria!</span>
+                </div>
+              </div>
+              
+              <div class="flex gap-2">
+                <button onclick="saveChapa()" id="save-btn" class="flex-1 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-xs font-bold rounded-xl hover:brightness-110 shadow-lg">Salvar Chapa</button>
+                <button onclick="cancelEdit()" id="cancel-btn" class="hidden px-4 py-2.5 bg-slate-700 text-xs font-bold rounded-xl hover:bg-slate-600">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function goTo(screen) {
+      playBeep('click');
+      currentScreen = screen;
+      render();
+    }
+
+    function submitRA() {
+      const field = document.getElementById('ra-field');
+      const error = document.getElementById('ra-error');
+      const ra = field.value.trim().toUpperCase();
+
+      if (!ra) {
+        error.innerText = "Por favor, informe o R.A.!";
+        error.classList.remove('hidden');
+        return;
+      }
+
+      if (!alunosDB[ra]) {
+        error.innerText = "R.A. não encontrado na lista de alunos!";
+        error.classList.remove('hidden');
+        return;
+      }
+
+      if (rasVotaram.has(ra)) {
+        error.innerText = "Este R.A. já votou nesta eleição!";
+        error.classList.remove('hidden');
+        return;
+      }
+
+      currentRA = ra;
+      currentStudentName = alunosDB[ra];
+      goTo('voting');
+    }
+
+    function selectChapa(id) {
+      playBeep('click');
+      selectedChapa = chapas.find(c => c.id === id);
+      goTo('confirm');
+    }
+
+    function voteBranco() {
+      playBeep('click');
+      selectedChapa = 'BRANCO';
+      goTo('confirm');
+    }
+
+    function confirmVote() {
+      playBeep('confirm');
+      if (selectedChapa === 'BRANCO') {
+        votosEmBranco++;
+      } else if (selectedChapa) {
+        selectedChapa.votos++;
+      }
+
+      if (currentRA) {
+        rasVotaram.add(currentRA);
+      }
+
+      goTo('success');
+    }
+
+    function toggleMesarioModal() {
+      playBeep('click');
+      const modal = document.getElementById('mesario-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    function loginMesario() {
+      const pass = document.getElementById('mesario-pass').value;
+      if (pass === '1234' || pass === 'admin') {
+        document.getElementById('mesario-pass').value = '';
+        toggleMesarioModal();
+        goTo('dashboard');
+      } else {
+        alert("Senha incorreta! (Padrão: 1234)");
+      }
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentUploadedImage = e.target.result;
+          const preview = document.getElementById('image-preview');
+          const previewContainer = document.getElementById('image-preview-container');
+          if (preview && previewContainer) {
+            preview.src = currentUploadedImage;
+            previewContainer.classList.remove('hidden');
+            previewContainer.classList.add('flex');
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function saveChapa() {
+      const num = document.getElementById('new-num').value.trim();
+      const nome = document.getElementById('new-nome').value.trim();
+      const pres = document.getElementById('new-pres').value.trim();
+      const vice = document.getElementById('new-vice').value.trim();
+      const slogan = document.getElementById('new-slogan').value.trim() || 'Juntos pelo Poitena!';
+      const foto = currentUploadedImage || 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=400&auto=format&fit=crop&q=80';
+
+      if (!num || !nome || !pres) {
+        alert("Preencha ao menos o Número, Nome e Presidente da chapa!");
+        return;
+      }
+
+      if (editingChapaId) {
+        const chapa = chapas.find(c => c.id === editingChapaId);
+        if (chapa) {
+          chapa.numero = num;
+          chapa.nome = nome;
+          chapa.presidente = pres;
+          chapa.vice = vice || 'Não informado';
+          chapa.slogan = slogan;
+          chapa.foto = foto;
         }
-    </script>
+        editingChapaId = null;
+      } else {
+        chapas.push({
+          id: Date.now(),
+          numero: num,
+          nome: nome,
+          presidente: pres,
+          vice: vice || 'Não informado',
+          slogan: slogan,
+          foto: foto,
+          cor: 'from-purple-600 to-indigo-600',
+          votos: 0
+        });
+      }
+
+      currentUploadedImage = '';
+      render();
+    }
+
+    function editChapa(id) {
+      const c = chapas.find(item => item.id === id);
+      if (!c) return;
+
+      editingChapaId = id;
+      currentUploadedImage = c.foto;
+      render();
+
+      document.getElementById('form-title').innerText = "Editar Chapa " + c.numero;
+      document.getElementById('new-num').value = c.numero;
+      document.getElementById('new-nome').value = c.nome;
+      document.getElementById('new-pres').value = c.presidente;
+      document.getElementById('new-vice').value = c.vice;
+      document.getElementById('new-slogan').value = c.slogan;
+
+      const preview = document.getElementById('image-preview');
+      const previewContainer = document.getElementById('image-preview-container');
+      if (preview && previewContainer) {
+        preview.src = c.foto;
+        previewContainer.classList.remove('hidden');
+        previewContainer.classList.add('flex');
+      }
+
+      document.getElementById('cancel-btn').classList.remove('hidden');
+      document.getElementById('save-btn').innerText = "Salvar Alterações";
+    }
+
+    function cancelEdit() {
+      editingChapaId = null;
+      currentUploadedImage = '';
+      render();
+    }
+
+    function deleteChapa(id) {
+      if (confirm("Tem certeza que deseja excluir esta chapa?")) {
+        chapas = chapas.filter(c => c.id !== id);
+        render();
+      }
+    }
+
+    // Inicialização da interface
+    render();
+  </script>
 </body>
 </html>
