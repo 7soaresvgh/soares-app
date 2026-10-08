@@ -66,7 +66,7 @@
         </div>
         <div>
           <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            Urna Escolar <span class="text-[10px] bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.4</span>
+            Urna Escolar <span class="text-[10px] bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.5</span>
           </h1>
           <p class="text-[11px] text-slate-400">Grêmio Milton Martins Poitena</p>
         </div>
@@ -79,11 +79,11 @@
         <i data-lucide="user-check" class="w-4 h-4 text-emerald-400"></i> Votante
       </button>
 
-      <button onclick="pedirAcesso('apuracao')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap">
+      <button onclick="abrirModalSenha('apuracao')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap">
         <i data-lucide="tv" class="w-4 h-4 text-amber-400"></i> Apuração
       </button>
 
-      <button onclick="pedirAcesso('mesario')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap">
+      <button onclick="abrirModalSenha('mesario')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap">
         <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i> Mesário
       </button>
     </nav>
@@ -260,7 +260,7 @@
             </button>
 
             <!-- BOTÃO RESETAR TUDO -->
-            <button onclick="confirmarResetGeral()" class="flex-1 sm:flex-none bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+            <button onclick="abrirModalZerar()" class="flex-1 sm:flex-none bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
               <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Zerar
             </button>
           </div>
@@ -363,13 +363,55 @@
     </div>
   </div>
 
+  <!-- MODAL DE SENHA PERSONALIZADO -->
+  <div id="modal-senha" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
+      <div class="inline-flex p-3 bg-amber-500/10 text-amber-400 rounded-full">
+        <i data-lucide="lock" class="w-8 h-8"></i>
+      </div>
+      <h3 id="modal-senha-titulo" class="text-xl font-bold text-white">Acesso Restrito</h3>
+      <p class="text-slate-300 text-sm">Digite a senha de acesso:</p>
+      <input type="password" id="input-senha-modal" placeholder="Sua senha..."
+        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-white focus:outline-none focus:border-indigo-500">
+      <div class="flex gap-3 pt-2">
+        <button onclick="fecharModalSenha()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">
+          Cancelar
+        </button>
+        <button onclick="validarSenhaModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-600/20">
+          Entrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE ZERAR SISTEMA PERSONALIZADO -->
+  <div id="modal-zerar" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-red-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
+      <div class="inline-flex p-3 bg-red-500/10 text-red-400 rounded-full">
+        <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white">Zerar Eleição</h3>
+      <p class="text-slate-300 text-sm">ATENÇÃO: Esta ação apagará TODOS os votos e liberará todos os R.As novamente!<br><br>Digite <strong>ZERAR</strong> para confirmar:</p>
+      <input type="text" id="input-zerar-modal" placeholder="Digite ZERAR"
+        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center uppercase tracking-widest text-white focus:outline-none focus:border-red-500">
+      <div class="flex gap-3 pt-2">
+        <button onclick="fecharModalZerar()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">
+          Cancelar
+        </button>
+        <button onclick="executarZerarGeral()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-red-600/20">
+          Zerar Tudo
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- RODAPÉ -->
   <footer class="bg-slate-950 border-t border-purple-500/20 py-6 px-4 text-center">
     <div class="font-semibold text-slate-300 text-sm">
-      Urna Eletrônica Escolar v1.4
+      Urna Eletrônica Escolar v1.5
     </div>
     <div class="text-slate-500 text-xs mt-1">
-      Desenvolvido por Soares (Gabriel Soares • 2º Ano EM)
+      Desenvolvido por Gabriel Soares • 2º Ano EM
     </div>
     <div class="text-blue-400 text-xs mt-0.5">
       <a href="https://instagram.com/7soaresvgh" target="_blank" class="hover:underline">@7soaresvgh</a>
@@ -635,6 +677,7 @@
     let alunoAtual = null;
     let graficoChart = null;
     let votoPendente = null;
+    let destinoSenhaPendente = null;
 
     // INICIALIZAÇÃO
     window.onload = function() {
@@ -704,20 +747,34 @@
       window.scrollTo(0, 0);
     }
 
-    // CONTROLE DE ACESSO POR SENHA
-    function pedirAcesso(destino) {
-      if (destino === 'mesario') {
-        const pass = prompt("Informe a senha do MESÁRIO:");
+    // CONTROLE DE ACESSO POR MODAL DE SENHA CUSTOMIZADO
+    function abrirModalSenha(destino) {
+      destinoSenhaPendente = destino;
+      document.getElementById("input-senha-modal").value = "";
+      document.getElementById("modal-senha-titulo").textContent = destino === 'mesario' ? "Painel do Mesário" : "Apuração Ao Vivo";
+      document.getElementById("modal-senha").classList.remove("hidden");
+      document.getElementById("input-senha-modal").focus();
+    }
+
+    function fecharModalSenha() {
+      destinoSenhaPendente = null;
+      document.getElementById("modal-senha").classList.add("hidden");
+    }
+
+    function validarSenhaModal() {
+      const pass = document.getElementById("input-senha-modal").value;
+      if (destinoSenhaPendente === 'mesario') {
         if (pass === SENHA_MESARIO) {
+          fecharModalSenha();
           navegarPara('mesario');
-        } else if (pass !== null) {
+        } else {
           alert("Senha de Mesário incorreta!");
         }
-      } else if (destino === 'apuracao') {
-        const pass = prompt("Informe a senha da APURAÇÃO (Telão):");
+      } else if (destinoSenhaPendente === 'apuracao') {
         if (pass === SENHA_APURACAO || pass === SENHA_APURACAO_ALT) {
+          fecharModalSenha();
           navegarPara('apuracao');
-        } else if (pass !== null) {
+        } else {
           alert("Senha de Apuração incorreta!");
         }
       }
@@ -762,7 +819,7 @@
       navegarPara('votacao');
     }
 
-    // RENDERIZAR URNA DE VOTAÇÃO (COM FOTOS SEM CORTES - OBJECT-FIT: CONTAIN)
+    // RENDERIZAR URNA DE VOTAÇÃO
     function renderizarUrna() {
       const grid = document.getElementById("grid-chapas");
       grid.innerHTML = "";
@@ -792,7 +849,7 @@
       lucide.createIcons();
     }
 
-    // ABRIR MODAL DE CONFIRMAÇÃO DE VOTO CUSTOMIZADO
+    // MODAL DE CONFIRMAÇÃO DE VOTO
     function abrirConfirmacaoVoto(chapaId, nomeChapa) {
       votoPendente = { chapaId, nomeChapa };
       document.getElementById("modal-nome-chapa").textContent = nomeChapa;
@@ -804,7 +861,6 @@
       document.getElementById("modal-confirmacao").classList.add("hidden");
     }
 
-    // EXECUTAR CONFIRMAÇÃO DO VOTO COM SOM, FALA E TELA DE FIM
     async function executarConfirmacaoVoto() {
       if (!alunoAtual || !votoPendente) return;
 
@@ -828,7 +884,6 @@
 
       await salvarNoServidor();
 
-      // REPRODUZIR SOM DE BIPE E FALA AUTOMÁTICA
       tocarSomUrna();
       falarObrigado();
 
@@ -837,7 +892,7 @@
       navegarPara('fim');
     }
 
-    // ÁUDIO / SOM DA URNA E SINTETIZADOR DE VOZ
+    // ÁUDIO E VOZ
     function tocarSomUrna() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -850,9 +905,7 @@
         gain.connect(audioCtx.destination);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.3);
-      } catch(e) {
-        console.log("Áudio não suportado diretamente pelo navegador:", e);
-      }
+      } catch(e) {}
     }
 
     function falarObrigado() {
@@ -864,7 +917,7 @@
       }
     }
 
-    // RENDERIZAR TELA DE APURAÇÃO (TELÃO COM FOTOS SEM CORTES)
+    // APURAÇÃO
     function renderizarApuracao() {
       let lider = null;
       let maior = -1;
@@ -973,7 +1026,7 @@
       });
     }
 
-    // RENDERIZAR PAINEL DO MESÁRIO
+    // MESÁRIO
     function renderizarMesario() {
       const listaChapasMesario = document.getElementById("lista-chapas-mesario");
       listaChapasMesario.innerHTML = "";
@@ -1026,7 +1079,6 @@
       lucide.createIcons();
     }
 
-    // EXCLUIR CHAPA ESPECÍFICA
     async function excluirChapa(chapaId) {
       const chapa = estadoLocal.chapas.find(c => c.id === chapaId);
       if (!chapa) return;
@@ -1044,7 +1096,6 @@
       }
     }
 
-    // EXPORTAR RESULTADOS
     function exportarResultados() {
       const blob = new Blob(
         [JSON.stringify(estadoLocal, null, 2)],
@@ -1057,7 +1108,6 @@
       a.click();
     }
 
-    // CADASTRAR/SALVAR NOVA CHAPA
     async function salvarChapa(e) {
       e.preventDefault();
       const nome = document.getElementById("chapa-nome").value.trim();
@@ -1093,17 +1143,30 @@
       renderizarMesario();
     }
 
-    // RESETAR DADOS
-    async function confirmarResetGeral() {
-      const confirmacao = prompt("ATENÇÃO: Esta ação apagará TODOS os votos e libera todos os R.As novamente!\n\nDigite 'ZERAR' para confirmar:");
-      if (confirmacao === 'ZERAR') {
+    // MODAL DE ZERAR SISTEMA
+    function abrirModalZerar() {
+      document.getElementById("input-zerar-modal").value = "";
+      document.getElementById("modal-zerar").classList.remove("hidden");
+      document.getElementById("input-zerar-modal").focus();
+    }
+
+    function fecharModalZerar() {
+      document.getElementById("modal-zerar").classList.add("hidden");
+    }
+
+    async function executarZerarGeral() {
+      const val = document.getElementById("input-zerar-modal").value.trim().toUpperCase();
+      if (val === 'ZERAR') {
         estadoLocal.votos = {};
         estadoLocal.votoBranco = 0;
         estadoLocal.alunosVotaram = {};
         await salvarNoServidor();
+        fecharModalZerar();
         alert("Sistema zerado com sucesso!");
         renderizarApuracao();
         renderizarMesario();
+      } else {
+        alert("Digite exatamente a palavra ZERAR para confirmar.");
       }
     }
   </script>
