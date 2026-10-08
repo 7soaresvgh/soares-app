@@ -66,7 +66,7 @@
         </div>
         <div>
           <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            Urna Escolar <span class="text-[10px] bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.4.001</span>
+            Urna Escolar <span class="text-[10px] bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.4</span>
           </h1>
           <p class="text-[11px] text-slate-400">Grêmio Milton Martins Poitena</p>
         </div>
@@ -109,16 +109,23 @@
           <strong>Grêmio Estudantil da Escola Estadual Milton Martins Poitena</strong>.
         </p>
 
-        <div class="bg-slate-950/60 rounded-2xl p-4 border border-slate-800">
-          <h2 class="text-base sm:text-lg font-bold text-purple-400">
-            Desenvolvido por Gabriel Soares
-          </h2>
-          <p class="text-xs sm:text-sm text-slate-300 mt-1">
-            2º Ano do Ensino Médio • E.E. Milton Martins Poitena
+        <!-- HISTÓRIA FICTÍCIA E INSTAGRAM -->
+        <div class="bg-slate-950/80 rounded-2xl p-5 border border-purple-500/20 text-left space-y-3">
+          <h3 class="text-xs font-mono uppercase tracking-wider text-purple-400 flex items-center gap-2">
+            <i data-lucide="book-open" class="w-4 h-4"></i> Nossa História & Missão
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Tudo começou com o sonho de transformar a nossa escola em um ambiente mais participativo, moderno e integrado. Gabriel Soares idealizou este sistema tecnológico para garantir transparência absoluta nas eleições do grêmio, unindo inovação digital e democracia estudantil em um só lugar.
           </p>
-          <p class="text-blue-400 font-semibold text-xs sm:text-sm mt-1">
-            Instagram: @7soaresvgh
-          </p>
+          <div class="pt-2 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <div>
+              <span class="text-xs font-bold text-white block">Gabriel Soares</span>
+              <span class="text-[11px] text-slate-400">2º Ano do Ensino Médio • E.E. Milton Martins Poitena</span>
+            </div>
+            <a href="https://instagram.com/7soaresvgh" target="_blank" class="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:scale-105 transition text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-pink-600/20">
+              <i data-lucide="instagram" class="w-4 h-4"></i> @7soaresvgh
+            </a>
+          </div>
         </div>
 
         <button
@@ -175,11 +182,26 @@
 
         <!-- Opção de Voto em Branco -->
         <div class="mt-8 pt-6 border-t border-slate-800 text-center">
-          <button onclick="confirmarVoto('BRANCO', 'Voto em Branco')"
+          <button onclick="abrirConfirmacaoVoto('BRANCO', 'Voto em Branco')"
             class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-slate-200 font-bold px-8 py-3.5 rounded-2xl transition inline-flex items-center justify-center gap-2">
             <i data-lucide="circle-slash" class="w-5 h-5 text-slate-400"></i> Votar em Branco
           </button>
         </div>
+      </div>
+    </section>
+
+    <!-- TELA DE FIM (APÓS VOTAR) -->
+    <section id="tela-fim" class="hidden min-h-[70vh] flex items-center justify-center">
+      <div class="max-w-md w-full text-center bg-slate-900/90 backdrop-blur-xl border border-emerald-500/40 rounded-3xl p-8 shadow-2xl space-y-6">
+        <div class="inline-flex p-4 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
+          <i data-lucide="check-circle-2" class="w-16 h-16 animate-bounce"></i>
+        </div>
+        <h2 class="text-3xl font-extrabold text-white">FIM</h2>
+        <p class="text-emerald-400 font-semibold text-lg">Voto Registrado com Sucesso!</p>
+        <p class="text-slate-300 text-sm">Obrigado por exercer sua cidadania e participar da eleição do Grêmio Escolar.</p>
+        <button onclick="navegarPara('boasvindas')" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition shadow-lg">
+          Concluir / Voltar ao Início
+        </button>
       </div>
     </section>
 
@@ -321,16 +343,36 @@
 
   </main>
 
+  <!-- MODAL DE CONFIRMAÇÃO DE VOTO CUSTOMIZADO -->
+  <div id="modal-confirmacao" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
+      <div class="inline-flex p-3 bg-purple-500/10 text-purple-400 rounded-full">
+        <i data-lucide="help-circle" class="w-8 h-8"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white">Confirmação de Voto</h3>
+      <p class="text-slate-300 text-sm">Você está prestes a confirmar seu voto em:</p>
+      <div id="modal-nome-chapa" class="bg-slate-950 border border-purple-500/20 py-3 px-4 rounded-xl text-indigo-300 font-bold text-base">---</div>
+      <div class="flex gap-3 pt-2">
+        <button onclick="fecharModalConfirmacao()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">
+          Corrigir / Voltar
+        </button>
+        <button onclick="executarConfirmacaoVoto()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-600/20">
+          Confirmar Voto
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- RODAPÉ -->
   <footer class="bg-slate-950 border-t border-purple-500/20 py-6 px-4 text-center">
     <div class="font-semibold text-slate-300 text-sm">
-      Urna Eletrônica Escolar v1.3
+      Urna Eletrônica Escolar v1.4
     </div>
     <div class="text-slate-500 text-xs mt-1">
-      Desenvolvido por Gabriel Soares • 2º Ano EM
+      Desenvolvido por Soares (Gabriel Soares • 2º Ano EM)
     </div>
     <div class="text-blue-400 text-xs mt-0.5">
-      @7soaresvgh
+      <a href="https://instagram.com/7soaresvgh" target="_blank" class="hover:underline">@7soaresvgh</a>
     </div>
     <div class="text-slate-600 text-[11px] mt-2">
       Sistema criado para o Grêmio Estudantil Milton Martins Poitena
@@ -592,6 +634,7 @@
 
     let alunoAtual = null;
     let graficoChart = null;
+    let votoPendente = null;
 
     // INICIALIZAÇÃO
     window.onload = function() {
@@ -652,6 +695,7 @@
       document.getElementById("tela-votacao").classList.add("hidden");
       document.getElementById("tela-apuracao").classList.add("hidden");
       document.getElementById("tela-mesario").classList.add("hidden");
+      document.getElementById("tela-fim").classList.add("hidden");
 
       document.getElementById("tela-" + telaId).classList.remove("hidden");
       
@@ -718,7 +762,7 @@
       navegarPara('votacao');
     }
 
-    // RENDERIZAR URNA DE VOTAÇÃO
+    // RENDERIZAR URNA DE VOTAÇÃO (COM FOTOS SEM CORTES - OBJECT-FIT: CONTAIN)
     function renderizarUrna() {
       const grid = document.getElementById("grid-chapas");
       grid.innerHTML = "";
@@ -733,12 +777,12 @@
         card.className = "bg-slate-950 border border-slate-800 hover:border-indigo-500 rounded-2xl p-5 flex flex-col justify-between transition shadow-lg";
         card.innerHTML = `
           <div>
-            ${chapa.foto ? `<img src="${chapa.foto}" alt="${chapa.nome}" class="w-full h-36 object-cover rounded-xl mb-4 border border-slate-800">` : ''}
+            ${chapa.foto ? `<div class="w-full h-44 bg-slate-900 rounded-xl mb-4 border border-slate-800 flex items-center justify-center overflow-hidden"><img src="${chapa.foto}" alt="${chapa.nome}" class="w-full h-full object-contain"></div>` : ''}
             <span class="bg-indigo-500/20 text-indigo-300 font-mono text-xs px-2.5 py-1 rounded-full font-bold">Chapa #${chapa.numero}</span>
             <h3 class="text-xl font-bold text-white mt-2">${chapa.nome}</h3>
             <p class="text-slate-400 text-xs mt-1 leading-relaxed">${chapa.descricao}</p>
           </div>
-          <button onclick="confirmarVoto('${chapa.id}', '${chapa.nome}')"
+          <button onclick="abrirConfirmacaoVoto('${chapa.id}', '${chapa.nome}')"
             class="mt-6 w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md">
             <i data-lucide="vote" class="w-4 h-4"></i> Votar nesta Chapa
           </button>
@@ -748,11 +792,24 @@
       lucide.createIcons();
     }
 
-    // CONFIRMAR E REGISTRAR VOTO
-    async function confirmarVoto(chapaId, nomeChapa) {
-      if (!alunoAtual) return;
+    // ABRIR MODAL DE CONFIRMAÇÃO DE VOTO CUSTOMIZADO
+    function abrirConfirmacaoVoto(chapaId, nomeChapa) {
+      votoPendente = { chapaId, nomeChapa };
+      document.getElementById("modal-nome-chapa").textContent = nomeChapa;
+      document.getElementById("modal-confirmacao").classList.remove("hidden");
+    }
 
-      if (!confirm(`Confirma o seu voto em: "${nomeChapa}"?`)) return;
+    function fecharModalConfirmacao() {
+      votoPendente = null;
+      document.getElementById("modal-confirmacao").classList.add("hidden");
+    }
+
+    // EXECUTAR CONFIRMAÇÃO DO VOTO COM SOM, FALA E TELA DE FIM
+    async function executarConfirmacaoVoto() {
+      if (!alunoAtual || !votoPendente) return;
+
+      const { chapaId, nomeChapa } = votoPendente;
+      fecharModalConfirmacao();
 
       const dataHora = new Date().toLocaleString("pt-BR");
 
@@ -771,12 +828,43 @@
 
       await salvarNoServidor();
 
-      alert("VOTO REGISTRADO COM SUCESSO!\nObrigado por participar.");
+      // REPRODUZIR SOM DE BIPE E FALA AUTOMÁTICA
+      tocarSomUrna();
+      falarObrigado();
+
       alunoAtual = null;
-      navegarPara('boasvindas');
+      votoPendente = null;
+      navegarPara('fim');
     }
 
-    // RENDERIZAR TELA DE APURAÇÃO (TELÃO)
+    // ÁUDIO / SOM DA URNA E SINTETIZADOR DE VOZ
+    function tocarSomUrna() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      } catch(e) {
+        console.log("Áudio não suportado diretamente pelo navegador:", e);
+      }
+    }
+
+    function falarObrigado() {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance("Obrigado por votar");
+        utterance.lang = 'pt-BR';
+        utterance.rate = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    // RENDERIZAR TELA DE APURAÇÃO (TELÃO COM FOTOS SEM CORTES)
     function renderizarApuracao() {
       let lider = null;
       let maior = -1;
@@ -822,17 +910,20 @@
         const cor = cores[index % cores.length];
 
         const item = document.createElement("div");
-        item.className = "bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-2";
+        item.className = "bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-2 flex flex-col sm:flex-row items-center gap-4";
         item.innerHTML = `
-          <div class="flex justify-between items-center text-xs sm:text-sm font-semibold">
-            <span class="text-white flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${cor}"></span>
-              #${chapa.numero} - ${chapa.nome}
-            </span>
-            <span class="font-mono text-indigo-300">${qtdVotos} voto(s) (${pct}%)</span>
-          </div>
-          <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden">
-            <div class="h-3 rounded-full transition-all duration-500" style="width: ${pct}%; background-color: ${cor}"></div>
+          ${chapa.foto ? `<div class="w-16 h-16 bg-slate-900 rounded-xl border border-slate-800 shrink-0 flex items-center justify-center overflow-hidden"><img src="${chapa.foto}" class="w-full h-full object-contain"></div>` : ''}
+          <div class="flex-1 w-full space-y-2">
+            <div class="flex justify-between items-center text-xs sm:text-sm font-semibold">
+              <span class="text-white flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${cor}"></span>
+                #${chapa.numero} - ${chapa.nome}
+              </span>
+              <span class="font-mono text-indigo-300">${qtdVotos} voto(s) (${pct}%)</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden">
+              <div class="h-3 rounded-full transition-all duration-500" style="width: ${pct}%; background-color: ${cor}"></div>
+            </div>
           </div>
         `;
         container.appendChild(item);
@@ -895,7 +986,7 @@
           div.className = "flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-xl gap-2";
           div.innerHTML = `
             <div class="flex items-center gap-3 overflow-hidden">
-              ${chapa.foto ? `<img src="${chapa.foto}" class="w-10 h-10 object-cover rounded-lg border border-slate-700 shrink-0">` : '<div class="w-10 h-10 bg-slate-800 rounded-lg shrink-0 flex items-center justify-center text-xs font-mono text-slate-500">#</div>'}
+              ${chapa.foto ? `<div class="w-12 h-12 bg-slate-950 rounded-lg border border-slate-700 shrink-0 flex items-center justify-center overflow-hidden"><img src="${chapa.foto}" class="w-full h-full object-contain"></div>` : '<div class="w-12 h-12 bg-slate-800 rounded-lg shrink-0 flex items-center justify-center text-xs font-mono text-slate-500">#</div>'}
               <div class="truncate">
                 <span class="text-xs font-bold text-indigo-300">#${chapa.numero} - ${chapa.nome}</span>
                 <p class="text-[11px] text-slate-400 truncate">${chapa.descricao}</p>
