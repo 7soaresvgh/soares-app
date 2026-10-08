@@ -10,6 +10,22 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
+      projectId: "urna-escola-soares"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.db = db;
+    window.firebaseModules = { collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSnapshot };
+  </script>
+
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
@@ -79,18 +95,18 @@
 
         <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
           Sistema oficial e seguro para a eleição do
-          <strong>Grêmio Estudantil da Escola Estadual Milton Martins Poitena</strong>[cite: 2].
+          <strong>Grêmio Estudantil da Escola Estadual Milton Martins Poitena</strong>.
         </p>
 
         <div class="bg-slate-950/60 rounded-2xl p-4 border border-slate-800">
           <h2 class="text-base sm:text-lg font-bold text-purple-400">
-            Desenvolvido por Gabriel Soares[cite: 2]
+            Desenvolvido por Gabriel Soares
           </h2>
           <p class="text-xs sm:text-sm text-slate-300 mt-1">
-            2º Ano do Ensino Médio • E.E. Milton Martins Poitena[cite: 2]
+            2º Ano do Ensino Médio • E.E. Milton Martins Poitena
           </p>
           <p class="text-blue-400 font-semibold text-xs sm:text-sm mt-1">
-            Instagram: @7soaresvgh[cite: 2]
+            Instagram: @7soaresvgh
           </p>
         </div>
 
@@ -164,11 +180,11 @@
             <div class="flex items-center gap-2 text-amber-400 font-bold text-xs sm:text-sm uppercase tracking-wider">
               <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span> Apuração Ao Vivo
             </div>
-            <h2 class="text-2xl font-bold text-white mt-1">Resultados da Eleição[cite: 2]</h2>
+            <h2 class="text-2xl font-bold text-white mt-1">Resultados da Eleição</h2>
           </div>
 
           <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-left sm:text-right flex sm:flex-col justify-between items-center sm:items-end">
-            <span class="text-xs text-slate-400 uppercase tracking-wider block">Total de Votantes[cite: 2]</span>
+            <span class="text-xs text-slate-400 uppercase tracking-wider block">Total de Votantes</span>
             <span id="total-votos-display" class="text-2xl sm:text-3xl font-extrabold font-mono text-indigo-400">0</span>
           </div>
         </div>
@@ -199,20 +215,20 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div>
             <h2 class="text-lg sm:text-xl font-bold text-indigo-400 flex items-center gap-2">
-              <i data-lucide="shield-check" class="w-6 h-6"></i> Painel do Mesário[cite: 2]
+              <i data-lucide="shield-check" class="w-6 h-6"></i> Painel do Mesário
             </h2>
-            <p class="text-slate-400 text-xs mt-1">Gerenciamento completo do sistema de votação[cite: 2].</p>
+            <p class="text-slate-400 text-xs mt-1">Gerenciamento completo do sistema de votação.</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
             <!-- BOTÃO EXPORTAR RESULTADOS -->
             <button onclick="exportarResultados()" class="flex-1 sm:flex-none bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
-              <i data-lucide="download" class="w-4 h-4"></i> Exportar[cite: 2]
+              <i data-lucide="download" class="w-4 h-4"></i> Exportar
             </button>
 
             <!-- BOTÃO RESETAR TUDO -->
             <button onclick="confirmarResetGeral()" class="flex-1 sm:flex-none bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
-              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Zerar[cite: 2]
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Zerar
             </button>
           </div>
         </div>
@@ -220,7 +236,7 @@
         <!-- Formulário para Criar Chapas com Foto da Galeria -->
         <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 sm:p-5">
           <h3 class="text-sm sm:text-md font-bold text-white mb-4 flex items-center gap-2">
-            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i> Cadastrar Nova Chapa[cite: 2]
+            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i> Cadastrar Nova Chapa
           </h3>
 
           <form id="form-cadastrar-chapa" onsubmit="salvarChapa(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -243,7 +259,7 @@
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Adicionar Foto da Galeria[cite: 2]</label>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Adicionar Foto da Galeria</label>
               <input type="file" id="chapa-foto-file" accept="image/*" onchange="converterFotoGaleria(event)"
                 class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 transition">
               <input type="hidden" id="chapa-foto-base64" value="">
@@ -251,7 +267,7 @@
 
             <div class="md:col-span-2 flex justify-end mt-2">
               <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold px-6 py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
-                <i data-lucide="check-circle" class="w-4 h-4"></i> Salvar Chapa[cite: 2]
+                <i data-lucide="check-circle" class="w-4 h-4"></i> Salvar Chapa
               </button>
             </div>
           </form>
@@ -260,7 +276,7 @@
         <!-- Lista de Chapas Cadastradas com Opção de Excluir -->
         <div class="space-y-3">
           <h3 class="text-sm sm:text-md font-bold text-white flex items-center gap-2">
-            <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i> Chapas Cadastradas (Gerenciar / Excluir)[cite: 2]
+            <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i> Chapas Cadastradas (Gerenciar / Excluir)
           </h3>
           <div id="lista-chapas-mesario" class="space-y-2">
             <!-- Injetado via JS -->
@@ -270,17 +286,17 @@
         <!-- Tabela de Registros de Votação por R.A (Auditoria) -->
         <div class="space-y-3 pt-4 border-t border-slate-800">
           <h3 class="text-sm sm:text-md font-bold text-white flex items-center gap-2">
-            <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i> Registro de Votantes (Auditoria)[cite: 2]
+            <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i> Registro de Votantes (Auditoria)
           </h3>
           <div class="overflow-x-auto border border-slate-800 rounded-2xl bg-slate-950/40">
             <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap sm:whitespace-normal">
               <thead class="bg-slate-900/90 text-slate-400 uppercase font-mono text-[10px]">
                 <tr>
-                  <th class="p-3">R.A Votante[cite: 2]</th>
-                  <th class="p-3">Nome do Aluno[cite: 2]</th>
-                  <th class="p-3">Turma[cite: 2]</th>
-                  <th class="p-3">Votou Em (Chapa)[cite: 2]</th>
-                  <th class="p-3">Data/Hora[cite: 2]</th>
+                  <th class="p-3">R.A Votante</th>
+                  <th class="p-3">Nome do Aluno</th>
+                  <th class="p-3">Turma</th>
+                  <th class="p-3">Votou Em (Chapa)</th>
+                  <th class="p-3">Data/Hora</th>
                 </tr>
               </thead>
               <tbody id="tabela-votantes-corpo" class="divide-y divide-slate-800/80">
@@ -297,16 +313,16 @@
   <!-- RODAPÉ -->
   <footer class="bg-slate-950 border-t border-purple-500/20 py-6 px-4 text-center">
     <div class="font-semibold text-slate-300 text-sm">
-      Urna Eletrônica Escolar v1.3[cite: 2]
+      Urna Eletrônica Escolar v1.3
     </div>
     <div class="text-slate-500 text-xs mt-1">
-      Desenvolvido por Gabriel Soares • 2º Ano EM[cite: 2]
+      Desenvolvido por Gabriel Soares • 2º Ano EM
     </div>
     <div class="text-blue-400 text-xs mt-0.5">
-      @7soaresvgh[cite: 2]
+      @7soaresvgh
     </div>
     <div class="text-slate-600 text-[11px] mt-2">
-      Sistema criado para o Grêmio Estudantil Milton Martins Poitena[cite: 2]
+      Sistema criado para o Grêmio Estudantil Milton Martins Poitena
     </div>
   </footer>
 
@@ -552,7 +568,7 @@
     const SENHA_APURACAO = "soaresapuraçao";
     const SENHA_APURACAO_ALT = "soaresapuracao";
 
-    // ESTADO LOCAL DE ARMAZENAMENTO NO NAVEGADOR (LocalStorage)
+    // ESTADO LOCAL DA APLICAÇÃO
     let estadoLocal = {
       chapas: [
         { id: "chapa_1", numero: 10, nome: "Chapa Ação & Voz", descricao: "Liderança estudantil e cultura.", foto: "" },
@@ -569,21 +585,40 @@
     // INICIALIZAÇÃO
     window.onload = function() {
       lucide.createIcons();
-      carregarEstadoLocalStorage();
+      // Aguarda o Firebase carregar do módulo e sincroniza
+      setTimeout(() => {
+        carregarDadosFirebase();
+      }, 500);
       renderizarUrna();
       renderizarApuracao();
       renderizarMesario();
     };
 
-    function carregarEstadoLocalStorage() {
-      const salvo = localStorage.getItem("urna_escola_soares");
-      if (salvo) {
-        try { estadoLocal = JSON.parse(salvo); } catch(e){}
+    // FUNÇÕES DE SINCRONIZAÇÃO COM FIREBASE
+    async function carregarDadosFirebase() {
+      if (!window.db) return;
+      try {
+        const { doc, getDoc } = window.firebaseModules;
+        const snap = await getDoc(doc(window.db, "eleicao", "estado"));
+        if (snap.exists()) {
+          estadoLocal = snap.data();
+          renderizarUrna();
+          renderizarApuracao();
+          renderizarMesario();
+        }
+      } catch (e) {
+        console.log("Modo offline ou erro ao carregar do Firebase:", e);
       }
     }
 
-    function salvarEstadoLocalStorage() {
-      localStorage.setItem("urna_escola_soares", JSON.stringify(estadoLocal));
+    async function salvarDadosFirebase() {
+      if (!window.db) return;
+      try {
+        const { doc, setDoc } = window.firebaseModules;
+        await setDoc(doc(window.db, "eleicao", "estado"), estadoLocal);
+      } catch (e) {
+        console.log("Erro ao salvar no Firebase:", e);
+      }
     }
 
     // NAVEGAÇÃO DE TELAS
@@ -690,7 +725,7 @@
     }
 
     // CONFIRMAR E REGISTRAR VOTO
-    function confirmarVoto(chapaId, nomeChapa) {
+    async function confirmarVoto(chapaId, nomeChapa) {
       if (!alunoAtual) return;
 
       if (!confirm(`Confirma o seu voto em: "${nomeChapa}"?`)) return;
@@ -710,7 +745,7 @@
         estadoLocal.votos[chapaId] = (estadoLocal.votos[chapaId] || 0) + 1;
       }
 
-      salvarEstadoLocalStorage();
+      await salvarDadosFirebase();
 
       alert("VOTO REGISTRADO COM SUCESSO!\nObrigado por participar.");
       alunoAtual = null;
@@ -718,6 +753,10 @@
     }
 
     // RENDERIZAR TELA DE APURAÇÃO (TELÃO)
+    function renderizarapuracao() {
+      renderizarApuracao();
+    }
+    
     function renderizarApuracao() {
       let lider = null;
       let maior = -1;
@@ -823,9 +862,8 @@
       });
     }
 
-    // RENDERIZAR PAINEL DO MESÁRIO (COM LISTAGEM E EXCLUSÃO DE CHAPAS)
+    // RENDERIZAR PAINEL DO MESÁRIO
     function renderizarMesario() {
-      // 1. Renderizar lista de chapas para gerenciamento / exclusão
       const listaChapasMesario = document.getElementById("lista-chapas-mesario");
       listaChapasMesario.innerHTML = "";
 
@@ -851,7 +889,6 @@
         });
       }
 
-      // 2. Renderizar tabela de votantes (auditoria)
       const tbody = document.getElementById("tabela-votantes-corpo");
       tbody.innerHTML = "";
 
@@ -879,7 +916,7 @@
     }
 
     // EXCLUIR CHAPA ESPECÍFICA
-    function excluirChapa(chapaId) {
+    async function excluirChapa(chapaId) {
       const chapa = estadoLocal.chapas.find(c => c.id === chapaId);
       if (!chapa) return;
 
@@ -888,7 +925,7 @@
         if (estadoLocal.votos[chapaId]) {
           delete estadoLocal.votos[chapaId];
         }
-        salvarEstadoLocalStorage();
+        await salvarDadosFirebase();
         renderizarMesario();
         renderizarUrna();
         renderizarApuracao();
@@ -910,7 +947,7 @@
     }
 
     // CADASTRAR/SALVAR NOVA CHAPA
-    function salvarChapa(e) {
+    async function salvarChapa(e) {
       e.preventDefault();
       const nome = document.getElementById("chapa-nome").value.trim();
       const numero = parseInt(document.getElementById("chapa-numero").value.trim());
@@ -935,7 +972,7 @@
       };
 
       estadoLocal.chapas.push(novaChapa);
-      salvarEstadoLocalStorage();
+      await salvarDadosFirebase();
 
       document.getElementById("form-cadastrar-chapa").reset();
       document.getElementById("chapa-foto-base64").value = "";
@@ -946,13 +983,13 @@
     }
 
     // RESETAR DADOS
-    function confirmarResetGeral() {
+    async function confirmarResetGeral() {
       const confirmacao = prompt("ATENÇÃO: Esta ação apagará TODOS os votos e libera todos os R.As novamente!\n\nDigite 'ZERAR' para confirmar:");
       if (confirmacao === 'ZERAR') {
         estadoLocal.votos = {};
         estadoLocal.votoBranco = 0;
         estadoLocal.alunosVotaram = {};
-        salvarEstadoLocalStorage();
+        await salvarDadosFirebase();
         alert("Sistema zerado com sucesso!");
         renderizarApuracao();
         renderizarMesario();
