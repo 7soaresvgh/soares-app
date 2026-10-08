@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Urna Eletrônica Escolar - E.E. Soares</title>
+  <title>Urna Eletrônica Escolar - E.E. Milton Martins Poitena</title>
   
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -23,23 +23,29 @@
       animation: pulse-soft 2s infinite ease-in-out;
     }
     .gradient-bg {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      background: linear-gradient(
+        135deg,
+        #0f172a 0%,
+        #1e1b4b 30%,
+        #312e81 60%,
+        #581c87 100%
+      );
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col justify-between">
+<body class="gradient-bg text-slate-100 min-h-screen font-sans flex flex-col justify-between">
 
   <!-- CABEÇALHO -->
-  <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-lg sticky top-0 z-50">
-    <div class="flex items-center space-x-3 cursor-pointer" onclick="navegarPara('identificacao')">
+  <header class="bg-slate-800/80 backdrop-blur border-b border-purple-500/20 px-6 py-4 flex flex-wrap justify-between items-center gap-4 shadow-lg sticky top-0 z-50">
+    <div class="flex items-center space-x-3 cursor-pointer" onclick="navegarPara('boasvindas')">
       <div class="bg-indigo-600 p-2 rounded-lg text-white">
         <i data-lucide="vote" class="w-6 h-6"></i>
       </div>
       <div>
         <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-          Urna Escolar <span class="text-xs bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v0.6</span>
+          Urna Escolar <span class="text-xs bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.0</span>
         </h1>
-        <p class="text-xs text-slate-400">Eleições de Grêmio Estudantil</p>
+        <p class="text-xs text-slate-400">Grêmio Milton Martins Poitena</p>
       </div>
     </div>
 
@@ -62,8 +68,43 @@
   <!-- CONTEÚDO PRINCIPAL -->
   <main class="container mx-auto p-4 md:p-6 flex-1 max-w-5xl">
 
+    <!-- 0. TELA DE APRESENTAÇÃO / BOAS-VINDAS -->
+    <section id="tela-boasvindas" class="min-h-[70vh] flex items-center justify-center">
+      <div class="max-w-3xl text-center bg-slate-800 border border-indigo-500/30 rounded-3xl p-10 shadow-2xl">
+        
+        <h1 class="text-4xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+          Urna Eletrônica Escolar
+        </h1>
+
+        <p class="mt-6 text-slate-300 leading-relaxed">
+          Sistema desenvolvido especialmente para a votação do
+          <strong>Grêmio Estudantil da Escola Estadual Milton Martins Poitena</strong>.
+        </p>
+
+        <div class="mt-8 bg-slate-900 rounded-2xl p-5">
+          <h2 class="text-xl font-bold text-purple-400">
+            Desenvolvido por Soares
+          </h2>
+
+          <p class="text-slate-300 mt-2">
+            Gabriel Soares • 2º Ano do Ensino Médio
+          </p>
+
+          <p class="text-blue-400 font-semibold mt-2">
+            Instagram: @7soaresvgh
+          </p>
+        </div>
+
+        <button
+          onclick="navegarPara('identificacao')"
+          class="mt-8 px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 font-bold hover:scale-105 transition shadow-lg shadow-indigo-600/30">
+          Iniciar Sistema
+        </button>
+      </div>
+    </section>
+
     <!-- 1. TELA DE IDENTIFICAÇÃO (R.A) -->
-    <section id="tela-identificacao" class="space-y-6">
+    <section id="tela-identificacao" class="hidden space-y-6">
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 md:p-8 max-w-lg mx-auto shadow-2xl">
         <div class="text-center mb-6">
           <div class="inline-flex p-3 bg-indigo-500/10 text-indigo-400 rounded-full mb-3">
@@ -134,8 +175,8 @@
 
     <!-- 3. TELA DE APURAÇÃO AO VIVO (TELÃO DA ESCOLA) -->
     <section id="tela-apuracao" class="hidden space-y-6">
-      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl">
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-700 pb-6 mb-6">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-700 pb-6">
           <div>
             <div class="flex items-center gap-2 text-amber-400 font-bold text-sm uppercase tracking-wider">
               <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span> Apuração Ao Vivo
@@ -148,6 +189,9 @@
             <span id="total-votos-display" class="text-3xl font-extrabold font-mono text-indigo-400">0</span>
           </div>
         </div>
+
+        <!-- Líder Atual -->
+        <div id="lider-eleicao"></div>
 
         <!-- Gráfico e Estatísticas -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
@@ -178,10 +222,17 @@
             <p class="text-slate-400 text-xs mt-1">Gerenciamento completo do sistema de votação.</p>
           </div>
 
-          <!-- BOTÃO RESETAR R.A / ZERAR TUDO -->
-          <button onclick="confirmarResetGeral()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-4 py-2 rounded-xl font-semibold text-sm transition flex items-center gap-2">
-            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Resetar R.As & Zerar Votos
-          </button>
+          <div class="flex items-center gap-2">
+            <!-- BOTÃO EXPORTAR RESULTADOS -->
+            <button onclick="exportarResultados()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 px-4 py-2 rounded-xl font-semibold text-sm transition flex items-center gap-2">
+              <i data-lucide="download" class="w-4 h-4"></i> Exportar Resultados
+            </button>
+
+            <!-- BOTÃO RESETAR R.A / ZERAR TUDO -->
+            <button onclick="confirmarResetGeral()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-4 py-2 rounded-xl font-semibold text-sm transition flex items-center gap-2">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Resetar R.As & Zerar Votos
+            </button>
+          </div>
         </div>
 
         <!-- Formulário para Criar/Editar Chapas -->
@@ -251,8 +302,19 @@
   </main>
 
   <!-- RODAPÉ -->
-  <footer class="bg-slate-800/50 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-500">
-    Urna Eletrônica Escolar &copy; 2026 - E.E. Soares • Sistema Seguro de Votação
+  <footer class="bg-slate-950 border-t border-purple-500/20 py-6 text-center">
+    <div class="font-semibold text-slate-300">
+      Urna Eletrônica Escolar v1.0
+    </div>
+    <div class="text-slate-500 text-sm mt-1">
+      Desenvolvido por Gabriel Soares • 2º Ano EM
+    </div>
+    <div class="text-blue-400 text-sm">
+      @7soaresvgh
+    </div>
+    <div class="text-slate-600 text-xs mt-2">
+      Sistema criado para o Grêmio Estudantil Milton Martins Poitena
+    </div>
   </footer>
 
   <!-- SCRIPT DA APLICAÇÃO -->
@@ -573,6 +635,7 @@
 
     // NAVEGAÇÃO DE TELAS
     function navegarPara(telaId) {
+      document.getElementById("tela-boasvindas").classList.add("hidden");
       document.getElementById("tela-identificacao").classList.add("hidden");
       document.getElementById("tela-votacao").classList.add("hidden");
       document.getElementById("tela-apuracao").classList.add("hidden");
@@ -692,11 +755,30 @@
 
       alert("VOTO REGISTRADO COM SUCESSO!\nObrigado por participar.");
       alunoAtual = null;
-      navegarPara('identificacao');
+      navegarPara('boasvindas');
     }
 
     // RENDERIZAR TELA DE APURAÇÃO (TELÃO)
     function renderizarApuracao() {
+      // 3. Mostrar líder da eleição
+      let lider = null;
+      let maior = -1;
+
+      estadoLocal.chapas.forEach(chapa => {
+        const votos = estadoLocal.votos[chapa.id] || 0;
+        if (votos > maior) {
+          maior = votos;
+          lider = chapa;
+        }
+      });
+
+      document.getElementById("lider-eleicao").innerHTML = lider && maior > 0
+        ? `
+        <div class="bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/40 rounded-xl p-4 text-center">
+          🏆 Líder Atual: <strong>${lider.nome}</strong> (${maior} votos)
+        </div>`
+        : "";
+
       const container = document.getElementById("lista-resultados-chapas");
       container.innerHTML = "";
 
@@ -705,11 +787,16 @@
 
       document.getElementById("total-votos-display").textContent = totalVotos;
 
+      // 4. Ranking automático
+      const ranking = [...estadoLocal.chapas].sort((a, b) => {
+        return (estadoLocal.votos[b.id] || 0) - (estadoLocal.votos[a.id] || 0);
+      });
+
       const labels = [];
       const dataVotos = [];
       const cores = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b'];
 
-      estadoLocal.chapas.forEach((chapa, index) => {
+      ranking.forEach((chapa, index) => {
         const qtdVotos = estadoLocal.votos[chapa.id] || 0;
         const pct = totalVotos > 0 ? ((qtdVotos / totalVotos) * 100).toFixed(1) : 0;
 
@@ -768,7 +855,7 @@
           labels: labels,
           datasets: [{
             data: dataVotos,
-            backgroundColor: cores.slice(0, estadoLocal.chapas.length).concat(['#64748b']),
+            backgroundColor: cores.slice(0, ranking.length).concat(['#64748b']),
             borderWidth: 2,
             borderColor: '#0f172a'
           }]
@@ -809,6 +896,19 @@
       });
     }
 
+    // 5. EXPORTAR RESULTADOS
+    function exportarResultados() {
+      const blob = new Blob(
+        [JSON.stringify(estadoLocal, null, 2)],
+        { type: 'application/json' }
+      );
+
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'resultado-eleicao.json';
+      a.click();
+    }
+
     // CADASTRAR/SALVAR NOVA CHAPA
     function salvarChapa(e) {
       e.preventDefault();
@@ -816,6 +916,16 @@
       const numero = parseInt(document.getElementById("chapa-numero").value.trim());
       const descricao = document.getElementById("chapa-descricao").value.trim();
       const foto = document.getElementById("chapa-foto").value.trim();
+
+      // 6. IMPEDIR CHAPAS REPETIDAS
+      const existeNumero = estadoLocal.chapas.some(
+        c => Number(c.numero) === Number(numero)
+      );
+
+      if (existeNumero) {
+        alert("Já existe uma chapa com esse número.");
+        return;
+      }
 
       const novaChapa = {
         id: "chapa_" + Date.now(),
