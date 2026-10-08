@@ -13,17 +13,23 @@
   <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCcWt4GJQ81K6Hy707iDnnF9MOquIC5ves",
+      authDomain: "urna-escola-soares.firebaseapp.com",
       projectId: "urna-escola-soares"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    window.db = db;
-    window.firebaseModules = { collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSnapshot };
+    try {
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      window.db = db;
+      window.firebaseModules = { doc, setDoc, getDoc };
+      console.log("Firebase conectado com sucesso!");
+    } catch (e) {
+      console.warn("Aviso na inicialização do Firebase:", e);
+    }
   </script>
 
   <style>
@@ -585,39 +591,52 @@
     // INICIALIZAÇÃO
     window.onload = function() {
       lucide.createIcons();
-      // Aguarda o Firebase carregar do módulo e sincroniza
+      carregarEstadoLocal();
       setTimeout(() => {
-        carregarDadosFirebase();
-      }, 500);
+        sincronizarDoFirebase();
+      }, 600);
+    };
+
+    function carregarEstadoLocal() {
+      const salvo = localStorage.getItem("urna_escola_soares");
+      if (salvo) {
+        try { estadoLocal = JSON.parse(salvo); } catch(e){}
+      }
       renderizarUrna();
       renderizarApuracao();
       renderizarMesario();
-    };
+    }
 
-    // FUNÇÕES DE SINCRONIZAÇÃO COM FIREBASE
-    async function carregarDadosFirebase() {
+    function salvarEstadoLocal() {
+      localStorage.setItem("urna_escola_soares", JSON.stringify(estadoLocal));
+    }
+
+    // SINCRONIZAR COM O FIREBASE
+    async function sincronizarDoFirebase() {
       if (!window.db) return;
       try {
         const { doc, getDoc } = window.firebaseModules;
         const snap = await getDoc(doc(window.db, "eleicao", "estado"));
         if (snap.exists()) {
           estadoLocal = snap.data();
+          salvarEstadoLocal();
           renderizarUrna();
           renderizarApuracao();
           renderizarMesario();
         }
       } catch (e) {
-        console.log("Modo offline ou erro ao carregar do Firebase:", e);
+        console.log("Usando modo local integrado:", e);
       }
     }
 
-    async function salvarDadosFirebase() {
+    async function salvarNoServidor() {
+      salvarEstadoLocal();
       if (!window.db) return;
       try {
         const { doc, setDoc } = window.firebaseModules;
         await setDoc(doc(window.db, "eleicao", "estado"), estadoLocal);
       } catch (e) {
-        console.log("Erro ao salvar no Firebase:", e);
+        console.log("Erro ao enviar para nuvem, salvo localmente:", e);
       }
     }
 
@@ -745,7 +764,7 @@
         estadoLocal.votos[chapaId] = (estadoLocal.votos[chapaId] || 0) + 1;
       }
 
-      await salvarDadosFirebase();
+      await salvarNoServidor();
 
       alert("VOTO REGISTRADO COM SUCESSO!\nObrigado por participar.");
       alunoAtual = null;
@@ -753,10 +772,6 @@
     }
 
     // RENDERIZAR TELA DE APURAÇÃO (TELÃO)
-    function renderizarapuracao() {
-      renderizarApuracao();
-    }
-    
     function renderizarApuracao() {
       let lider = null;
       let maior = -1;
@@ -925,7 +940,7 @@
         if (estadoLocal.votos[chapaId]) {
           delete estadoLocal.votos[chapaId];
         }
-        await salvarDadosFirebase();
+        await salvarNoServidor();
         renderizarMesario();
         renderizarUrna();
         renderizarApuracao();
@@ -972,7 +987,7 @@
       };
 
       estadoLocal.chapas.push(novaChapa);
-      await salvarDadosFirebase();
+      await salvarNoServidor();
 
       document.getElementById("form-cadastrar-chapa").reset();
       document.getElementById("chapa-foto-base64").value = "";
@@ -989,7 +1004,7 @@
         estadoLocal.votos = {};
         estadoLocal.votoBranco = 0;
         estadoLocal.alunosVotaram = {};
-        await salvarDadosFirebase();
+        await salvarNoServidor();
         alert("Sistema zerado com sucesso!");
         renderizarApuracao();
         renderizarMesario();
