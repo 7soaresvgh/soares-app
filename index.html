@@ -11,12 +11,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    @keyframes pulse-soft {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.03); }
-    }
-    .animate-pulse-soft {
-      animation: pulse-soft 2s infinite ease-in-out;
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
     }
     .gradient-bg {
       background: linear-gradient(
@@ -43,7 +39,7 @@
         </div>
         <div>
           <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            Urna Escolar <span class="text-[10px] bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.2</span>
+            Urna Escolar <span class="text-[10px] bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.3</span>
           </h1>
           <p class="text-[11px] text-slate-400">Grêmio Milton Martins Poitena</p>
         </div>
@@ -69,7 +65,7 @@
   <!-- CONTEÚDO PRINCIPAL -->
   <main class="container mx-auto p-3 sm:p-6 flex-1 max-w-4xl w-full">
 
-    <!-- 0. TELA DE APRESENTAÇÃO / BOAS-VINDAS + HISTÓRIA DO SOARES -->
+    <!-- 0. TELA DE APRESENTAÇÃO / BOAS-VINDAS -->
     <section id="tela-boasvindas" class="min-h-[75vh] flex items-center justify-center">
       <div class="max-w-2xl w-full text-center bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6">
         
@@ -82,36 +78,26 @@
         </h1>
 
         <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-          Sistema oficial e seguro para a votação do
-          <strong>Grêmio Estudantil da Escola Estadual Milton Martins Poitena</strong>.
+          Sistema oficial e seguro para a eleição do
+          <strong>Grêmio Estudantil da Escola Estadual Milton Martins Poitena</strong>[cite: 2].
         </p>
-
-        <!-- História Curta de Mentira sobre o Soares -->
-        <div class="bg-slate-800/90 border border-indigo-500/20 rounded-2xl p-5 text-left space-y-3 shadow-inner">
-          <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs sm:text-sm uppercase tracking-wider">
-            <i data-lucide="book-open" class="w-4 h-4"></i> A Lenda do Código Secreto
-          </div>
-          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
-            "Conta a lenda nos corredores do Milton Martins Poitena que Gabriel Soares passou três noites acordado programando esta urna sob a luz do celular, comendo apenas pão com mortadela e sonhando em revolucionar as eleições do grêmio!"
-          </p>
-        </div>
 
         <div class="bg-slate-950/60 rounded-2xl p-4 border border-slate-800">
           <h2 class="text-base sm:text-lg font-bold text-purple-400">
-            Desenvolvido por Soares
+            Desenvolvido por Gabriel Soares[cite: 2]
           </h2>
           <p class="text-xs sm:text-sm text-slate-300 mt-1">
-            Gabriel Soares • 2º Ano do Ensino Médio
+            2º Ano do Ensino Médio • E.E. Milton Martins Poitena[cite: 2]
           </p>
           <p class="text-blue-400 font-semibold text-xs sm:text-sm mt-1">
-            Instagram: @7soaresvgh
+            Instagram: @7soaresvgh[cite: 2]
           </p>
         </div>
 
         <button
           onclick="navegarPara('identificacao')"
           class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 font-bold text-white hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 mx-auto">
-          <span>Iniciar Sistema</span> <i data-lucide="arrow-right" class="w-5 h-5"></i>
+          <span>Iniciar Votação</span> <i data-lucide="arrow-right" class="w-5 h-5"></i>
         </button>
       </div>
     </section>
@@ -157,7 +143,7 @@
 
         <!-- Lista de Chapas Cadastradas -->
         <div id="grid-chapas" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- As chapas serão injetadas via JS -->
+          <!-- Injetado via JS -->
         </div>
 
         <!-- Opção de Voto em Branco -->
@@ -178,11 +164,11 @@
             <div class="flex items-center gap-2 text-amber-400 font-bold text-xs sm:text-sm uppercase tracking-wider">
               <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span> Apuração Ao Vivo
             </div>
-            <h2 class="text-2xl font-bold text-white mt-1">Resultados da Eleição</h2>
+            <h2 class="text-2xl font-bold text-white mt-1">Resultados da Eleição[cite: 2]</h2>
           </div>
 
           <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-left sm:text-right flex sm:flex-col justify-between items-center sm:items-end">
-            <span class="text-xs text-slate-400 uppercase tracking-wider block">Total de Votantes</span>
+            <span class="text-xs text-slate-400 uppercase tracking-wider block">Total de Votantes[cite: 2]</span>
             <span id="total-votos-display" class="text-2xl sm:text-3xl font-extrabold font-mono text-indigo-400">0</span>
           </div>
         </div>
@@ -213,28 +199,28 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div>
             <h2 class="text-lg sm:text-xl font-bold text-indigo-400 flex items-center gap-2">
-              <i data-lucide="shield-check" class="w-6 h-6"></i> Painel do Mesário
+              <i data-lucide="shield-check" class="w-6 h-6"></i> Painel do Mesário[cite: 2]
             </h2>
-            <p class="text-slate-400 text-xs mt-1">Gerenciamento completo do sistema de votação.</p>
+            <p class="text-slate-400 text-xs mt-1">Gerenciamento completo do sistema de votação[cite: 2].</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
             <!-- BOTÃO EXPORTAR RESULTADOS -->
             <button onclick="exportarResultados()" class="flex-1 sm:flex-none bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
-              <i data-lucide="download" class="w-4 h-4"></i> Exportar
+              <i data-lucide="download" class="w-4 h-4"></i> Exportar[cite: 2]
             </button>
 
-            <!-- BOTÃO RESETAR R.A / ZERAR TUDO -->
+            <!-- BOTÃO RESETAR TUDO -->
             <button onclick="confirmarResetGeral()" class="flex-1 sm:flex-none bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
-              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Zerar
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Zerar[cite: 2]
             </button>
           </div>
         </div>
 
-        <!-- Formulário para Criar/Editar Chapas com Upload de Galeria -->
+        <!-- Formulário para Criar Chapas com Foto da Galeria -->
         <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 sm:p-5">
           <h3 class="text-sm sm:text-md font-bold text-white mb-4 flex items-center gap-2">
-            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i> Cadastrar Nova Chapa
+            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i> Cadastrar Nova Chapa[cite: 2]
           </h3>
 
           <form id="form-cadastrar-chapa" onsubmit="salvarChapa(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -257,7 +243,7 @@
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Adicionar Foto da Galeria</label>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Adicionar Foto da Galeria[cite: 2]</label>
               <input type="file" id="chapa-foto-file" accept="image/*" onchange="converterFotoGaleria(event)"
                 class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 transition">
               <input type="hidden" id="chapa-foto-base64" value="">
@@ -265,26 +251,36 @@
 
             <div class="md:col-span-2 flex justify-end mt-2">
               <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold px-6 py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
-                <i data-lucide="check-circle" class="w-4 h-4"></i> Salvar Chapa
+                <i data-lucide="check-circle" class="w-4 h-4"></i> Salvar Chapa[cite: 2]
               </button>
             </div>
           </form>
         </div>
 
-        <!-- Tabela de Registros de Votação por R.A (Auditoria) -->
+        <!-- Lista de Chapas Cadastradas com Opção de Excluir -->
         <div class="space-y-3">
           <h3 class="text-sm sm:text-md font-bold text-white flex items-center gap-2">
-            <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i> Registro de Votantes (Auditoria)
+            <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i> Chapas Cadastradas (Gerenciar / Excluir)[cite: 2]
+          </h3>
+          <div id="lista-chapas-mesario" class="space-y-2">
+            <!-- Injetado via JS -->
+          </div>
+        </div>
+
+        <!-- Tabela de Registros de Votação por R.A (Auditoria) -->
+        <div class="space-y-3 pt-4 border-t border-slate-800">
+          <h3 class="text-sm sm:text-md font-bold text-white flex items-center gap-2">
+            <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i> Registro de Votantes (Auditoria)[cite: 2]
           </h3>
           <div class="overflow-x-auto border border-slate-800 rounded-2xl bg-slate-950/40">
             <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap sm:whitespace-normal">
               <thead class="bg-slate-900/90 text-slate-400 uppercase font-mono text-[10px]">
                 <tr>
-                  <th class="p-3">R.A Votante</th>
-                  <th class="p-3">Nome do Aluno</th>
-                  <th class="p-3">Turma</th>
-                  <th class="p-3">Votou Em (Chapa)</th>
-                  <th class="p-3">Data/Hora</th>
+                  <th class="p-3">R.A Votante[cite: 2]</th>
+                  <th class="p-3">Nome do Aluno[cite: 2]</th>
+                  <th class="p-3">Turma[cite: 2]</th>
+                  <th class="p-3">Votou Em (Chapa)[cite: 2]</th>
+                  <th class="p-3">Data/Hora[cite: 2]</th>
                 </tr>
               </thead>
               <tbody id="tabela-votantes-corpo" class="divide-y divide-slate-800/80">
@@ -301,16 +297,16 @@
   <!-- RODAPÉ -->
   <footer class="bg-slate-950 border-t border-purple-500/20 py-6 px-4 text-center">
     <div class="font-semibold text-slate-300 text-sm">
-      Urna Eletrônica Escolar v1.2
+      Urna Eletrônica Escolar v1.3[cite: 2]
     </div>
     <div class="text-slate-500 text-xs mt-1">
-      Desenvolvido por Gabriel Soares • 2º Ano EM
+      Desenvolvido por Gabriel Soares • 2º Ano EM[cite: 2]
     </div>
     <div class="text-blue-400 text-xs mt-0.5">
-      @7soaresvgh
+      @7soaresvgh[cite: 2]
     </div>
     <div class="text-slate-600 text-[11px] mt-2">
-      Sistema criado para o Grêmio Estudantil Milton Martins Poitena
+      Sistema criado para o Grêmio Estudantil Milton Martins Poitena[cite: 2]
     </div>
   </footer>
 
@@ -827,8 +823,35 @@
       });
     }
 
-    // RENDERIZAR PAINEL DO MESÁRIO
+    // RENDERIZAR PAINEL DO MESÁRIO (COM LISTAGEM E EXCLUSÃO DE CHAPAS)
     function renderizarMesario() {
+      // 1. Renderizar lista de chapas para gerenciamento / exclusão
+      const listaChapasMesario = document.getElementById("lista-chapas-mesario");
+      listaChapasMesario.innerHTML = "";
+
+      if (estadoLocal.chapas.length === 0) {
+        listaChapasMesario.innerHTML = `<p class="text-xs text-slate-500 p-2">Nenhuma chapa cadastrada.</p>`;
+      } else {
+        estadoLocal.chapas.forEach(chapa => {
+          const div = document.createElement("div");
+          div.className = "flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-xl gap-2";
+          div.innerHTML = `
+            <div class="flex items-center gap-3 overflow-hidden">
+              ${chapa.foto ? `<img src="${chapa.foto}" class="w-10 h-10 object-cover rounded-lg border border-slate-700 shrink-0">` : '<div class="w-10 h-10 bg-slate-800 rounded-lg shrink-0 flex items-center justify-center text-xs font-mono text-slate-500">#</div>'}
+              <div class="truncate">
+                <span class="text-xs font-bold text-indigo-300">#${chapa.numero} - ${chapa.nome}</span>
+                <p class="text-[11px] text-slate-400 truncate">${chapa.descricao}</p>
+              </div>
+            </div>
+            <button onclick="excluirChapa('${chapa.id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Excluir
+            </button>
+          `;
+          listaChapasMesario.appendChild(div);
+        });
+      }
+
+      // 2. Renderizar tabela de votantes (auditoria)
       const tbody = document.getElementById("tabela-votantes-corpo");
       tbody.innerHTML = "";
 
@@ -836,22 +859,41 @@
 
       if (chaves.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Nenhum voto registrado até o momento.</td></tr>`;
-        return;
+      } else {
+        chaves.forEach(ra => {
+          const item = estadoLocal.alunosVotaram[ra];
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-900/60 transition";
+          tr.innerHTML = `
+            <td class="p-3 font-mono text-indigo-300">${ra}</td>
+            <td class="p-3 font-semibold text-white">${item.nome}</td>
+            <td class="p-3 text-slate-400">${item.turma}</td>
+            <td class="p-3"><span class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">${item.chapaVotada}</span></td>
+            <td class="p-3 font-mono text-slate-400 text-[11px]">${item.dataHora}</td>
+          `;
+          tbody.appendChild(tr);
+        });
       }
 
-      chaves.forEach(ra => {
-        const item = estadoLocal.alunosVotaram[ra];
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-900/60 transition";
-        tr.innerHTML = `
-          <td class="p-3 font-mono text-indigo-300">${ra}</td>
-          <td class="p-3 font-semibold text-white">${item.nome}</td>
-          <td class="p-3 text-slate-400">${item.turma}</td>
-          <td class="p-3"><span class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">${item.chapaVotada}</span></td>
-          <td class="p-3 font-mono text-slate-400 text-[11px]">${item.dataHora}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+      lucide.createIcons();
+    }
+
+    // EXCLUIR CHAPA ESPECÍFICA
+    function excluirChapa(chapaId) {
+      const chapa = estadoLocal.chapas.find(c => c.id === chapaId);
+      if (!chapa) return;
+
+      if (confirm(`Tem certeza que deseja excluir a chapa "${chapa.nome}"?`)) {
+        estadoLocal.chapas = estadoLocal.chapas.filter(c => c.id !== chapaId);
+        if (estadoLocal.votos[chapaId]) {
+          delete estadoLocal.votos[chapaId];
+        }
+        salvarEstadoLocalStorage();
+        renderizarMesario();
+        renderizarUrna();
+        renderizarApuracao();
+        alert("Chapa excluída com sucesso!");
+      }
     }
 
     // EXPORTAR RESULTADOS
