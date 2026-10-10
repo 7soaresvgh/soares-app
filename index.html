@@ -4,12 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Urna Eletrônica Escolar - E.E. Milton Martins Poitena</title>
+  
+  <!-- Tailwind CSS, Lucide Icons & Chart.js -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyDEGZZtnPmZhG0ouIV7M6joPZLTjRkw4Q",
       authDomain: "soares-app-61b17.firebaseapp.com",
@@ -20,78 +25,143 @@
       appId: "1:246291781042:web:d80b50a9a790a8db2180ab",
       measurementId: "G-X5R46KHPH1"
     };
+
     try {
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
       window.db = db;
       window.firebaseModules = { doc, setDoc, getDoc, onSnapshot };
-    } catch (e) { console.warn("Firebase:", e); }
+      console.log("Firebase conectado com sucesso ao projeto soares-app-61b17!");
+    } catch (e) {
+      console.warn("Aviso na inicialização do Firebase:", e);
+    }
   </script>
+
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif !important; }
-    .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 30%, #312e81 60%, #581c87 100%); }
-    input, button, select, textarea { font-size: 16px !important; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+    }
+    .gradient-bg {
+      background: linear-gradient(
+        135deg,
+        #0f172a 0%,
+        #1e1b4b 30%,
+        #312e81 60%,
+        #581c87 100%
+      );
+    }
+    input, button, select, textarea {
+      font-size: 16px !important;
+    }
   </style>
 </head>
 <body class="gradient-bg text-slate-100 min-h-screen font-sans flex flex-col justify-between selection:bg-purple-500 selection:text-white">
+
+  <!-- CABEÇALHO RESPONSIVO -->
   <header class="bg-slate-800/90 backdrop-blur-md border-b border-purple-500/20 px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3 shadow-lg sticky top-0 z-50">
     <div class="flex items-center space-x-3 cursor-pointer w-full sm:w-auto justify-between sm:justify-start" onclick="navegarPara('boasvindas')">
       <div class="flex items-center space-x-3">
-        <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-md"><i data-lucide="vote" class="w-6 h-6"></i></div>
+        <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-md">
+          <i data-lucide="vote" class="w-6 h-6"></i>
+        </div>
         <div>
           <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            Urna Escolar <span class="text-[10px] bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v1.9</span>
+            Urna Escolar <span class="text-[10px] bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v2.0</span>
           </h1>
           <p class="text-[11px] text-slate-400">Grêmio Milton Martins Poitena</p>
         </div>
       </div>
     </div>
+
+    <!-- Navegação de Abas -->
     <nav class="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none justify-start sm:justify-end">
-      <button onclick="navegarPara('identificacao')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap"><i data-lucide="user-check" class="w-4 h-4 text-emerald-400"></i> Votante</button>
-      <button onclick="abrirModalSenha('apuracao')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap"><i data-lucide="tv" class="w-4 h-4 text-amber-400"></i> Apuração</button>
-      <button onclick="abrirModalSenha('mesario')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap"><i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i> Mesário</button>
+      <button onclick="navegarPara('identificacao')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap">
+        <i data-lucide="user-check" class="w-4 h-4 text-emerald-400"></i> Votante
+      </button>
+
+      <button onclick="abrirModalSenha('apuracao')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap">
+        <i data-lucide="tv" class="w-4 h-4 text-amber-400"></i> Resultado Final
+      </button>
+
+      <button onclick="abrirModalSenha('mesario')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap">
+        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i> Mesário
+      </button>
     </nav>
   </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
   <main class="container mx-auto p-3 sm:p-6 flex-1 max-w-4xl w-full">
+
+    <!-- 0. TELA DE BOAS-VINDAS -->
     <section id="tela-boasvindas" class="min-h-[75vh] flex items-center justify-center">
       <div class="max-w-2xl w-full text-center bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6">
-        <div class="inline-flex p-4 bg-purple-500/15 text-purple-400 rounded-2xl border border-purple-500/20 shadow-inner"><i data-lucide="sparkles" class="w-10 h-10 animate-pulse"></i></div>
-        <h1 class="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent leading-tight">Urna Eletrônica Escolar</h1>
-        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">Sistema oficial e seguro para a eleição do <strong>Grêmio Estudantil da E.E. Milton Martins Poitena</strong>.</p>
+        
+        <div class="inline-flex p-4 bg-purple-500/15 text-purple-400 rounded-2xl border border-purple-500/20 shadow-inner">
+          <i data-lucide="sparkles" class="w-10 h-10 animate-pulse"></i>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent leading-tight">
+          Urna Eletrônica Escolar
+        </h1>
+
+        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+          Sistema oficial e seguro para a eleição do
+          <strong>Grêmio Estudantil da Escola Estadual Milton Martins Poitena</strong>.
+        </p>
+
+        <!-- HISTÓRIA E INSTAGRAM -->
         <div class="bg-slate-950/80 rounded-2xl p-5 border border-purple-500/20 text-left space-y-3">
-          <h3 class="text-xs font-mono uppercase tracking-wider text-purple-400 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4"></i> Nossa História & Missão</h3>
-          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">Tudo começou com o sonho de transformar a nossa escola em um ambiente mais participativo e integrado. Gabriel Soares idealizou este sistema tecnológico para garantir transparência absoluta.</p>
+          <h3 class="text-xs font-mono uppercase tracking-wider text-purple-400 flex items-center gap-2">
+            <i data-lucide="book-open" class="w-4 h-4"></i> Nossa História & Missão
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Tudo começou com o sonho de transformar a nossa escola em um ambiente mais participativo, moderno e integrado. Gabriel Soares idealizou este sistema tecnológico para garantir transparência absoluta nas eleições do grêmio, unindo inovação digital e democracia estudantil em um só lugar.
+          </p>
           <div class="pt-2 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
               <span class="text-xs font-bold text-white block">Gabriel Soares</span>
-              <span class="text-[11px] text-slate-400">2º Ano EM • E.E. Milton Martins Poitena</span>
+              <span class="text-[11px] text-slate-400">2º Ano do Ensino Médio • E.E. Milton Martins Poitena</span>
             </div>
-            <a href="https://instagram.com/7soaresvgh" target="_blank" class="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:scale-105 transition text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg"><i data-lucide="instagram" class="w-4 h-4"></i> @7soaresvgh</a>
+            <a href="https://instagram.com/7soaresvgh" target="_blank" class="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:scale-105 transition text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-pink-600/20">
+              <i data-lucide="instagram" class="w-4 h-4"></i> @7soaresvgh
+            </a>
           </div>
         </div>
-        <button onclick="navegarPara('identificacao')" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 font-bold text-white hover:scale-[1.02] active:scale-95 transition shadow-lg flex items-center justify-center gap-2 mx-auto">
+
+        <button
+          onclick="navegarPara('identificacao')"
+          class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 font-bold text-white hover:scale-[1.02] active:scale-95 transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 mx-auto">
           <span>Iniciar Votação</span> <i data-lucide="arrow-right" class="w-5 h-5"></i>
         </button>
       </div>
     </section>
-        <section id="tela-identificacao" class="hidden space-y-6">
+
+    <!-- 1. TELA DE IDENTIFICAÇÃO (R.A LIBERADO PARA QUALQUER ALUNO) -->
+    <section id="tela-identificacao" class="hidden space-y-6">
       <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-md mx-auto shadow-2xl">
         <div class="text-center mb-6">
-          <div class="inline-flex p-3 bg-indigo-500/10 text-indigo-400 rounded-full mb-3"><i data-lucide="id-card" class="w-8 h-8"></i></div>
+          <div class="inline-flex p-3 bg-indigo-500/10 text-indigo-400 rounded-full mb-3">
+            <i data-lucide="id-card" class="w-8 h-8"></i>
+          </div>
           <h2 class="text-2xl font-bold text-white">Identificação do Aluno</h2>
           <p class="text-slate-400 text-xs sm:text-sm mt-1">Digite seu R.A escolar para iniciar a votação.</p>
         </div>
+
         <form id="form-ra" onsubmit="validarRA(event)" class="space-y-4">
           <div>
             <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-300 mb-2">Registro do Aluno (R.A)</label>
-            <input type="text" id="input-ra" placeholder="Ex: 00001234567890SP" required class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3.5 text-base font-mono tracking-wider uppercase focus:outline-none focus:border-indigo-500 text-white">
+            <input type="text" id="input-ra" placeholder="Ex: 00001234567890SP" required
+              class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3.5 text-base sm:text-lg font-mono tracking-wider uppercase focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition text-white">
           </div>
+
           <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold py-3.5 rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
             <span>Avançar para Votação</span> <i data-lucide="arrow-right" class="w-5 h-5"></i>
           </button>
         </form>
       </div>
     </section>
+
+    <!-- 2. TELA DE VOTAÇÃO DA URNA -->
     <section id="tela-votacao" class="hidden space-y-6">
       <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-6 gap-2">
@@ -100,159 +170,281 @@
             <span id="aluno-nome" class="text-base sm:text-lg font-bold text-indigo-300">---</span>
             <span id="aluno-turma" class="text-xs text-slate-400 ml-1 sm:ml-2 bg-slate-800 px-2 py-0.5 rounded">---</span>
           </div>
-          <span class="text-xs font-mono text-slate-400 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl" id="aluno-ra-display">0000...</span>
+          <span class="text-xs font-mono text-slate-400 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl self-start sm:self-auto" id="aluno-ra-display">0000...</span>
         </div>
+
         <h2 class="text-lg sm:text-xl font-bold text-center mb-6 text-slate-100">Escolha sua Chapa ou Vote em Branco</h2>
-        <div id="grid-chapas" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+        <!-- Lista de Chapas Cadastradas -->
+        <div id="grid-chapas" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Injetado via JS -->
+        </div>
+
+        <!-- Opção de Voto em Branco -->
         <div class="mt-8 pt-6 border-t border-slate-800 text-center">
-          <button onclick="abrirConfirmacaoVoto('BRANCO', 'Voto em Branco')" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-slate-200 font-bold px-8 py-3.5 rounded-2xl transition inline-flex items-center justify-center gap-2">
+          <button onclick="abrirConfirmacaoVoto('BRANCO', 'Voto em Branco')"
+            class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-slate-200 font-bold px-8 py-3.5 rounded-2xl transition inline-flex items-center justify-center gap-2">
             <i data-lucide="circle-slash" class="w-5 h-5 text-slate-400"></i> Votar em Branco
           </button>
         </div>
       </div>
     </section>
+
+    <!-- TELA DE FIM (APÓS VOTAR) -->
     <section id="tela-fim" class="hidden min-h-[70vh] flex items-center justify-center">
       <div class="max-w-md w-full text-center bg-slate-900/90 backdrop-blur-xl border border-emerald-500/40 rounded-3xl p-8 shadow-2xl space-y-6">
-        <div class="inline-flex p-4 bg-emerald-500/15 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner"><i data-lucide="check-circle-2" class="w-16 h-16 animate-bounce"></i></div>
+        <div class="inline-flex p-4 bg-emerald-500/15 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
+          <i data-lucide="check-circle-2" class="w-16 h-16 animate-bounce"></i>
+        </div>
         <h2 class="text-3xl font-extrabold text-white">FIM</h2>
         <p class="text-emerald-400 font-semibold text-lg">Voto Registrado com Sucesso!</p>
-        <p class="text-slate-300 text-sm">Obrigado por participar da eleição do Grêmio.</p>
-        <button onclick="navegarPara('boasvindas')" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition shadow-lg">Concluir / Voltar ao Início</button>
+        <p class="text-slate-300 text-sm">Obrigado por exercer sua cidadania e participar da eleição do Grêmio Escolar.</p>
+        <button onclick="navegarPara('boasvindas')" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition shadow-lg">
+          Concluir / Voltar ao Início
+        </button>
       </div>
     </section>
+
+    <!-- 3. TELA DE RESULTADO FINAL & CHAPA ELEITA -->
     <section id="tela-apuracao" class="hidden space-y-6">
       <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
+        
+        <!-- Cabeçalho de Eleição Encerrada -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
           <div>
-            <div class="flex items-center gap-2 text-amber-400 font-bold text-xs sm:text-sm uppercase tracking-wider"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span> Apuração Ao Vivo</div>
-            <h2 class="text-2xl font-bold text-white mt-1">Resultados da Eleição</h2>
+            <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs sm:text-sm uppercase tracking-wider">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Eleição Encerrada • Resultado Final
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Apuração Oficial</h2>
           </div>
+
           <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-left sm:text-right flex sm:flex-col justify-between items-center sm:items-end">
             <span class="text-xs text-slate-400 uppercase tracking-wider block">Total de Votantes</span>
             <span id="total-votos-display" class="text-2xl sm:text-3xl font-extrabold font-mono text-indigo-400">0</span>
           </div>
         </div>
+
+        <!-- Banner Chapa Eleita -->
         <div id="lider-eleicao"></div>
+
+        <!-- Gráfico e Lista de Chapas -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+          <!-- Gráfico -->
           <div class="lg:col-span-1 bg-slate-950/60 border border-slate-800 p-4 rounded-2xl flex items-center justify-center">
-            <div class="w-full max-w-[240px] sm:max-w-[280px]"><canvas id="graficoResultados"></canvas></div>
+            <div class="w-full max-w-[240px] sm:max-w-[280px]">
+              <canvas id="graficoResultados"></canvas>
+            </div>
           </div>
-          <div class="lg:col-span-2 space-y-3" id="lista-resultados-chapas"></div>
+
+          <!-- Tabela com Foto, % e Votos -->
+          <div class="lg:col-span-2 space-y-3" id="lista-resultados-chapas">
+            <!-- Injetado via JS -->
+          </div>
         </div>
+
+        <!-- Mensagem Oficial de Agradecimento -->
+        <div class="bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-slate-900/80 border border-purple-500/30 rounded-2xl p-6 text-center space-y-2 mt-6">
+          <div class="inline-flex p-3 bg-purple-500/10 text-purple-400 rounded-full mb-1">
+            <i data-lucide="heart" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white">Obrigado a Todos pela Participação!</h3>
+          <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
+            Agradecemos a todos os alunos, professores e equipe escolar que exerceram sua cidadania e participaram desta eleição do Grêmio Estudantil da E.E. Milton Martins Poitena. Parabéns à chapa vencedora e a todos os participantes!
+          </p>
+        </div>
+
       </div>
     </section>
+
+    <!-- 4. TELA ÁREA DO MESÁRIO (CONTROLE COMPLETO) -->
     <section id="tela-mesario" class="hidden space-y-6">
       <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div>
-            <h2 class="text-lg sm:text-xl font-bold text-indigo-400 flex items-center gap-2"><i data-lucide="shield-check" class="w-6 h-6"></i> Painel do Mesário</h2>
+            <h2 class="text-lg sm:text-xl font-bold text-indigo-400 flex items-center gap-2">
+              <i data-lucide="shield-check" class="w-6 h-6"></i> Painel do Mesário
+            </h2>
             <p class="text-slate-400 text-xs mt-1">Gerenciamento e auditoria em tempo real.</p>
           </div>
+
           <div class="flex flex-wrap items-center gap-2">
-            <button onclick="exportarResultados()" class="flex-1 sm:flex-none bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs transition flex items-center justify-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Exportar</button>
-            <button onclick="abrirModalZerar()" class="flex-1 sm:flex-none bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs transition flex items-center justify-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Zerar</button>
+            <button onclick="exportarResultados()" class="flex-1 sm:flex-none bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+              <i data-lucide="download" class="w-4 h-4"></i> Exportar
+            </button>
+
+            <button onclick="abrirModalZerar()" class="flex-1 sm:flex-none bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Zerar
+            </button>
           </div>
         </div>
+
+        <!-- Form Cadastrar Chapa -->
         <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 sm:p-5">
-          <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i> Cadastrar Nova Chapa</h3>
+          <h3 class="text-sm sm:text-md font-bold text-white mb-4 flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i> Cadastrar Nova Chapa
+          </h3>
+
           <form id="form-cadastrar-chapa" onsubmit="salvarChapa(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold text-slate-300 mb-1">Nome da Chapa</label>
-              <input type="text" id="chapa-nome" placeholder="Ex: Chapa Renovação" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+              <input type="text" id="chapa-nome" placeholder="Ex: Chapa Renovação" required
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
             </div>
+
             <div>
               <label class="block text-xs font-semibold text-slate-300 mb-1">Número da Chapa</label>
-              <input type="number" id="chapa-numero" placeholder="Ex: 10" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+              <input type="number" id="chapa-numero" placeholder="Ex: 10" required
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
             </div>
+
             <div class="md:col-span-2">
               <label class="block text-xs font-semibold text-slate-300 mb-1">Integrantes / Slogan</label>
-              <input type="text" id="chapa-descricao" placeholder="Ex: Maria (Presidente), João (Vice)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+              <input type="text" id="chapa-descricao" placeholder="Ex: Maria (Presidente), João (Vice)" required
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
             </div>
+
             <div class="md:col-span-2">
               <label class="block text-xs font-semibold text-slate-300 mb-1">Adicionar Foto da Galeria</label>
-              <input type="file" id="chapa-foto-file" accept="image/*" onchange="converterFotoGaleria(event)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white">
+              <input type="file" id="chapa-foto-file" accept="image/*" onchange="converterFotoGaleria(event)"
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 transition">
               <input type="hidden" id="chapa-foto-base64" value="">
             </div>
+
             <div class="md:col-span-2 flex justify-end mt-2">
-              <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold px-6 py-3 rounded-xl text-sm transition flex items-center justify-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Salvar Chapa</button>
+              <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold px-6 py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> Salvar Chapa
+              </button>
             </div>
           </form>
         </div>
+
+        <!-- Chapas Cadastradas -->
         <div class="space-y-3">
-          <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i> Chapas Cadastradas</h3>
-          <div id="lista-chapas-mesario" class="space-y-2"></div>
+          <h3 class="text-sm sm:text-md font-bold text-white flex items-center gap-2">
+            <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i> Chapas Cadastradas (Gerenciar / Excluir)
+          </h3>
+          <div id="lista-chapas-mesario" class="space-y-2">
+            <!-- Injetado via JS -->
+          </div>
         </div>
+
+        <!-- Tabela Auditoria -->
         <div class="space-y-3 pt-4 border-t border-slate-800">
-          <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i> Registro de Votantes (Auditoria)</h3>
+          <h3 class="text-sm sm:text-md font-bold text-white flex items-center gap-2">
+            <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i> Registro de Votantes (Auditoria)
+          </h3>
           <div class="overflow-x-auto border border-slate-800 rounded-2xl bg-slate-950/40">
-            <table class="w-full text-left text-xs text-slate-300">
+            <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap sm:whitespace-normal">
               <thead class="bg-slate-900/90 text-slate-400 uppercase font-mono text-[10px]">
                 <tr>
                   <th class="p-3">R.A Votante</th>
                   <th class="p-3">Nome do Aluno</th>
                   <th class="p-3">Turma</th>
-                  <th class="p-3">Votou Em</th>
+                  <th class="p-3">Votou Em (Chapa)</th>
                   <th class="p-3">Data/Hora</th>
                 </tr>
               </thead>
-              <tbody id="tabela-votantes-corpo" class="divide-y divide-slate-800/80"></tbody>
+              <tbody id="tabela-votantes-corpo" class="divide-y divide-slate-800/80">
+                <!-- Injetado via JS -->
+              </tbody>
             </table>
           </div>
         </div>
       </div>
     </section>
+
   </main>
-    <div id="modal-confirmacao" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+
+  <!-- MODAL DE CONFIRMAÇÃO DE VOTO -->
+  <div id="modal-confirmacao" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
-      <div class="inline-flex p-3 bg-purple-500/15 text-purple-400 rounded-full"><i data-lucide="help-circle" class="w-8 h-8"></i></div>
+      <div class="inline-flex p-3 bg-purple-500/15 text-purple-400 rounded-full">
+        <i data-lucide="help-circle" class="w-8 h-8"></i>
+      </div>
       <h3 class="text-xl font-bold text-white">Confirmação de Voto</h3>
       <p class="text-slate-300 text-sm">Você está prestes a confirmar seu voto em:</p>
       <div id="modal-nome-chapa" class="bg-slate-950 border border-purple-500/20 py-3 px-4 rounded-xl text-indigo-300 font-bold text-base">---</div>
       <div class="flex gap-3 pt-2">
-        <button onclick="fecharModalConfirmacao()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">Corrigir</button>
-        <button onclick="executarConfirmacaoVoto()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg">Confirmar Voto</button>
+        <button onclick="fecharModalConfirmacao()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">
+          Corrigir / Voltar
+        </button>
+        <button onclick="executarConfirmacaoVoto()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-600/20">
+          Confirmar Voto
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- MODAL DE SENHA -->
   <div id="modal-senha" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
-      <div class="inline-flex p-3 bg-amber-500/15 text-amber-400 rounded-full"><i data-lucide="lock" class="w-8 h-8"></i></div>
+      <div class="inline-flex p-3 bg-amber-500/15 text-amber-400 rounded-full">
+        <i data-lucide="lock" class="w-8 h-8"></i>
+      </div>
       <h3 id="modal-senha-titulo" class="text-xl font-bold text-white">Acesso Restrito</h3>
       <p class="text-slate-300 text-sm">Digite a senha de acesso:</p>
-      <input type="password" id="input-senha-modal" placeholder="Sua senha..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-white focus:outline-none focus:border-indigo-500">
+      <input type="password" id="input-senha-modal" placeholder="Sua senha..."
+        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-white focus:outline-none focus:border-indigo-500">
       <div class="flex gap-3 pt-2">
-        <button onclick="fecharModalSenha()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">Cancelar</button>
-        <button onclick="validarSenhaModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition">Entrar</button>
+        <button onclick="fecharModalSenha()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">
+          Cancelar
+        </button>
+        <button onclick="validarSenhaModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-600/20">
+          Entrar
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- MODAL ZERAR -->
   <div id="modal-zerar" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-red-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
-      <div class="inline-flex p-3 bg-red-500/15 text-red-400 rounded-full"><i data-lucide="alert-triangle" class="w-8 h-8"></i></div>
+      <div class="inline-flex p-3 bg-red-500/15 text-red-400 rounded-full">
+        <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+      </div>
       <h3 class="text-xl font-bold text-white">Zerar Eleição</h3>
-      <p class="text-slate-300 text-sm">ATENÇÃO: Apagará todos os votos!<br><br>Digite <strong>ZERAR</strong> para confirmar:</p>
-      <input type="text" id="input-zerar-modal" placeholder="Digite ZERAR" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center uppercase tracking-widest text-white focus:outline-none focus:border-red-500">
+      <p class="text-slate-300 text-sm">ATENÇÃO: Esta ação apagará TODOS os votos!<br><br>Digite <strong>ZERAR</strong> para confirmar:</p>
+      <input type="text" id="input-zerar-modal" placeholder="Digite ZERAR"
+        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center uppercase tracking-widest text-white focus:outline-none focus:border-red-500">
       <div class="flex gap-3 pt-2">
-        <button onclick="fecharModalZerar()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">Cancelar</button>
-        <button onclick="executarZerarGeral()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition">Zerar Tudo</button>
+        <button onclick="fecharModalZerar()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">
+          Cancelar
+        </button>
+        <button onclick="executarZerarGeral()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-red-600/20">
+          Zerar Tudo
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- RODAPÉ -->
   <footer class="bg-slate-950 border-t border-purple-500/20 py-6 px-4 text-center">
-    <div class="font-semibold text-slate-300 text-sm">Urna Eletrônica Escolar v1.9</div>
-    <div class="text-slate-500 text-xs mt-1">Desenvolvido por Gabriel Soares • 2º Ano EM</div>
-    <div class="text-blue-400 text-xs mt-0.5"><a href="https://instagram.com/7soaresvgh" target="_blank" class="hover:underline">@7soaresvgh</a></div>
-    <div class="text-slate-600 text-[11px] mt-2">Grêmio Estudantil Milton Martins Poitena</div>
+    <div class="font-semibold text-slate-300 text-sm">
+      Urna Eletrônica Escolar v2.0
+    </div>
+    <div class="text-slate-500 text-xs mt-1">
+      Desenvolvido por Gabriel Soares • 2º Ano EM
+    </div>
+    <div class="text-blue-400 text-xs mt-0.5">
+      <a href="https://instagram.com/7soaresvgh" target="_blank" class="hover:underline">@7soaresvgh</a>
+    </div>
+    <div class="text-slate-600 text-[11px] mt-2">
+      Grêmio Estudantil Milton Martins Poitena
+    </div>
   </footer>
-    <script>
+
+  <!-- SCRIPT DA APLICAÇÃO -->
+  <script>
+    // SENHAS
     const SENHA_MESARIO = "soaresmesario";
     const SENHA_APURACAO = "soaresapuraçao";
     const SENHA_APURACAO_ALT = "soaresapuracao";
 
+    // ESTADO LOCAL DA APLICAÇÃO
     let estadoLocal = {
       chapas: [
-        { id: "chapa_1", numero: 10, nome: "Chapa Ação & Voz", descricao: "Liderança estudantil e cultura.", foto: "" },
-        { id: "chapa_2", numero: 20, nome: "Chapa Futuro Escolar", descricao: "Esportes, lazer e melhorias.", foto: "" }
+        { id: "chapa_1", numero: 1, nome: "Nova Imperial", descricao: "Propostas e melhorias para a escola.", foto: "" },
+        { id: "chapa_2", numero: 2, nome: "Jovem Extraordinários", descricao: "Cultura, esportes e projetos.", foto: "" }
       ],
       votos: {},
       votoBranco: 0,
@@ -263,16 +455,22 @@
     let graficoChart = null;
     let votoPendente = null;
     let destinoSenhaPendente = null;
+    let enviandoVoto = false; // Trava contra cliques duplos
 
     window.onload = function() {
       lucide.createIcons();
       carregarEstadoLocal();
-      setTimeout(() => { iniciarEscutaTempoReal(); }, 800);
+      
+      setTimeout(() => {
+        iniciarEscutaTempoReal();
+      }, 800);
     };
 
     function carregarEstadoLocal() {
       const salvo = localStorage.getItem("urna_escola_soares");
-      if (salvo) { try { estadoLocal = JSON.parse(salvo); } catch(e){} }
+      if (salvo) {
+        try { estadoLocal = JSON.parse(salvo); } catch(e){}
+      }
       renderizarUrna();
       renderizarApuracao();
       renderizarMesario();
@@ -295,7 +493,9 @@
             renderizarMesario();
           }
         });
-      } catch (e) { console.log(e); }
+      } catch (e) {
+        console.log("Modo offline ativo:", e);
+      }
     }
 
     async function salvarNoServidor() {
@@ -304,9 +504,12 @@
       try {
         const { doc, setDoc } = window.firebaseModules;
         await setDoc(doc(window.db, "eleicao", "estado"), estadoLocal);
-      } catch (e) { console.log(e); }
+      } catch (e) {
+        console.log("Erro ao enviar para nuvem:", e);
+      }
     }
 
+    // NAVEGAÇÃO DE TELAS
     function navegarPara(telaId) {
       document.getElementById("tela-boasvindas").classList.add("hidden");
       document.getElementById("tela-identificacao").classList.add("hidden");
@@ -316,15 +519,17 @@
       document.getElementById("tela-fim").classList.add("hidden");
 
       document.getElementById("tela-" + telaId).classList.remove("hidden");
+      
       if(telaId === 'apuracao') renderizarApuracao();
       if(telaId === 'mesario') renderizarMesario();
       window.scrollTo(0, 0);
     }
 
+    // MODAL DE SENHA
     function abrirModalSenha(destino) {
       destinoSenhaPendente = destino;
       document.getElementById("input-senha-modal").value = "";
-      document.getElementById("modal-senha-titulo").textContent = destino === 'mesario' ? "Painel do Mesário" : "Apuração Ao Vivo";
+      document.getElementById("modal-senha-titulo").textContent = destino === 'mesario' ? "Painel do Mesário" : "Resultado Final";
       document.getElementById("modal-senha").classList.remove("hidden");
       document.getElementById("input-senha-modal").focus();
     }
@@ -337,40 +542,53 @@
     function validarSenhaModal() {
       const pass = document.getElementById("input-senha-modal").value;
       if (destinoSenhaPendente === 'mesario') {
-        if (pass === SENHA_MESARIO) { fecharModalSenha(); navegarPara('mesario'); } else { alert("Senha incorreta!"); }
+        if (pass === SENHA_MESARIO) {
+          fecharModalSenha();
+          navegarPara('mesario');
+        } else {
+          alert("Senha de Mesário incorreta!");
+        }
       } else if (destinoSenhaPendente === 'apuracao') {
-        if (pass === SENHA_APURACAO || pass === SENHA_APURACAO_ALT) { fecharModalSenha(); navegarPara('apuracao'); } else { alert("Senha incorreta!"); }
+        if (pass === SENHA_APURACAO || pass === SENHA_APURACAO_ALT) {
+          fecharModalSenha();
+          navegarPara('apuracao');
+        } else {
+          alert("Senha de Apuração incorreta!");
+        }
       }
     }
 
+    // FOTO EM BASE64
     function converterFotoGaleria(event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = function(e) { document.getElementById("chapa-foto-base64").value = e.target.result; };
+        reader.onload = function(e) {
+          document.getElementById("chapa-foto-base64").value = e.target.result;
+        };
         reader.readAsDataURL(file);
       }
     }
 
-    // TRAVAMENTO REMOVIDO: Aceita qualquer R.A digitado, bloqueando apenas se já votou
+    // VALIDAR R.A (LIBERADO PARA QUALQUER R.A - IMPEDE APENAS VOTO DUPLICADO)
     function validarRA(e) {
       e.preventDefault();
       const rawRA = document.getElementById("input-ra").value.trim().toUpperCase();
 
       if (!rawRA) {
-        alert("Digite um R.A válido.");
+        alert("Por favor, digite um R.A válido.");
         return;
       }
 
       if (estadoLocal.alunosVotaram[rawRA]) {
-        alert(`Este R.A (${rawRA}) JÁ REALIZOU O VOTO anteriormente!`);
+        alert(`O R.A ${rawRA} JÁ REALIZOU O VOTO nesta eleição!`);
         return;
       }
 
       alunoAtual = {
         ra: rawRA,
         nome: "Aluno(a) - R.A " + rawRA,
-        turma: "Período Noturno / Geral"
+        turma: "Aluno Votante"
       };
 
       document.getElementById("aluno-nome").textContent = alunoAtual.nome;
@@ -382,24 +600,28 @@
       navegarPara('votacao');
     }
 
+    // RENDERIZAR URNA
     function renderizarUrna() {
       const grid = document.getElementById("grid-chapas");
       grid.innerHTML = "";
+
       if (estadoLocal.chapas.length === 0) {
         grid.innerHTML = `<p class="col-span-full text-center text-slate-400 py-8">Nenhuma chapa cadastrada.</p>`;
         return;
       }
+
       estadoLocal.chapas.forEach(chapa => {
         const card = document.createElement("div");
         card.className = "bg-slate-950 border border-slate-800 hover:border-indigo-500 rounded-2xl p-5 flex flex-col justify-between transition shadow-lg";
         card.innerHTML = `
           <div>
-            ${chapa.foto ? `<div class="w-full h-44 bg-slate-900 rounded-xl mb-4 border border-slate-800 flex items-center justify-center overflow-hidden"><img src="${chapa.foto}" class="w-full h-full object-contain"></div>` : ''}
+            ${chapa.foto ? `<div class="w-full h-44 bg-slate-900 rounded-xl mb-4 border border-slate-800 flex items-center justify-center overflow-hidden"><img src="${chapa.foto}" alt="${chapa.nome}" class="w-full h-full object-contain"></div>` : ''}
             <span class="bg-indigo-500/20 text-indigo-300 font-mono text-xs px-2.5 py-1 rounded-full font-bold">Chapa #${chapa.numero}</span>
             <h3 class="text-xl font-bold text-white mt-2">${chapa.nome}</h3>
             <p class="text-slate-400 text-xs mt-1 leading-relaxed">${chapa.descricao}</p>
           </div>
-          <button onclick="abrirConfirmacaoVoto('${chapa.id}', '${chapa.nome}')" class="mt-6 w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md">
+          <button onclick="abrirConfirmacaoVoto('${chapa.id}', '${chapa.nome}')"
+            class="mt-6 w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md">
             <i data-lucide="vote" class="w-4 h-4"></i> Votar nesta Chapa
           </button>
         `;
@@ -408,6 +630,7 @@
       lucide.createIcons();
     }
 
+    // CONFIRMAÇÃO DE VOTO BLINDADA
     function abrirConfirmacaoVoto(chapaId, nomeChapa) {
       votoPendente = { chapaId, nomeChapa };
       document.getElementById("modal-nome-chapa").textContent = nomeChapa;
@@ -420,23 +643,44 @@
     }
 
     async function executarConfirmacaoVoto() {
-      if (!alunoAtual || !votoPendente) return;
-      if (estadoLocal.alunosVotaram[alunoAtual.ra]) { alert("Erro: R.A já votou!"); navegarPara('boasvindas'); return; }
+      if (!alunoAtual || !votoPendente || enviandoVoto) return;
+
+      enviandoVoto = true; // Trava clique duplo
+
+      if (estadoLocal.alunosVotaram[alunoAtual.ra]) {
+        alert("Erro: Este R.A já registrou um voto!");
+        fecharModalConfirmacao();
+        enviandoVoto = false;
+        navegarPara('boasvindas');
+        return;
+      }
 
       const { chapaId, nomeChapa } = votoPendente;
       fecharModalConfirmacao();
+
       const dataHora = new Date().toLocaleString("pt-BR");
 
-      estadoLocal.alunosVotaram[alunoAtual.ra] = { nome: alunoAtual.nome, turma: alunoAtual.turma, chapaVotada: nomeChapa, dataHora: dataHora };
-      if (chapaId === 'BRANCO') { estadoLocal.votoBranco = (estadoLocal.votoBranco || 0) + 1; } 
-      else { estadoLocal.votos[chapaId] = (estadoLocal.votos[chapaId] || 0) + 1; }
+      estadoLocal.alunosVotaram[alunoAtual.ra] = {
+        nome: alunoAtual.nome,
+        turma: alunoAtual.turma,
+        chapaVotada: nomeChapa,
+        dataHora: dataHora
+      };
+
+      if (chapaId === 'BRANCO') {
+        estadoLocal.votoBranco = (estadoLocal.votoBranco || 0) + 1;
+      } else {
+        estadoLocal.votos[chapaId] = (estadoLocal.votos[chapaId] || 0) + 1;
+      }
 
       await salvarNoServidor();
+
       tocarSomUrna();
       falarObrigado();
 
       alunoAtual = null;
       votoPendente = null;
+      enviandoVoto = false;
       navegarPara('fim');
     }
 
@@ -445,10 +689,13 @@
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
+        osc.type = 'sine';
         osc.frequency.setValueAtTime(800, audioCtx.currentTime);
         gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
       } catch(e) {}
     }
 
@@ -460,32 +707,53 @@
       }
     }
 
+    // RENDERIZAR RESULTADO FINAL & CHAPA ELEITA
     function renderizarApuracao() {
       let lider = null;
       let maior = -1;
 
+      // Soma matemática perfeita baseada nos votos reais
       let totalVotos = (estadoLocal.votoBranco || 0);
-      Object.keys(estadoLocal.votos || {}).forEach(chapaId => { totalVotos += (estadoLocal.votos[chapaId] || 0); });
-
-      const totalVotantesMesario = Object.keys(estadoLocal.alunosVotaram || {}).length;
-      if (totalVotos < totalVotantesMesario) { totalVotos = totalVotantesMesario; }
+      Object.keys(estadoLocal.votos || {}).forEach(chapaId => {
+        totalVotos += (estadoLocal.votos[chapaId] || 0);
+      });
 
       estadoLocal.chapas.forEach(chapa => {
         const votos = estadoLocal.votos[chapa.id] || 0;
-        if (votos > maior) { maior = votos; lider = chapa; }
+        if (votos > maior) {
+          maior = votos;
+          lider = chapa;
+        }
       });
 
+      // Banner da Chapa Eleita
       document.getElementById("lider-eleicao").innerHTML = lider && maior > 0
-        ? `<div class="bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/40 rounded-2xl p-4 text-center">🏆 Líder Atual: <strong>${lider.nome}</strong> (${maior} votos)</div>` : "";
+        ? `
+        <div class="bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-emerald-500/20 border-2 border-emerald-500/50 rounded-2xl p-6 text-center shadow-lg space-y-2">
+          <div class="inline-block bg-emerald-500 text-slate-950 font-black text-xs px-3 py-1 rounded-full uppercase tracking-widest">
+            🎉 ELEITA COM SUCESSO
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-extrabold text-white">
+            CHAPA ELEITA: ${lider.nome.toUpperCase()}
+          </h3>
+          <p class="text-emerald-300 font-mono text-sm sm:text-base font-bold">
+            ${maior} VOTOS (${((maior / (totalVotos || 1)) * 100).toFixed(1)}%)
+          </p>
+        </div>`
+        : "";
 
       const container = document.getElementById("lista-resultados-chapas");
       container.innerHTML = "";
-      document.getElementById("total-votos-display").textContent = totalVotantesMesario > 0 ? totalVotantesMesario : totalVotos;
 
-      const ranking = [...estadoLocal.chapas].sort((a, b) => (estadoLocal.votos[b.id] || 0) - (estadoLocal.votos[a.id] || 0));
+      document.getElementById("total-votos-display").textContent = totalVotos;
+
+      const ranking = [...estadoLocal.chapas].sort((a, b) => {
+        return (estadoLocal.votos[b.id] || 0) - (estadoLocal.votos[a.id] || 0);
+      });
+
       const labels = [];
       const dataVotos = [];
-      const cores = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b'];
+      const cores = ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b'];
 
       ranking.forEach((chapa, index) => {
         const qtdVotos = estadoLocal.votos[chapa.id] || 0;
@@ -494,15 +762,20 @@
 
         labels.push(chapa.nome);
         dataVotos.push(qtdVotos);
+
         const cor = cores[index % cores.length];
+        const eEleita = chapa.id === lider?.id && maior > 0;
 
         const item = document.createElement("div");
-        item.className = "bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-2 flex flex-col sm:flex-row items-center gap-4";
+        item.className = `bg-slate-950 border ${eEleita ? 'border-emerald-500/60 ring-1 ring-emerald-500/30' : 'border-slate-800'} p-4 rounded-2xl space-y-2 flex flex-col sm:flex-row items-center gap-4`;
         item.innerHTML = `
           ${chapa.foto ? `<div class="w-16 h-16 bg-slate-900 rounded-xl border border-slate-800 shrink-0 flex items-center justify-center overflow-hidden"><img src="${chapa.foto}" class="w-full h-full object-contain"></div>` : ''}
           <div class="flex-1 w-full space-y-2">
             <div class="flex justify-between items-center text-xs sm:text-sm font-semibold">
-              <span class="text-white flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block" style="background-color: ${cor}"></span> #${chapa.numero} - ${chapa.nome}</span>
+              <span class="text-white flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${cor}"></span>
+                #${chapa.numero} - ${chapa.nome} ${eEleita ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono ml-2">ELEITA</span>' : ''}
+              </span>
               <span class="font-mono text-indigo-300">${qtdVotos} voto(s) (${pct}%)</span>
             </div>
             <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden">
@@ -523,25 +796,48 @@
       itemBranco.className = "bg-slate-950 border border-slate-800 p-4 rounded-2xl space-y-2";
       itemBranco.innerHTML = `
         <div class="flex justify-between items-center text-xs sm:text-sm font-semibold">
-          <span class="text-slate-400 flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-slate-600 inline-block"></span> Votos em Branco</span>
+          <span class="text-slate-400 flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-slate-600 inline-block"></span>
+            Votos em Branco
+          </span>
           <span class="font-mono text-slate-400">${qtdBranco} voto(s) (${pctBranco}%)</span>
         </div>
-        <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden"><div class="bg-slate-600 h-3 rounded-full transition-all duration-500" style="width: ${pctBranco}%"></div></div>
+        <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden">
+          <div class="bg-slate-600 h-3 rounded-full transition-all duration-500" style="width: ${pctBranco}%"></div>
+        </div>
       `;
       container.appendChild(itemBranco);
 
       const ctx = document.getElementById('graficoResultados').getContext('2d');
       if (graficoChart) graficoChart.destroy();
+
       graficoChart = new Chart(ctx, {
         type: 'doughnut',
-        data: { labels: labels, datasets: [{ data: dataVotos, backgroundColor: cores.slice(0, ranking.length).concat(['#64748b']), borderWidth: 2, borderColor: '#020617' }] },
-        options: { responsive: true, plugins: { legend: { display: false } } }
+        data: {
+          labels: labels,
+          datasets: [{
+            data: dataVotos,
+            backgroundColor: cores.slice(0, ranking.length).concat(['#64748b']),
+            borderWidth: 2,
+            borderColor: '#020617'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          }
+        }
       });
+
+      lucide.createIcons();
     }
 
+    // PAINEL DO MESÁRIO
     function renderizarMesario() {
       const listaChapasMesario = document.getElementById("lista-chapas-mesario");
       listaChapasMesario.innerHTML = "";
+
       if (estadoLocal.chapas.length === 0) {
         listaChapasMesario.innerHTML = `<p class="text-xs text-slate-500 p-2">Nenhuma chapa cadastrada.</p>`;
       } else {
@@ -551,9 +847,14 @@
           div.innerHTML = `
             <div class="flex items-center gap-3 overflow-hidden">
               ${chapa.foto ? `<div class="w-12 h-12 bg-slate-950 rounded-lg border border-slate-700 shrink-0 flex items-center justify-center overflow-hidden"><img src="${chapa.foto}" class="w-full h-full object-contain"></div>` : '<div class="w-12 h-12 bg-slate-800 rounded-lg shrink-0 flex items-center justify-center text-xs font-mono text-slate-500">#</div>'}
-              <div class="truncate"><span class="text-xs font-bold text-indigo-300">#${chapa.numero} - ${chapa.nome}</span><p class="text-[11px] text-slate-400 truncate">${chapa.descricao}</p></div>
+              <div class="truncate">
+                <span class="text-xs font-bold text-indigo-300">#${chapa.numero} - ${chapa.nome}</span>
+                <p class="text-[11px] text-slate-400 truncate">${chapa.descricao}</p>
+              </div>
             </div>
-            <button onclick="excluirChapa('${chapa.id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition flex items-center gap-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Excluir</button>
+            <button onclick="excluirChapa('${chapa.id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Excluir
+            </button>
           `;
           listaChapasMesario.appendChild(div);
         });
@@ -561,7 +862,9 @@
 
       const tbody = document.getElementById("tabela-votantes-corpo");
       tbody.innerHTML = "";
+
       const chaves = Object.keys(estadoLocal.alunosVotaram || {});
+
       if (chaves.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Nenhum voto registrado.</td></tr>`;
       } else {
@@ -579,23 +882,33 @@
           tbody.appendChild(tr);
         });
       }
+
       lucide.createIcons();
     }
 
     async function excluirChapa(chapaId) {
       const chapa = estadoLocal.chapas.find(c => c.id === chapaId);
       if (!chapa) return;
+
       if (confirm(`Deseja excluir a chapa "${chapa.nome}"?`)) {
         estadoLocal.chapas = estadoLocal.chapas.filter(c => c.id !== chapaId);
-        if (estadoLocal.votos[chapaId]) delete estadoLocal.votos[chapaId];
+        if (estadoLocal.votos[chapaId]) {
+          delete estadoLocal.votos[chapaId];
+        }
         await salvarNoServidor();
-        renderizarMesario(); renderizarUrna(); renderizarApuracao();
+        renderizarMesario();
+        renderizarUrna();
+        renderizarApuracao();
         alert("Chapa excluída!");
       }
     }
 
     function exportarResultados() {
-      const blob = new Blob([JSON.stringify(estadoLocal, null, 2)], { type: 'application/json' });
+      const blob = new Blob(
+        [JSON.stringify(estadoLocal, null, 2)],
+        { type: 'application/json' }
+      );
+
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'resultado-eleicao.json';
@@ -609,32 +922,54 @@
       const descricao = document.getElementById("chapa-descricao").value.trim();
       const foto = document.getElementById("chapa-foto-base64").value.trim();
 
-      if (estadoLocal.chapas.some(c => Number(c.numero) === Number(numero))) { alert("Já existe chapa com este número."); return; }
+      if (estadoLocal.chapas.some(c => Number(c.numero) === Number(numero))) {
+        alert("Já existe uma chapa com esse número.");
+        return;
+      }
 
-      estadoLocal.chapas.push({ id: "chapa_" + Date.now(), numero, nome, descricao, foto });
+      const novaChapa = {
+        id: "chapa_" + Date.now(),
+        numero: numero,
+        nome: nome,
+        descricao: descricao,
+        foto: foto
+      };
+
+      estadoLocal.chapas.push(novaChapa);
       await salvarNoServidor();
+
       document.getElementById("form-cadastrar-chapa").reset();
       document.getElementById("chapa-foto-base64").value = "";
-      alert("Chapa cadastrada!");
-      renderizarUrna(); renderizarApuracao(); renderizarMesario();
+      alert(`Chapa "${nome}" cadastrada com sucesso!`);
+      renderizarUrna();
+      renderizarApuracao();
+      renderizarMesario();
     }
 
+    // MODAL ZERAR
     function abrirModalZerar() {
       document.getElementById("input-zerar-modal").value = "";
       document.getElementById("modal-zerar").classList.remove("hidden");
       document.getElementById("input-zerar-modal").focus();
     }
 
-    function fecharModalZerar() { document.getElementById("modal-zerar").classList.add("hidden"); }
+    function fecharModalZerar() {
+      document.getElementById("modal-zerar").classList.add("hidden");
+    }
 
     async function executarZerarGeral() {
       if (document.getElementById("input-zerar-modal").value.trim().toUpperCase() === 'ZERAR') {
-        estadoLocal.votos = {}; estadoLocal.votoBranco = 0; estadoLocal.alunosVotaram = {};
+        estadoLocal.votos = {};
+        estadoLocal.votoBranco = 0;
+        estadoLocal.alunosVotaram = {};
         await salvarNoServidor();
         fecharModalZerar();
         alert("Sistema zerado com sucesso!");
-        renderizarApuracao(); renderizarMesario();
-      } else { alert("Digite ZERAR corretamente."); }
+        renderizarApuracao();
+        renderizarMesario();
+      } else {
+        alert("Digite exatamente ZERAR para confirmar.");
+      }
     }
   </script>
 </body>
