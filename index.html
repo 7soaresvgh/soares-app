@@ -10,33 +10,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Firebase SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDEGZZtnPmZhG0ouIV7M6joPZLTjRkw4Q",
-      authDomain: "soares-app-61b17.firebaseapp.com",
-      databaseURL: "https://soares-app-61b17-default-rtdb.firebaseio.com",
-      projectId: "soares-app-61b17",
-      storageBucket: "soares-app-61b17.firebasestorage.app",
-      messagingSenderId: "246291781042",
-      appId: "1:246291781042:web:d80b50a9a790a8db2180ab",
-      measurementId: "G-X5R46KHPH1"
-    };
-
-    try {
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      window.db = db;
-      window.firebaseModules = { doc, setDoc, getDoc, onSnapshot };
-      console.log("Firebase conectado com sucesso ao projeto soares-app-61b17!");
-    } catch (e) {
-      console.warn("Aviso na inicialização do Firebase:", e);
-    }
-  </script>
-
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
@@ -50,418 +23,239 @@
         #581c87 100%
       );
     }
-    input, button, select, textarea {
-      font-size: 16px !important;
-    }
   </style>
 </head>
 <body class="gradient-bg text-slate-100 min-h-screen font-sans flex flex-col justify-between selection:bg-purple-500 selection:text-white">
 
-  <!-- CABEÇALHO -->
-  <header class="bg-slate-800/90 backdrop-blur-md border-b border-purple-500/20 px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3 shadow-lg sticky top-0 z-50">
-    <div class="flex items-center space-x-3 cursor-pointer w-full sm:w-auto justify-between sm:justify-start" onclick="navegarPara('boasvindas')">
-      <div class="flex items-center space-x-3">
-        <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-md">
-          <i data-lucide="vote" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            Urna Escolar <span class="text-[10px] bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v2.5</span>
-          </h1>
-          <p class="text-[11px] text-slate-400">Grêmio Milton Martins Poitena</p>
-        </div>
+  <!-- CABEÇALHO MEMORIAL -->
+  <header class="bg-slate-800/90 backdrop-blur-md border-b border-purple-500/20 px-4 py-3 flex justify-between items-center shadow-lg sticky top-0 z-50">
+    <div class="flex items-center space-x-3">
+      <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-md">
+        <i data-lucide="trophy" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+          Urna Escolar <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono uppercase">Resultado Final</span>
+        </h1>
+        <p class="text-[11px] text-slate-400">Grêmio Milton Martins Poitena</p>
       </div>
     </div>
-
-    <!-- Navegação de Abas -->
-    <nav class="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none justify-start sm:justify-end">
-      <button onclick="navegarPara('boasvindas')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap">
-        <i data-lucide="trophy" class="w-4 h-4 text-amber-400"></i> Resultado Final
-      </button>
-
-      <button onclick="navegarPara('identificacao')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap">
-        <i data-lucide="user-check" class="w-4 h-4 text-emerald-400"></i> Votante
-      </button>
-
-      <button onclick="abrirModalSenha('mesario')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 bg-slate-700/60 hover:bg-slate-700 transition whitespace-nowrap">
-        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i> Mesário
-      </button>
-    </nav>
   </header>
 
-  <!-- CONTEÚDO PRINCIPAL -->
-  <main class="container mx-auto p-3 sm:p-6 flex-1 max-w-5xl w-full">
-
-    <!-- 0. TELA INICIAL COMPLETA (RESULTADO, RANKING, 4 GRÁFICOS E MENSAGEM AMPLIADA) -->
-    <section id="tela-boasvindas" class="space-y-8 py-4">
+  <!-- CONTEÚDO PRINCIPAL (COMEMORATIVO) -->
+  <main class="container mx-auto p-3 sm:p-6 flex-1 max-w-5xl w-full space-y-8 py-6">
       
-      <!-- CABEÇALHO PRINCIPAL DA HOME -->
-      <div class="text-center bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
-        <div class="inline-flex p-4 bg-emerald-500/15 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
-          <i data-lucide="trophy" class="w-10 h-10 animate-bounce"></i>
+    <!-- APRESENTAÇÃO E TOTAL DE VOTANTES -->
+    <div class="text-center bg-slate-900/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
+      <div class="inline-flex p-4 bg-emerald-500/15 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
+        <i data-lucide="trophy" class="w-10 h-10 animate-bounce"></i>
+      </div>
+      <div>
+        <span class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+          Eleição Encerrada • Apuração Oficial
+        </span>
+        <h1 class="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent leading-tight mt-3">
+          Urna Eletrônica Escolar
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Grêmio Estudantil da E.E. Milton Martins Poitena
+        </p>
+      </div>
+
+      <div class="inline-block bg-slate-950/80 border border-slate-800 rounded-2xl px-6 py-3 text-center">
+        <span class="text-xs text-slate-400 uppercase tracking-wider block">Total de Alunos Votantes</span>
+        <span class="text-3xl font-extrabold font-mono text-indigo-400">177</span>
+      </div>
+    </div>
+
+    <!-- CHAPA ELEITA VENCEDORA -->
+    <div class="bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-emerald-500/20 border-2 border-emerald-500/50 rounded-3xl p-6 sm:p-8 text-center shadow-2xl space-y-3">
+      <div class="inline-block bg-emerald-500 text-slate-950 font-black text-xs px-3.5 py-1 rounded-full uppercase tracking-widest shadow-md">
+        🎉 CHAPA ELEITA VENCEDORA
+      </div>
+      <h3 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        NOVA IMPERIAL
+      </h3>
+      <p class="text-emerald-300 font-mono text-base sm:text-lg font-bold">
+        121 VOTOS (68.4%)
+      </p>
+      <p class="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto pt-2 border-t border-emerald-500/20">
+        Parabéns à <strong>Nova Imperial</strong>! Desejamos uma excelente e próspera coordenação à frente do Grêmio Estudantil Milton Martins Poitena, trabalhando com dedicação por todos os alunos!
+      </p>
+    </div>
+
+    <!-- RANKING COMPLETO DAS CHAPAS -->
+    <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-4">
+      <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+        <div class="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl">
+          <i data-lucide="award" class="w-6 h-6"></i>
         </div>
         <div>
-          <span class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-            Eleição Encerrada • Apuração Oficial
-          </span>
-          <h1 class="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent leading-tight mt-3">
-            Urna Eletrônica Escolar
-          </h1>
-          <p class="text-xs sm:text-sm text-slate-400 mt-1">
-            Grêmio Estudantil da E.E. Milton Martins Poitena
-          </p>
-        </div>
-
-        <!-- TOTAL DE VOTANTES DESTAQUE -->
-        <div class="inline-block bg-slate-950/80 border border-slate-800 rounded-2xl px-6 py-3 text-center">
-          <span class="text-xs text-slate-400 uppercase tracking-wider block">Total de Alunos Votantes</span>
-          <span id="total-votos-home" class="text-3xl font-extrabold font-mono text-indigo-400">177</span>
+          <h2 class="text-xl font-bold text-white">Classificação & Ranking Final</h2>
+          <p class="text-xs text-slate-400">Votação completa de todas as chapas concorrentes e votos em branco.</p>
         </div>
       </div>
 
-      <!-- BANNER DA CHAPA VENCEDORA E PARABÉNS DA GESTÃO -->
-      <div id="banner-chapa-eleita-home"></div>
-
-      <!-- RANKING COMPLETO DE TODAS AS CHAPAS -->
-      <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-4">
-        <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
-          <div class="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl">
-            <i data-lucide="award" class="w-6 h-6"></i>
+      <div class="space-y-3">
+        <!-- #1 NOVA IMPERIAL -->
+        <div class="bg-slate-950 border border-emerald-500/60 ring-1 ring-emerald-500/30 p-4 sm:p-5 rounded-2xl space-y-2 flex flex-col sm:flex-row items-center gap-4">
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <span class="font-mono font-extrabold text-lg sm:text-xl w-7 text-center text-amber-400">#1</span>
           </div>
-          <div>
-            <h2 class="text-xl font-bold text-white">Classificação & Ranking Final</h2>
-            <p class="text-xs text-slate-400">Votação completa de todas as chapas concorrentes e votos em branco.</p>
+          <div class="flex-1 w-full space-y-2">
+            <div class="flex justify-between items-center text-xs sm:text-sm font-semibold">
+              <span class="text-white flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full inline-block bg-emerald-500"></span>
+                Chapa #1 - Nova Imperial <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono ml-1">ELEITA</span>
+              </span>
+              <span class="font-mono text-indigo-300 font-bold">121 voto(s) (68.4%)</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-3.5 overflow-hidden">
+              <div class="h-3.5 rounded-full transition-all duration-500 bg-emerald-500" style="width: 68.4%"></div>
+            </div>
           </div>
         </div>
 
-        <!-- LISTA DO RANKING COMPLETO (INJETADO VIA JS) -->
-        <div id="lista-ranking-home" class="space-y-3"></div>
-      </div>
-
-      <!-- PAINEL COM 4 TIPOS DE GRÁFICOS DA VOTAÇÃO -->
-      <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
-        <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
-          <div class="p-2.5 bg-indigo-500/20 text-indigo-400 rounded-xl">
-            <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+        <!-- #2 JOVEM EXTRAORDINÁRIOS -->
+        <div class="bg-slate-950 border border-slate-800 p-4 sm:p-5 rounded-2xl space-y-2 flex flex-col sm:flex-row items-center gap-4">
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <span class="font-mono font-extrabold text-lg sm:text-xl w-7 text-center text-slate-500">#2</span>
           </div>
-          <div>
-            <h2 class="text-xl font-bold text-white">Análise Gráfica Completa da Votação</h2>
-            <p class="text-xs text-slate-400">4 visões estatísticas detalhadas sobre a participação e preferências dos alunos.</p>
+          <div class="flex-1 w-full space-y-2">
+            <div class="flex justify-between items-center text-xs sm:text-sm font-semibold">
+              <span class="text-white flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full inline-block bg-indigo-500"></span>
+                Chapa #2 - Jovem Extraordinários
+              </span>
+              <span class="font-mono text-indigo-300 font-bold">42 voto(s) (23.7%)</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-3.5 overflow-hidden">
+              <div class="h-3.5 rounded-full transition-all duration-500 bg-indigo-500" style="width: 23.7%"></div>
+            </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- GRÁFICO 1: ROSCA (DOUGHNUT) -->
-          <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col items-center">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i> 1. Proporção Geral (Rosca)
-            </h3>
-            <div class="w-full max-w-[240px] h-[220px] flex items-center justify-center">
-              <canvas id="chartDoughnutHome"></canvas>
-            </div>
+        <!-- BRANCOS -->
+        <div class="bg-slate-950 border border-slate-800 p-4 sm:p-5 rounded-2xl space-y-2 flex flex-col sm:flex-row items-center gap-4">
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <span class="font-mono font-bold text-slate-500 text-lg w-7 text-center">-</span>
           </div>
-
-          <!-- GRÁFICO 2: BARRAS (BAR) -->
-          <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col items-center">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-400"></i> 2. Comparativo Direto (Barras)
-            </h3>
-            <div class="w-full h-[220px] flex items-center justify-center">
-              <canvas id="chartBarHome"></canvas>
+          <div class="flex-1 w-full space-y-2">
+            <div class="flex justify-between items-center text-xs sm:text-sm font-semibold">
+              <span class="text-slate-400 flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-slate-600 inline-block"></span>
+                Votos em Branco
+              </span>
+              <span class="font-mono text-slate-400 font-bold">14 voto(s) (7.9%)</span>
             </div>
-          </div>
-
-          <!-- GRÁFICO 3: LINHAS (LINE) -->
-          <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col items-center">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <i data-lucide="trending-up" class="w-4 h-4 text-amber-400"></i> 3. Fluxo Acumulado (Linha)
-            </h3>
-            <div class="w-full h-[220px] flex items-center justify-center">
-              <canvas id="chartLineHome"></canvas>
-            </div>
-          </div>
-
-          <!-- GRÁFICO 4: PIZZA (PIE) -->
-          <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col items-center">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <i data-lucide="disc" class="w-4 h-4 text-purple-400"></i> 4. Distribuição Percentual (Pizza)
-            </h3>
-            <div class="w-full max-w-[240px] h-[220px] flex items-center justify-center">
-              <canvas id="chartPieHome"></canvas>
+            <div class="w-full bg-slate-900 rounded-full h-3.5 overflow-hidden">
+              <div class="bg-slate-600 h-3.5 rounded-full transition-all duration-500" style="width: 7.9%"></div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- TEXTO PESSOAL AMPLIADO DE AGRADECIMENTO E DESPEDIDA (GABRIEL SOARES) -->
-      <div class="bg-gradient-to-r from-slate-950 via-indigo-950/50 to-slate-950 rounded-3xl p-6 sm:p-8 border border-purple-500/30 text-left space-y-5 shadow-2xl">
-        <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
-          <div class="p-3 bg-purple-500/20 rounded-2xl text-purple-300">
-            <i data-lucide="heart" class="w-7 h-7"></i>
-          </div>
-          <div>
-            <h3 class="text-lg font-extrabold text-white">Carta de Agradecimento & Despedida da Escola</h3>
-            <p class="text-xs text-purple-300">Por Gabriel Soares • Criador do Sistema de Urna Eletrônica • 2º Ano EM</p>
-          </div>
+    <!-- 4 GRÁFICOS DA VOTAÇÃO -->
+    <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
+      <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+        <div class="p-2.5 bg-indigo-500/20 text-indigo-400 rounded-xl">
+          <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
         </div>
-
-        <div class="text-xs sm:text-sm text-slate-300 space-y-4 leading-relaxed">
-          <p>
-            Queridos colegas alunos, professores, gestores, funcionários e toda a amada comunidade da <strong>Escola Estadual Milton Martins Poitena</strong>:
-          </p>
-          <p>
-            Ingressei nesta instituição quando ainda era um aluno do <strong>6º ano do Ensino Fundamental</strong>. Foram anos inesquecíveis de aprendizado, amizades sinceras, superações e amadurecimento. Hoje, no <strong>2º ano do Ensino Médio</strong>, chego ao momento de me despedir para iniciar uma nova etapa em outra escola.
-          </p>
-          <p>
-            Não poderia ir embora sem deixar uma contribuição especial para a nossa comunidade escolar. A criação deste sistema de <strong>Urna Eletrônica Escolar</strong> foi idealizada para transformar as eleições do Grêmio Estudantil em um processo 100% digital, transparente, moderno e dinâmico. 
-          </p>
-          <p>
-            Agradeço imensamente à diretoria e aos professores por todo o apoio, estrutura e liberdade que me deram para desenvolver este projeto e colocá-lo em prática. Obrigado por me acolherem com tanto carinho desde o meu primeiro dia aqui até hoje. Levando comigo boas lembranças, deixo este sistema como um legado tecnológico para a escola.
-          </p>
-          <p class="font-bold text-indigo-300 text-sm">
-            Com eterna gratidão e orgulho de fazer parte da história do Poitena,<br>
-            — Gabriel Soares ❤️
-          </p>
-        </div>
-
-        <div class="pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <span class="text-xs text-slate-400">E.E. Milton Martins Poitena • Memória Eleitoral</span>
-          <a href="https://instagram.com/7soaresvgh" target="_blank" class="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:scale-105 transition text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-pink-600/20">
-            <i data-lucide="instagram" class="w-4 h-4"></i> @7soaresvgh
-          </a>
+        <div>
+          <h2 class="text-xl font-bold text-white">Análise Gráfica Completa da Votação</h2>
+          <p class="text-xs text-slate-400">4 visões estatísticas detalhadas sobre a participação e preferências dos alunos.</p>
         </div>
       </div>
 
-    </section>
-
-    <!-- 1. TELA DE IDENTIFICAÇÃO (R.A VOTAÇÃO) -->
-    <section id="tela-identificacao" class="hidden space-y-6">
-      <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-md mx-auto shadow-2xl">
-        <div class="text-center mb-6">
-          <div class="inline-flex p-3 bg-indigo-500/10 text-indigo-400 rounded-full mb-3">
-            <i data-lucide="id-card" class="w-8 h-8"></i>
-          </div>
-          <h2 class="text-2xl font-bold text-white">Identificação do Aluno</h2>
-          <p class="text-slate-400 text-xs sm:text-sm mt-1">Digite seu R.A escolar para iniciar a votação.</p>
-        </div>
-
-        <form id="form-ra" onsubmit="validarRA(event)" class="space-y-4">
-          <div>
-            <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-300 mb-2">Registro do Aluno (R.A)</label>
-            <input type="text" id="input-ra" placeholder="Ex: 00001234567890SP" required
-              class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-4 py-3.5 text-base sm:text-lg font-mono tracking-wider uppercase focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition text-white">
-          </div>
-
-          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold py-3.5 rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
-            <span>Avançar para Votação</span> <i data-lucide="arrow-right" class="w-5 h-5"></i>
-          </button>
-        </form>
-      </div>
-    </section>
-
-    <!-- 2. TELA DE VOTAÇÃO DA URNA -->
-    <section id="tela-votacao" class="hidden space-y-6">
-      <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-6 gap-2">
-          <div>
-            <span class="text-[10px] font-mono uppercase text-slate-400 block">Aluno Identificado</span>
-            <span id="aluno-nome" class="text-base sm:text-lg font-bold text-indigo-300">---</span>
-            <span id="aluno-turma" class="text-xs text-slate-400 ml-1 sm:ml-2 bg-slate-800 px-2 py-0.5 rounded">---</span>
-          </div>
-          <span class="text-xs font-mono text-slate-400 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl self-start sm:self-auto" id="aluno-ra-display">0000...</span>
-        </div>
-
-        <h2 class="text-lg sm:text-xl font-bold text-center mb-6 text-slate-100">Escolha sua Chapa ou Vote em Branco</h2>
-
-        <!-- Lista de Chapas -->
-        <div id="grid-chapas" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Injetado via JS -->
-        </div>
-
-        <!-- Opção Voto em Branco -->
-        <div class="mt-8 pt-6 border-t border-slate-800 text-center">
-          <button onclick="abrirConfirmacaoVoto('BRANCO', 'Voto em Branco')"
-            class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-slate-200 font-bold px-8 py-3.5 rounded-2xl transition inline-flex items-center justify-center gap-2">
-            <i data-lucide="circle-slash" class="w-5 h-5 text-slate-400"></i> Votar em Branco
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- TELA DE FIM -->
-    <section id="tela-fim" class="hidden min-h-[70vh] flex items-center justify-center">
-      <div class="max-w-md w-full text-center bg-slate-900/90 backdrop-blur-xl border border-emerald-500/40 rounded-3xl p-8 shadow-2xl space-y-6">
-        <div class="inline-flex p-4 bg-emerald-500/15 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
-          <i data-lucide="check-circle-2" class="w-16 h-16 animate-bounce"></i>
-        </div>
-        <h2 class="text-3xl font-extrabold text-white">FIM</h2>
-        <p class="text-emerald-400 font-semibold text-lg">Voto Registrado com Sucesso!</p>
-        <p class="text-slate-300 text-sm">Obrigado por exercer sua cidadania e participar da eleição do Grêmio Escolar.</p>
-        <button onclick="navegarPara('boasvindas')" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition shadow-lg">
-          Concluir / Voltar ao Início
-        </button>
-      </div>
-    </section>
-
-    <!-- 4. PAINEL DO MESÁRIO -->
-    <section id="tela-mesario" class="hidden space-y-6">
-      <div class="bg-slate-900/90 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-          <div>
-            <h2 class="text-lg sm:text-xl font-bold text-indigo-400 flex items-center gap-2">
-              <i data-lucide="shield-check" class="w-6 h-6"></i> Painel do Mesário
-            </h2>
-            <p class="text-slate-400 text-xs mt-1">Gerenciamento e auditoria em tempo real.</p>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2">
-            <button onclick="exportarResultados()" class="flex-1 sm:flex-none bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
-              <i data-lucide="download" class="w-4 h-4"></i> Exportar
-            </button>
-
-            <button onclick="abrirModalZerar()" class="flex-1 sm:flex-none bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2">
-              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Zerar
-            </button>
-          </div>
-        </div>
-
-        <!-- Form Cadastrar Chapa -->
-        <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 sm:p-5">
-          <h3 class="text-sm sm:text-md font-bold text-white mb-4 flex items-center gap-2">
-            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-400"></i> Cadastrar Nova Chapa
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 1. ROSCA -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col items-center">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i> 1. Proporção Geral (Rosca)
           </h3>
-
-          <form id="form-cadastrar-chapa" onsubmit="salvarChapa(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Nome da Chapa</label>
-              <input type="text" id="chapa-nome" placeholder="Ex: Chapa Renovação" required
-                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Número da Chapa</label>
-              <input type="number" id="chapa-numero" placeholder="Ex: 10" required
-                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-            </div>
-
-            <div class="md:col-span-2">
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Integrantes / Slogan</label>
-              <input type="text" id="chapa-descricao" placeholder="Ex: Maria (Presidente), João (Vice)" required
-                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
-            </div>
-
-            <div class="md:col-span-2">
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Adicionar Foto da Galeria</label>
-              <input type="file" id="chapa-foto-file" accept="image/*" onchange="converterFotoGaleria(event)"
-                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 transition">
-              <input type="hidden" id="chapa-foto-base64" value="">
-            </div>
-
-            <div class="md:col-span-2 flex justify-end mt-2">
-              <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold px-6 py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
-                <i data-lucide="check-circle" class="w-4 h-4"></i> Salvar Chapa
-              </button>
-            </div>
-          </form>
+          <div class="w-full max-w-[240px] h-[220px] flex items-center justify-center">
+            <canvas id="chartDoughnutHome"></canvas>
+          </div>
         </div>
 
-        <!-- Chapas Cadastradas -->
-        <div class="space-y-3">
-          <h3 class="text-sm sm:text-md font-bold text-white flex items-center gap-2">
-            <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i> Chapas Cadastradas
+        <!-- 2. BARRAS -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col items-center">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-400"></i> 2. Comparativo Direto (Barras)
           </h3>
-          <div id="lista-chapas-mesario" class="space-y-2"></div>
+          <div class="w-full h-[220px] flex items-center justify-center">
+            <canvas id="chartBarHome"></canvas>
+          </div>
         </div>
 
-        <!-- Tabela Auditoria -->
-        <div class="space-y-3 pt-4 border-t border-slate-800">
-          <h3 class="text-sm sm:text-md font-bold text-white flex items-center gap-2">
-            <i data-lucide="list-checks" class="w-5 h-5 text-indigo-400"></i> Registro de Votantes (Auditoria)
+        <!-- 3. LINHA -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col items-center">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i data-lucide="trending-up" class="w-4 h-4 text-amber-400"></i> 3. Fluxo Acumulado (Linha)
           </h3>
-          <div class="overflow-x-auto border border-slate-800 rounded-2xl bg-slate-950/40">
-            <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap sm:whitespace-normal">
-              <thead class="bg-slate-900/90 text-slate-400 uppercase font-mono text-[10px]">
-                <tr>
-                  <th class="p-3">R.A Votante</th>
-                  <th class="p-3">Nome do Aluno</th>
-                  <th class="p-3">Turma</th>
-                  <th class="p-3">Votou Em (Chapa)</th>
-                  <th class="p-3">Data/Hora</th>
-                </tr>
-              </thead>
-              <tbody id="tabela-votantes-corpo" class="divide-y divide-slate-800/80"></tbody>
-            </table>
+          <div class="w-full h-[220px] flex items-center justify-center">
+            <canvas id="chartLineHome"></canvas>
+          </div>
+        </div>
+
+        <!-- 4. PIZZA -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col items-center">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i data-lucide="disc" class="w-4 h-4 text-purple-400"></i> 4. Distribuição Percentual (Pizza)
+          </h3>
+          <div class="w-full max-w-[240px] h-[220px] flex items-center justify-center">
+            <canvas id="chartPieHome"></canvas>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+
+    <!-- CARTA PESSOAL DE DESPEDIDA E AGRADECIMENTO -->
+    <div class="bg-gradient-to-r from-slate-950 via-indigo-950/50 to-slate-950 rounded-3xl p-6 sm:p-8 border border-purple-500/30 text-left space-y-5 shadow-2xl">
+      <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+        <div class="p-3 bg-purple-500/20 rounded-2xl text-purple-300">
+          <i data-lucide="heart" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-extrabold text-white">Carta de Agradecimento & Despedida da Escola</h3>
+          <p class="text-xs text-purple-300">Por Gabriel Soares • Criador do Sistema de Urna Eletrônica • 2º Ano EM</p>
+        </div>
+      </div>
+
+      <div class="text-xs sm:text-sm text-slate-300 space-y-4 leading-relaxed">
+        <p>
+          Queridos colegas alunos, professores, gestores, funcionários e toda a amada comunidade da <strong>Escola Estadual Milton Martins Poitena</strong>:
+        </p>
+        <p>
+          Ingressei nesta instituição quando ainda era um aluno do <strong>6º ano do Ensino Fundamental</strong>. Foram anos inesquecíveis de aprendizado, amizades sinceras, superações e amadurecimento. Hoje, no <strong>2º ano do Ensino Médio</strong>, chego ao momento de me despedir para iniciar uma nova etapa em outra escola.
+        </p>
+        <p>
+          Não poderia ir embora sem deixar uma contribuição especial para a nossa comunidade escolar. A criação deste sistema de <strong>Urna Eletrônica Escolar</strong> foi idealizada para transformar as eleições do Grêmio Estudantil em um processo 100% digital, transparente, moderno e dinâmico. 
+        </p>
+        <p>
+          Agradeço imensamente à diretoria e aos professores por todo o apoio, estrutura e liberdade que me deram para desenvolver este projeto e colocá-lo em prática. Obrigado por me acolherem com tanto carinho desde o meu primeiro dia aqui até hoje. Levando comigo boas lembranças, deixo este sistema como um legado tecnológico para a escola.
+        </p>
+        <p class="font-bold text-indigo-300 text-sm">
+          Com eterna gratidão e orgulho de fazer parte da história do Poitena,<br>
+          — Gabriel Soares ❤️
+        </p>
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <span class="text-xs text-slate-400">E.E. Milton Martins Poitena • Memória Eleitoral</span>
+        <a href="https://instagram.com/7soaresvgh" target="_blank" class="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:scale-105 transition text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-pink-600/20">
+          <i data-lucide="instagram" class="w-4 h-4"></i> @7soaresvgh
+        </a>
+      </div>
+    </div>
 
   </main>
-
-  <!-- MODAIS -->
-  <div id="modal-confirmacao" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
-      <div class="inline-flex p-3 bg-purple-500/15 text-purple-400 rounded-full">
-        <i data-lucide="help-circle" class="w-8 h-8"></i>
-      </div>
-      <h3 class="text-xl font-bold text-white">Confirmação de Voto</h3>
-      <p class="text-slate-300 text-sm">Você está prestes a confirmar seu voto em:</p>
-      <div id="modal-nome-chapa" class="bg-slate-950 border border-purple-500/20 py-3 px-4 rounded-xl text-indigo-300 font-bold text-base">---</div>
-      <div class="flex gap-3 pt-2">
-        <button onclick="fecharModalConfirmacao()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">
-          Corrigir / Voltar
-        </button>
-        <button onclick="executarConfirmacaoVoto()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-600/20">
-          Confirmar Voto
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-senha" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
-      <div class="inline-flex p-3 bg-amber-500/15 text-amber-400 rounded-full">
-        <i data-lucide="lock" class="w-8 h-8"></i>
-      </div>
-      <h3 id="modal-senha-titulo" class="text-xl font-bold text-white">Acesso Restrito</h3>
-      <p class="text-slate-300 text-sm">Digite a senha de acesso:</p>
-      <input type="password" id="input-senha-modal" placeholder="Sua senha..."
-        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-white focus:outline-none focus:border-indigo-500">
-      <div class="flex gap-3 pt-2">
-        <button onclick="fecharModalSenha()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">
-          Cancelar
-        </button>
-        <button onclick="validarSenhaModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-600/20">
-          Entrar
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modal-zerar" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-red-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
-      <div class="inline-flex p-3 bg-red-500/15 text-red-400 rounded-full">
-        <i data-lucide="alert-triangle" class="w-8 h-8"></i>
-      </div>
-      <h3 class="text-xl font-bold text-white">Zerar Eleição</h3>
-      <p class="text-slate-300 text-sm">ATENÇÃO: Apagará todos os votos!<br><br>Digite <strong>ZERAR</strong> para confirmar:</p>
-      <input type="text" id="input-zerar-modal" placeholder="Digite ZERAR"
-        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center uppercase tracking-widest text-white focus:outline-none focus:border-red-500">
-      <div class="flex gap-3 pt-2">
-        <button onclick="fecharModalZerar()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl transition">
-          Cancelar
-        </button>
-        <button onclick="executarZerarGeral()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-red-600/20">
-          Zerar Tudo
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- RODAPÉ -->
   <footer class="bg-slate-950 border-t border-purple-500/20 py-6 px-4 text-center">
     <div class="font-semibold text-slate-300 text-sm">
-      Urna Eletrônica Escolar v2.5
+      Urna Eletrônica Escolar • Edição Comemorativa
     </div>
     <div class="text-slate-500 text-xs mt-1">
       Desenvolvido por Gabriel Soares • 2º Ano EM
@@ -474,412 +268,26 @@
     </div>
   </footer>
 
-  <!-- SCRIPT APLICAÇÃO E LÓGICA GRÁFICA -->
+  <!-- SCRIPT DE RENDERIZAÇÃO DOS GRÁFICOS -->
   <script>
-    const SENHA_MESARIO = "soaresmesario";
-    const SENHA_APURACAO = "soaresapuraçao";
-    const SENHA_APURACAO_ALT = "soaresapuracao";
-
-    let estadoLocal = {
-      chapas: [
-        { id: "chapa_1", numero: 1, nome: "Nova Imperial", descricao: "Propostas e melhorias para a escola.", foto: "" },
-        { id: "chapa_2", numero: 2, nome: "Jovem Extraordinários", descricao: "Cultura, esportes e projetos.", foto: "" }
-      ],
-      votos: {
-        "chapa_1": 121,
-        "chapa_2": 42
-      },
-      votoBranco: 14,
-      alunosVotaram: {}
-    };
-
-    let alunoAtual = null;
-    let votoPendente = null;
-    let destinoSenhaPendente = null;
-    let enviandoVoto = false;
-
-    // Instâncias dos 4 Gráficos
-    let cDoughnut = null;
-    let cBar = null;
-    let cLine = null;
-    let cPie = null;
-
     window.onload = function() {
       lucide.createIcons();
-      carregarEstadoLocal();
-      setTimeout(() => { iniciarEscutaTempoReal(); }, 800);
-    };
 
-    function carregarEstadoLocal() {
-      const salvo = localStorage.getItem("urna_escola_soares");
-      if (salvo) {
-        try { estadoLocal = JSON.parse(salvo); } catch(e){}
-      }
-      renderizarUrna();
-      renderizarResultadosEGraficos();
-      renderizarMesario();
-    }
+      const labels = ['Nova Imperial', 'Jovem Extraordinários', 'Votos em Branco'];
+      const dataVotos = [121, 42, 14];
+      const backgroundCores = ['#10b981', '#6366f1', '#64748b'];
 
-    function salvarEstadoLocal() {
-      localStorage.setItem("urna_escola_soares", JSON.stringify(estadoLocal));
-    }
-
-    function iniciarEscutaTempoReal() {
-      if (!window.db) return;
-      try {
-        const { doc, onSnapshot } = window.firebaseModules;
-        onSnapshot(doc(window.db, "eleicao", "estado"), (docSnap) => {
-          if (docSnap.exists()) {
-            estadoLocal = docSnap.data();
-            salvarEstadoLocal();
-            renderizarUrna();
-            renderizarResultadosEGraficos();
-            renderizarMesario();
-          }
-        });
-      } catch (e) {
-        console.log("Modo offline ativo:", e);
-      }
-    }
-
-    async function salvarNoServidor() {
-      salvarEstadoLocal();
-      if (!window.db) return;
-      try {
-        const { doc, setDoc } = window.firebaseModules;
-        await setDoc(doc(window.db, "eleicao", "estado"), estadoLocal);
-      } catch (e) {
-        console.log("Erro ao enviar para nuvem:", e);
-      }
-    }
-
-    function navegarPara(telaId) {
-      document.getElementById("tela-boasvindas").classList.add("hidden");
-      document.getElementById("tela-identificacao").classList.add("hidden");
-      document.getElementById("tela-votacao").classList.add("hidden");
-      document.getElementById("tela-mesario").classList.add("hidden");
-      document.getElementById("tela-fim").classList.add("hidden");
-
-      document.getElementById("tela-" + telaId).classList.remove("hidden");
-      
-      if(telaId === 'boasvindas') renderizarResultadosEGraficos();
-      if(telaId === 'mesario') renderizarMesario();
-      window.scrollTo(0, 0);
-    }
-
-    function abrirModalSenha(destino) {
-      destinoSenhaPendente = destino;
-      document.getElementById("input-senha-modal").value = "";
-      document.getElementById("modal-senha-titulo").textContent = destino === 'mesario' ? "Painel do Mesário" : "Acesso do Sistema";
-      document.getElementById("modal-senha").classList.remove("hidden");
-      document.getElementById("input-senha-modal").focus();
-    }
-
-    function fecharModalSenha() {
-      destinoSenhaPendente = null;
-      document.getElementById("modal-senha").classList.add("hidden");
-    }
-
-    function validarSenhaModal() {
-      const pass = document.getElementById("input-senha-modal").value;
-      if (destinoSenhaPendente === 'mesario') {
-        if (pass === SENHA_MESARIO) {
-          fecharModalSenha();
-          navegarPara('mesario');
-        } else {
-          alert("Senha de Mesário incorreta!");
-        }
-      } else {
-        fecharModalSenha();
-        navegarPara('boasvindas');
-      }
-    }
-
-    function converterFotoGaleria(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          document.getElementById("chapa-foto-base64").value = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function validarRA(e) {
-      e.preventDefault();
-      const rawRA = document.getElementById("input-ra").value.trim().toUpperCase();
-
-      if (!rawRA) {
-        alert("Por favor, digite um R.A válido.");
-        return;
-      }
-
-      if (estadoLocal.alunosVotaram[rawRA]) {
-        alert(`O R.A ${rawRA} JÁ REALIZOU O VOTO nesta eleição!`);
-        return;
-      }
-
-      alunoAtual = {
-        ra: rawRA,
-        nome: "Aluno(a) - R.A " + rawRA,
-        turma: "Aluno Votante"
-      };
-
-      document.getElementById("aluno-nome").textContent = alunoAtual.nome;
-      document.getElementById("aluno-turma").textContent = alunoAtual.turma;
-      document.getElementById("aluno-ra-display").textContent = alunoAtual.ra;
-      document.getElementById("input-ra").value = "";
-
-      renderizarUrna();
-      navegarPara('votacao');
-    }
-
-    function renderizarUrna() {
-      const grid = document.getElementById("grid-chapas");
-      grid.innerHTML = "";
-
-      if (estadoLocal.chapas.length === 0) {
-        grid.innerHTML = `<p class="col-span-full text-center text-slate-400 py-8">Nenhuma chapa cadastrada.</p>`;
-        return;
-      }
-
-      estadoLocal.chapas.forEach(chapa => {
-        const card = document.createElement("div");
-        card.className = "bg-slate-950 border border-slate-800 hover:border-indigo-500 rounded-2xl p-5 flex flex-col justify-between transition shadow-lg";
-        card.innerHTML = `
-          <div>
-            ${chapa.foto ? `<div class="w-full h-44 bg-slate-900 rounded-xl mb-4 border border-slate-800 flex items-center justify-center overflow-hidden"><img src="${chapa.foto}" alt="${chapa.nome}" class="w-full h-full object-contain"></div>` : ''}
-            <span class="bg-indigo-500/20 text-indigo-300 font-mono text-xs px-2.5 py-1 rounded-full font-bold">Chapa #${chapa.numero}</span>
-            <h3 class="text-xl font-bold text-white mt-2">${chapa.nome}</h3>
-            <p class="text-slate-400 text-xs mt-1 leading-relaxed">${chapa.descricao}</p>
-          </div>
-          <button onclick="abrirConfirmacaoVoto('${chapa.id}', '${chapa.nome}')"
-            class="mt-6 w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md">
-            <i data-lucide="vote" class="w-4 h-4"></i> Votar nesta Chapa
-          </button>
-        `;
-        grid.appendChild(card);
-      });
-      lucide.createIcons();
-    }
-
-    function abrirConfirmacaoVoto(chapaId, nomeChapa) {
-      votoPendente = { chapaId, nomeChapa };
-      document.getElementById("modal-nome-chapa").textContent = nomeChapa;
-      document.getElementById("modal-confirmacao").classList.remove("hidden");
-    }
-
-    function fecharModalConfirmacao() {
-      votoPendente = null;
-      document.getElementById("modal-confirmacao").classList.add("hidden");
-    }
-
-    async function executarConfirmacaoVoto() {
-      if (!alunoAtual || !votoPendente || enviandoVoto) return;
-
-      enviandoVoto = true;
-
-      if (estadoLocal.alunosVotaram[alunoAtual.ra]) {
-        alert("Erro: Este R.A já registrou um voto!");
-        fecharModalConfirmacao();
-        enviandoVoto = false;
-        navegarPara('boasvindas');
-        return;
-      }
-
-      const { chapaId, nomeChapa } = votoPendente;
-      fecharModalConfirmacao();
-
-      const dataHora = new Date().toLocaleString("pt-BR");
-
-      estadoLocal.alunosVotaram[alunoAtual.ra] = {
-        nome: alunoAtual.nome,
-        turma: alunoAtual.turma,
-        chapaVotada: nomeChapa,
-        dataHora: dataHora
-      };
-
-      if (chapaId === 'BRANCO') {
-        estadoLocal.votoBranco = (estadoLocal.votoBranco || 0) + 1;
-      } else {
-        estadoLocal.votos[chapaId] = (estadoLocal.votos[chapaId] || 0) + 1;
-      }
-
-      await salvarNoServidor();
-
-      tocarSomUrna();
-      falarObrigado();
-
-      alunoAtual = null;
-      votoPendente = null;
-      enviandoVoto = false;
-      navegarPara('fim');
-    }
-
-    function tocarSomUrna() {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
-      } catch(e) {}
-    }
-
-    function falarObrigado() {
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance("Obrigado por votar");
-        utterance.lang = 'pt-BR';
-        window.speechSynthesis.speak(utterance);
-      }
-    }
-
-    // RENDERIZAR RESULTADOS, RANKING COMPLETO E OS 4 GRÁFICOS
-    function renderizarResultadosEGraficos() {
-      let lider = null;
-      let maior = -1;
-
-      let totalVotos = (estadoLocal.votoBranco || 0);
-      Object.keys(estadoLocal.votos || {}).forEach(chapaId => {
-        totalVotos += (estadoLocal.votos[chapaId] || 0);
-      });
-
-      estadoLocal.chapas.forEach(chapa => {
-        const votos = estadoLocal.votos[chapa.id] || 0;
-        if (votos > maior) {
-          maior = votos;
-          lider = chapa;
-        }
-      });
-
-      const pctLider = totalVotos > 0 ? ((maior / totalVotos) * 100).toFixed(1) : "0.0";
-
-      // Banner da Chapa Eleita + Parabéns à Chapa
-      const bannerHTML = lider && maior > 0
-        ? `
-        <div class="bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-emerald-500/20 border-2 border-emerald-500/50 rounded-3xl p-6 sm:p-8 text-center shadow-2xl space-y-3">
-          <div class="inline-block bg-emerald-500 text-slate-950 font-black text-xs px-3.5 py-1 rounded-full uppercase tracking-widest shadow-md">
-            🎉 CHAPA ELEITA VENCEDORA
-          </div>
-          <h3 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            ${lider.nome.toUpperCase()}
-          </h3>
-          <p class="text-emerald-300 font-mono text-base sm:text-lg font-bold">
-            ${maior} VOTOS (${pctLider}%)
-          </p>
-          <p class="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto pt-2 border-t border-emerald-500/20">
-            Parabéns à <strong>${lider.nome}</strong>! Desejamos uma excelente e próspera coordenação à frente do Grêmio Estudantil Milton Martins Poitena, trabalhando com dedicação por todos os alunos!
-          </p>
-        </div>`
-        : "";
-
-      document.getElementById("banner-chapa-eleita-home").innerHTML = bannerHTML;
-      document.getElementById("total-votos-home").textContent = totalVotos;
-
-      // Ordenar todas as chapas por voto
-      const ranking = [...estadoLocal.chapas].sort((a, b) => {
-        return (estadoLocal.votos[b.id] || 0) - (estadoLocal.votos[a.id] || 0);
-      });
-
-      const containerRanking = document.getElementById("lista-ranking-home");
-      containerRanking.innerHTML = "";
-
-      const labels = [];
-      const dataVotos = [];
-      const cores = ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b'];
-
-      ranking.forEach((chapa, index) => {
-        const qtdVotos = estadoLocal.votos[chapa.id] || 0;
-        const base = totalVotos > 0 ? totalVotos : 1;
-        const pct = ((qtdVotos / base) * 100).toFixed(1);
-
-        labels.push(chapa.nome);
-        dataVotos.push(qtdVotos);
-
-        const cor = cores[index % cores.length];
-        const eEleita = chapa.id === lider?.id && maior > 0;
-
-        const item = document.createElement("div");
-        item.className = `bg-slate-950 border ${eEleita ? 'border-emerald-500/60 ring-1 ring-emerald-500/30' : 'border-slate-800'} p-4 sm:p-5 rounded-2xl space-y-2 flex flex-col sm:flex-row items-center gap-4`;
-        item.innerHTML = `
-          <div class="flex items-center gap-3 w-full sm:w-auto">
-            <span class="font-mono font-extrabold text-lg sm:text-xl w-7 text-center ${index === 0 ? 'text-amber-400' : 'text-slate-500'}">#${index + 1}</span>
-            ${chapa.foto ? `<div class="w-14 h-14 bg-slate-900 rounded-xl border border-slate-800 shrink-0 flex items-center justify-center overflow-hidden"><img src="${chapa.foto}" class="w-full h-full object-contain"></div>` : ''}
-          </div>
-          <div class="flex-1 w-full space-y-2">
-            <div class="flex justify-between items-center text-xs sm:text-sm font-semibold">
-              <span class="text-white flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${cor}"></span>
-                Chapa #${chapa.numero} - ${chapa.nome} ${eEleita ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono ml-1">ELEITA</span>' : ''}
-              </span>
-              <span class="font-mono text-indigo-300 font-bold">${qtdVotos} voto(s) (${pct}%)</span>
-            </div>
-            <div class="w-full bg-slate-900 rounded-full h-3.5 overflow-hidden">
-              <div class="h-3.5 rounded-full transition-all duration-500" style="width: ${pct}%; background-color: ${cor}"></div>
-            </div>
-          </div>
-        `;
-        containerRanking.appendChild(item);
-      });
-
-      // Inclui voto em branco no ranking
-      const qtdBranco = estadoLocal.votoBranco || 0;
-      const baseBranco = totalVotos > 0 ? totalVotos : 1;
-      const pctBranco = ((qtdBranco / baseBranco) * 100).toFixed(1);
-      labels.push("Votos em Branco");
-      dataVotos.push(qtdBranco);
-
-      const itemBranco = document.createElement("div");
-      itemBranco.className = "bg-slate-950 border border-slate-800 p-4 sm:p-5 rounded-2xl space-y-2 flex flex-col sm:flex-row items-center gap-4";
-      itemBranco.innerHTML = `
-        <div class="flex items-center gap-3 w-full sm:w-auto">
-          <span class="font-mono font-bold text-slate-500 text-lg w-7 text-center">-</span>
-        </div>
-        <div class="flex-1 w-full space-y-2">
-          <div class="flex justify-between items-center text-xs sm:text-sm font-semibold">
-            <span class="text-slate-400 flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full bg-slate-600 inline-block"></span>
-              Votos em Branco
-            </span>
-            <span class="font-mono text-slate-400 font-bold">${qtdBranco} voto(s) (${pctBranco}%)</span>
-          </div>
-          <div class="w-full bg-slate-900 rounded-full h-3.5 overflow-hidden">
-            <div class="bg-slate-600 h-3.5 rounded-full transition-all duration-500" style="width: ${pctBranco}%"></div>
-          </div>
-        </div>
-      `;
-      containerRanking.appendChild(itemBranco);
-
-      // CORES PARA OS GRÁFICOS
-      const backgroundCores = cores.slice(0, ranking.length).concat(['#64748b']);
-
-      // 1. GRÁFICO ROSCA (DOUGHNUT)
-      const ctxDoughnut = document.getElementById('chartDoughnutHome').getContext('2d');
-      if (cDoughnut) cDoughnut.destroy();
-      cDoughnut = new Chart(ctxDoughnut, {
+      // 1. ROSCA
+      new Chart(document.getElementById('chartDoughnutHome').getContext('2d'), {
         type: 'doughnut',
-        data: {
-          labels: labels,
-          datasets: [{ data: dataVotos, backgroundColor: backgroundCores, borderWidth: 2, borderColor: '#020617' }]
-        },
+        data: { labels: labels, datasets: [{ data: dataVotos, backgroundColor: backgroundCores, borderWidth: 2, borderColor: '#020617' }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
       });
 
-      // 2. GRÁFICO BARRAS (BAR)
-      const ctxBar = document.getElementById('chartBarHome').getContext('2d');
-      if (cBar) cBar.destroy();
-      cBar = new Chart(ctxBar, {
+      // 2. BARRAS
+      new Chart(document.getElementById('chartBarHome').getContext('2d'), {
         type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{ label: 'Votos', data: dataVotos, backgroundColor: backgroundCores, borderRadius: 8 }]
-        },
+        data: { labels: labels, datasets: [{ label: 'Votos', data: dataVotos, backgroundColor: backgroundCores, borderRadius: 8 }] },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -891,10 +299,8 @@
         }
       });
 
-      // 3. GRÁFICO LINHA (LINE - SIMULAÇÃO DE FLUXO ACUMULADO)
-      const ctxLine = document.getElementById('chartLineHome').getContext('2d');
-      if (cLine) cLine.destroy();
-      cLine = new Chart(ctxLine, {
+      // 3. LINHA
+      new Chart(document.getElementById('chartLineHome').getContext('2d'), {
         type: 'line',
         data: {
           labels: ['Início', 'Manhã', 'Tarde', 'Encerramento'],
@@ -915,158 +321,13 @@
         }
       });
 
-      // 4. GRÁFICO PIZZA (PIE)
-      const ctxPie = document.getElementById('chartPieHome').getContext('2d');
-      if (cPie) cPie.destroy();
-      cPie = new Chart(ctxPie, {
+      // 4. PIZZA
+      new Chart(document.getElementById('chartPieHome').getContext('2d'), {
         type: 'pie',
-        data: {
-          labels: labels,
-          datasets: [{ data: dataVotos, backgroundColor: backgroundCores, borderWidth: 2, borderColor: '#020617' }]
-        },
+        data: { labels: labels, datasets: [{ data: dataVotos, backgroundColor: backgroundCores, borderWidth: 2, borderColor: '#020617' }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
       });
-
-      lucide.createIcons();
-    }
-
-    // MESÁRIO
-    function renderizarMesario() {
-      const listaChapasMesario = document.getElementById("lista-chapas-mesario");
-      listaChapasMesario.innerHTML = "";
-
-      if (estadoLocal.chapas.length === 0) {
-        listaChapasMesario.innerHTML = `<p class="text-xs text-slate-500 p-2">Nenhuma chapa cadastrada.</p>`;
-      } else {
-        estadoLocal.chapas.forEach(chapa => {
-          const div = document.createElement("div");
-          div.className = "flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-xl gap-2";
-          div.innerHTML = `
-            <div class="flex items-center gap-3 overflow-hidden">
-              ${chapa.foto ? `<div class="w-12 h-12 bg-slate-950 rounded-lg border border-slate-700 shrink-0 flex items-center justify-center overflow-hidden"><img src="${chapa.foto}" class="w-full h-full object-contain"></div>` : '<div class="w-12 h-12 bg-slate-800 rounded-lg shrink-0 flex items-center justify-center text-xs font-mono text-slate-500">#</div>'}
-              <div class="truncate">
-                <span class="text-xs font-bold text-indigo-300">#${chapa.numero} - ${chapa.nome}</span>
-                <p class="text-[11px] text-slate-400 truncate">${chapa.descricao}</p>
-              </div>
-            </div>
-            <button onclick="excluirChapa('${chapa.id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition flex items-center gap-1">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Excluir
-            </button>
-          `;
-          listaChapasMesario.appendChild(div);
-        });
-      }
-
-      const tbody = document.getElementById("tabela-votantes-corpo");
-      tbody.innerHTML = "";
-
-      const chaves = Object.keys(estadoLocal.alunosVotaram || {});
-
-      if (chaves.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Nenhum voto registrado.</td></tr>`;
-      } else {
-        chaves.forEach(ra => {
-          const item = estadoLocal.alunosVotaram[ra];
-          const tr = document.createElement("tr");
-          tr.className = "hover:bg-slate-900/60 transition";
-          tr.innerHTML = `
-            <td class="p-3 font-mono text-indigo-300">${ra}</td>
-            <td class="p-3 font-semibold text-white">${item.nome}</td>
-            <td class="p-3 text-slate-400">${item.turma}</td>
-            <td class="p-3"><span class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded">${item.chapaVotada}</span></td>
-            <td class="p-3 font-mono text-slate-400 text-[11px]">${item.dataHora}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      lucide.createIcons();
-    }
-
-    async function excluirChapa(chapaId) {
-      const chapa = estadoLocal.chapas.find(c => c.id === chapaId);
-      if (!chapa) return;
-
-      if (confirm(`Deseja excluir a chapa "${chapa.nome}"?`)) {
-        estadoLocal.chapas = estadoLocal.chapas.filter(c => c.id !== chapaId);
-        if (estadoLocal.votos[chapaId]) {
-          delete estadoLocal.votos[chapaId];
-        }
-        await salvarNoServidor();
-        renderizarMesario();
-        renderizarUrna();
-        renderizarResultadosEGraficos();
-        alert("Chapa excluída!");
-      }
-    }
-
-    function exportarResultados() {
-      const blob = new Blob(
-        [JSON.stringify(estadoLocal, null, 2)],
-        { type: 'application/json' }
-      );
-
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'resultado-eleicao.json';
-      a.click();
-    }
-
-    async function salvarChapa(e) {
-      e.preventDefault();
-      const nome = document.getElementById("chapa-nome").value.trim();
-      const numero = parseInt(document.getElementById("chapa-numero").value.trim());
-      const descricao = document.getElementById("chapa-descricao").value.trim();
-      const foto = document.getElementById("chapa-foto-base64").value.trim();
-
-      if (estadoLocal.chapas.some(c => Number(c.numero) === Number(numero))) {
-        alert("Já existe uma chapa com esse número.");
-        return;
-      }
-
-      const novaChapa = {
-        id: "chapa_" + Date.now(),
-        numero: numero,
-        nome: nome,
-        descricao: descricao,
-        foto: foto
-      };
-
-      estadoLocal.chapas.push(novaChapa);
-      await salvarNoServidor();
-
-      document.getElementById("form-cadastrar-chapa").reset();
-      document.getElementById("chapa-foto-base64").value = "";
-      alert(`Chapa "${nome}" cadastrada com sucesso!`);
-      renderizarUrna();
-      renderizarResultadosEGraficos();
-      renderizarMesario();
-    }
-
-    function abrirModalZerar() {
-      document.getElementById("input-zerar-modal").value = "";
-      document.getElementById("modal-zerar").classList.remove("hidden");
-      document.getElementById("input-zerar-modal").focus();
-    }
-
-    function fecharModalZerar() {
-      document.getElementById("modal-zerar").classList.add("hidden");
-    }
-
-    async function executarZerarGeral() {
-      if (document.getElementById("input-zerar-modal").value.trim().toUpperCase() === 'ZERAR') {
-        estadoLocal.votos = {};
-        estadoLocal.votoBranco = 0;
-        estadoLocal.alunosVotaram = {};
-        await salvarNoServidor();
-        fecharModalZerar();
-        alert("Sistema zerado com sucesso!");
-        renderizarResultadosEGraficos();
-        renderizarMesario();
-      } else {
-        alert("Digite exatamente ZERAR para confirmar.");
-      }
-    }
+    };
   </script>
 </body>
 </html>
