@@ -35,7 +35,7 @@
             background-color: #090c10;
             color: #f3f4f6;
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
+            overflow: hidden; /* Evita qualquer scroll na tela do PC */
             user-select: none;
         }
 
@@ -55,7 +55,7 @@
 
         /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
+            width: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
             background: #090c10;
@@ -66,250 +66,166 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-2 md:p-4 text-xs md:text-sm">
+<body class="h-screen w-screen flex flex-col justify-between p-2 text-xs overflow-hidden">
 
-    <div class="max-w-[1700px] mx-auto w-full flex flex-col gap-3 md:gap-4 flex-grow">
+    <div class="max-w-[1700px] mx-auto w-full flex flex-col gap-2 flex-grow h-full justify-between">
 
         <!-- HEADER SUPERIOR COM CANDIDATOS E PLACAR -->
-        <header class="bg-cardBg border border-cardBorder rounded-2xl p-3 md:p-4 shadow-2xl relative overflow-hidden">
-            <div class="flex justify-between items-center mb-3">
+        <header class="bg-cardBg border border-cardBorder rounded-xl p-2.5 shadow-2xl relative overflow-hidden flex-shrink-0">
+            <div class="flex justify-between items-center mb-2">
                 
                 <!-- CANDIDATO 13 (LULA / VERMELHO) -->
-                <div class="flex items-center gap-2 md:gap-4">
+                <div class="flex items-center gap-3">
                     <div class="relative">
-                        <img id="img-red" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" class="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-redTeam object-cover shadow-lg shadow-red-900/50">
-                        <span class="absolute -bottom-1 -right-1 bg-redTeam text-white text-[11px] font-black px-2 py-0.5 rounded-full border border-cardBg shadow">13</span>
+                        <img id="img-red" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80" class="w-12 h-12 rounded-full border-2 border-redTeam object-cover shadow-lg shadow-red-900/50">
+                        <span class="absolute -bottom-1 -right-1 bg-redTeam text-white text-[10px] font-black px-1.5 py-0.2 rounded-full border border-cardBg shadow">13</span>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-base md:text-2xl font-black text-white tracking-tight" id="name-red">Lula</h2>
-                            <span class="bg-red-950/80 text-red-400 border border-red-800/60 text-[10px] px-2 py-0.5 rounded font-mono font-bold">PT</span>
+                            <h2 class="text-sm md:text-lg font-black text-white tracking-tight" id="name-red">Lula</h2>
+                            <span class="bg-red-950/80 text-red-400 border border-red-800/60 text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">PT</span>
                         </div>
-                        <p class="text-gray-400 font-mono text-xs md:text-sm"><span id="votes-red" class="text-white font-bold">0</span> votos</p>
+                        <p class="text-gray-400 font-mono text-xs"><span id="votes-red" class="text-white font-bold">0</span> votos</p>
                     </div>
                 </div>
 
                 <!-- CABEÇALHO CENTRAL COM STATUS DINÂMICO DA DISPUTA -->
                 <div class="text-center flex flex-col items-center">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700 mb-1 shadow-md">
-                        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" id="live-indicator-dot"></span>
-                        <span class="font-extrabold text-white tracking-wide uppercase text-[11px] flex items-center gap-1.5" id="live-indicator-text">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 border border-slate-700 mb-1 shadow-md">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping" id="live-indicator-dot"></span>
+                        <span class="font-extrabold text-white tracking-wide uppercase text-[10px] flex items-center gap-1">
                             <i class="fa-brands fa-tiktok text-cyan-400"></i> APURAÇÃO TIKTOK AO VIVO
                         </span>
                     </div>
-                    <div class="text-gray-200 text-xs md:text-sm font-mono font-bold tracking-tight px-3 py-1 bg-slate-950/90 rounded-xl border border-slate-800 shadow-inner" id="dynamic-status-msg">
+                    <div class="text-gray-200 text-xs font-mono font-bold tracking-tight px-3 py-0.5 bg-slate-950/90 rounded-lg border border-slate-800 shadow-inner" id="dynamic-status-msg">
                         Aguardando início dos votos (+4000 por comentário)...
                     </div>
                 </div>
 
                 <!-- CANDIDATO 22 (FLÁVIO / AZUL) -->
-                <div class="flex items-center gap-2 md:gap-4 flex-row-reverse text-right">
+                <div class="flex items-center gap-3 flex-row-reverse text-right">
                     <div class="relative">
-                        <img id="img-blue" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80" class="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-blueTeam object-cover shadow-lg shadow-blue-900/50">
-                        <span class="absolute -bottom-1 -left-1 bg-blueTeam text-white text-[11px] font-black px-2 py-0.5 rounded-full border border-cardBg shadow">22</span>
+                        <img id="img-blue" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" class="w-12 h-12 rounded-full border-2 border-blueTeam object-cover shadow-lg shadow-blue-900/50">
+                        <span class="absolute -bottom-1 -left-1 bg-blueTeam text-white text-[10px] font-black px-1.5 py-0.2 rounded-full border border-cardBg shadow">22</span>
                     </div>
                     <div>
                         <div class="flex items-center gap-2 flex-row-reverse">
-                            <h2 class="text-base md:text-2xl font-black text-white tracking-tight" id="name-blue">Flávio</h2>
-                            <span class="bg-blue-950/80 text-blue-400 border border-blue-800/60 text-[10px] px-2 py-0.5 rounded font-mono font-bold">PL</span>
+                            <h2 class="text-sm md:text-lg font-black text-white tracking-tight" id="name-blue">Flávio</h2>
+                            <span class="bg-blue-950/80 text-blue-400 border border-blue-800/60 text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">PL</span>
                         </div>
-                        <p class="text-gray-400 font-mono text-xs md:text-sm"><span id="votes-blue" class="text-white font-bold">0</span> votos</p>
+                        <p class="text-gray-400 font-mono text-xs"><span id="votes-blue" class="text-white font-bold">0</span> votos</p>
                     </div>
                 </div>
 
             </div>
 
             <!-- PORCENTAGENS E BARRA CENTRAL DIVIDIDA EM 50% -->
-            <div class="flex justify-between items-end mb-1 font-mono font-black text-2xl md:text-4xl">
+            <div class="flex justify-between items-end mb-1 font-mono font-black text-xl md:text-2xl">
                 <span id="pct-red" class="text-redTeam">50,00%</span>
-                <span id="center-badge" class="text-xs font-mono font-bold text-gray-300 bg-slate-900/90 px-4 py-1 rounded-full border border-cardBorder">
+                <span id="center-badge" class="text-[10px] font-mono font-bold text-gray-300 bg-slate-900/90 px-3 py-0.5 rounded-full border border-cardBorder">
                     50%
                 </span>
                 <span id="pct-blue" class="text-blueTeam">50,00%</span>
             </div>
 
             <!-- BARRA PROPORCIONAL COM MARCADOR CENTRAL DE 50% -->
-            <div class="relative w-full h-6 bg-slate-950 rounded-xl overflow-hidden p-0.5 flex border border-slate-800 shadow-inner">
-                <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-yellow-400 z-30 shadow-[0_0_12px_#facc15]"></div>
-                <div class="absolute left-1/2 -top-1 transform -translate-x-1/2 bg-yellow-400 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded z-40 shadow">50%</div>
-
-                <div id="bar-red" class="h-full bg-gradient-to-r from-red-800 via-red-600 to-redTeam rounded-l-lg transition-all duration-300" style="width: 50%;"></div>
-                <div id="bar-blue" class="h-full bg-gradient-to-l from-blue-800 via-blue-600 to-blueTeam rounded-r-lg transition-all duration-300" style="width: 50%;"></div>
+            <div class="relative w-full h-4 bg-slate-950 rounded-lg overflow-hidden p-0.5 flex border border-slate-800 shadow-inner">
+                <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-yellow-400 z-30 shadow-[0_0_8px_#facc15]"></div>
+                <div id="bar-red" class="h-full bg-gradient-to-r from-red-800 via-red-600 to-redTeam rounded-l-md transition-all duration-300" style="width: 50%;"></div>
+                <div id="bar-blue" class="h-full bg-gradient-to-l from-blue-800 via-blue-600 to-blueTeam rounded-r-md transition-all duration-300" style="width: 50%;"></div>
             </div>
         </header>
 
         <!-- LAYOUT CENTRAL DA COBERTURA -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 flex-grow">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-2 flex-grow min-h-0">
 
             <!-- PAINEL ESQUERDO: CHAT DA LIVE DO TIKTOK (4 colunas) -->
-            <div class="lg:col-span-4 flex flex-col gap-3 md:gap-4">
-
-                <!-- PAINEL CHAT DA LIVE TIKTOK (REAL COM FOTO DO USUÁRIO) -->
-                <div class="bg-cardBg border border-cardBorder rounded-2xl p-4 flex-grow flex flex-col shadow-xl min-h-[400px]">
-                    <div class="flex justify-between items-center mb-3 pb-2 border-b border-cardBorder">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-brands fa-tiktok text-cyan-400 text-lg"></i>
-                            <h3 class="font-bold text-white">Eventos da Live em Tempo Real</h3>
+            <div class="lg:col-span-4 flex flex-col gap-2 min-h-0">
+                <div class="bg-cardBg border border-cardBorder rounded-xl p-3 flex-grow flex flex-col shadow-xl min-h-0">
+                    <div class="flex justify-between items-center mb-2 pb-1.5 border-b border-cardBorder flex-shrink-0">
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-brands fa-tiktok text-cyan-400 text-sm"></i>
+                            <h3 class="font-bold text-white text-xs">Eventos da Live em Tempo Real</h3>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="toggleConnectionModal()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 text-[10px] px-2.5 py-1 rounded-lg border border-cyan-800/60 font-mono transition shadow flex items-center gap-1">
-                                <i class="fa-solid fa-gear"></i> Conexão Live
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="toggleConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-yellow-400 text-[10px] px-2 py-0.5 rounded-md border border-yellow-800/60 font-mono transition shadow flex items-center gap-1">
+                                <i class="fa-solid fa-sliders"></i> Configurar
                             </button>
-                            <button onclick="toggleSimulator()" id="btn-sim-toggle" class="bg-slate-800 hover:bg-slate-700 text-yellow-400 text-[10px] px-2.5 py-1 rounded-lg border border-yellow-800/60 font-mono transition shadow flex items-center gap-1">
-                                <i class="fa-solid fa-robot"></i> Simular Votos
+                            <button onclick="toggleConnectionModal()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 text-[10px] px-2 py-0.5 rounded-md border border-cyan-800/60 font-mono transition shadow flex items-center gap-1">
+                                <i class="fa-solid fa-gear"></i> Conexão
+                            </button>
+                            <button onclick="toggleSimulator()" id="btn-sim-toggle" class="bg-slate-800 hover:bg-slate-700 text-yellow-400 text-[10px] px-2 py-0.5 rounded-md border border-yellow-800/60 font-mono transition shadow flex items-center gap-1">
+                                <i class="fa-solid fa-robot"></i> Simular
                             </button>
                         </div>
                     </div>
 
-                    <div id="tiktok-chat" class="flex-grow overflow-y-auto custom-scrollbar space-y-2 mb-3 max-h-[380px] pr-1">
-                        <div class="text-center text-gray-500 text-xs py-12 font-mono">
-                            Aguardando comentários da live do TikTok...<br>
-                            Cada "13" ou "22" adiciona +4.000 votos e exibe a foto do espectador!
+                    <div id="tiktok-chat" class="flex-grow overflow-y-auto custom-scrollbar space-y-1.5 pr-1 min-h-0">
+                        <div class="text-center text-gray-500 text-[11px] py-10 font-mono">
+                            Aguardando comentários da live...<br>Cada "13" ou "22" soma +4.000 votos!
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <!-- PAINEL DIREITO: MAPA VETORIAL REAL DO BRASIL (8 colunas) -->
-            <div class="lg:col-span-8 flex flex-col gap-3 md:gap-4">
+            <div class="lg:col-span-8 flex flex-col gap-2 min-h-0">
+                <div class="bg-cardBg border border-cardBorder rounded-xl p-2 relative flex-grow flex flex-col justify-center items-center shadow-xl min-h-0">
 
-                <div class="bg-cardBg border border-cardBorder rounded-2xl p-3 md:p-4 relative flex-grow flex flex-col justify-center items-center shadow-xl min-h-[520px]">
-
-                    <div class="absolute top-4 left-4 z-20 bg-slate-900/90 border border-slate-700 rounded-xl p-3 backdrop-blur-md">
-                        <div class="text-xs text-gray-300 font-bold flex items-center gap-1.5 mb-1">
-                            <i class="fa-solid fa-map-location-dot text-cyan-400"></i> Apuração por Estado (TikTok Live)
+                    <div class="absolute top-3 left-3 z-20 bg-slate-900/90 border border-slate-700 rounded-lg p-2 backdrop-blur-md">
+                        <div class="text-[11px] text-gray-300 font-bold flex items-center gap-1 mb-0.5">
+                            <i class="fa-solid fa-map-location-dot text-cyan-400"></i> Apuração por Estado
                         </div>
-                        <div class="text-[11px] text-emerald-400 font-mono flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            Atualização Dinâmica e Automática
+                        <div class="text-[9px] text-emerald-400 font-mono flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Tempo Real TikTok
                         </div>
                     </div>
 
                     <!-- LEGENDA RÁPIDA -->
-                    <div class="absolute bottom-4 right-4 z-20 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 backdrop-blur-md flex gap-4 text-xs font-mono">
-                        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-redTeam inline-block"></span> 13 Lidera</div>
-                        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-purple-900 inline-block"></span> Disputado</div>
-                        <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-blueTeam inline-block"></span> 22 Lidera</div>
+                    <div class="absolute bottom-3 right-3 z-20 bg-slate-900/90 border border-slate-700 rounded-lg px-2.5 py-1.5 backdrop-blur-md flex gap-3 text-[10px] font-mono">
+                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-redTeam inline-block"></span> 13 Lidera</div>
+                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-purple-900 inline-block"></span> Disputado</div>
+                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blueTeam inline-block"></span> 22 Lidera</div>
                     </div>
 
                     <!-- SVG DO MAPA GEOGRÁFICO EXATO E CONECTADO DO BRASIL COM LABELS -->
-                    <svg id="brazil-map-svg" viewBox="0 0 750 750" class="w-full h-auto max-h-[580px] drop-shadow-[0_12px_30px_rgba(0,0,0,0.95)]">
+                    <svg id="brazil-map-svg" viewBox="0 0 750 750" class="h-full w-auto max-h-[400px] drop-shadow-[0_10px_25px_rgba(0,0,0,0.95)]">
                         <g id="states-group">
                             <!-- Injetado via script com contornos unidos e georreferenciados -->
                         </g>
                     </svg>
 
                     <!-- TOOLTIP FLUTUANTE -->
-                    <div id="map-tooltip" class="hidden absolute z-30 bg-slate-950/95 border border-slate-700 rounded-xl p-3 shadow-2xl pointer-events-none font-mono text-xs backdrop-blur-md w-52">
-                        <div id="tt-name" class="font-bold text-sm text-white border-b border-slate-800 pb-1 mb-1.5">Estado</div>
-                        <div class="flex justify-between text-red-400 mb-1"><span>Votos "13":</span><span id="tt-v13" class="font-bold">0</span></div>
-                        <div class="flex justify-between text-blue-400 mb-1"><span>Votos "22":</span><span id="tt-v22" class="font-bold">0</span></div>
-                        <div class="flex justify-between text-gray-400 border-t border-slate-800 pt-1"><span>Liderança:</span><span id="tt-pct" class="font-bold text-white">50%</span></div>
+                    <div id="map-tooltip" class="hidden absolute z-30 bg-slate-950/95 border border-slate-700 rounded-xl p-2.5 shadow-2xl pointer-events-none font-mono text-[11px] backdrop-blur-md w-48">
+                        <div id="tt-name" class="font-bold text-xs text-white border-b border-slate-800 pb-1 mb-1">Estado</div>
+                        <div class="flex justify-between text-red-400 mb-0.5"><span>Votos "13":</span><span id="tt-v13" class="font-bold">0</span></div>
+                        <div class="flex justify-between text-blue-400 mb-0.5"><span>Votos "22":</span><span id="tt-v22" class="font-bold">0</span></div>
+                        <div class="flex justify-between text-gray-400 border-t border-slate-800 pt-0.5"><span>Liderança:</span><span id="tt-pct" class="font-bold text-white">50%</span></div>
                     </div>
 
                 </div>
-
             </div>
 
         </div>
 
         <!-- PAINEL DE PRESENTES NA PARTE DE BAIXO -->
-        <div class="bg-cardBg border border-cardBorder rounded-2xl p-3 md:p-4 shadow-xl">
-            <h4 class="font-bold text-xs text-yellow-400 mb-2 flex items-center justify-between">
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-star"></i> Sistema de Apoio Especial da Live TikTok (Automático no Mapa)</span>
-                <span class="text-[10px] text-gray-400 font-mono">10 Itens Oficiais (Azul = Flávio | Vermelho = Lula)</span>
+        <div class="bg-cardBg border border-cardBorder rounded-xl p-2 shadow-xl flex-shrink-0">
+            <h4 class="font-bold text-[10px] text-yellow-400 mb-1.5 flex items-center justify-between">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-star"></i> Apoio Especial da Live TikTok (Automático no Mapa)</span>
+                <span class="text-[9px] text-gray-400 font-mono">10 Itens Oficiais (Azul = Flávio | Vermelho = Lula)</span>
             </h4>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs font-mono">
-                <!-- 1. Rosa (Flávio) 6000 pts -->
-                <div onclick="simulateGift('Rosa', 6000, '22', 'Flávio')" class="bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-500/50 p-2 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 truncate">
-                        <img src="https://p16-sign-va.tiktokcdn.com/obj/musically-maliva-obj/1802958348911621.png" class="w-6 h-6 object-contain" onerror="this.src='https://images.emojiterra.com/google/android-12l/512px/1f339.png'">
-                        <span class="truncate">Rosa <span class="text-[9px] text-blue-400 font-bold">(Flávio)</span></span>
-                    </span>
-                    <span class="text-blue-400 font-bold whitespace-nowrap">+6k</span>
-                </div>
-                <!-- 2. Tiktok (Lula) 6000 pts -->
-                <div onclick="simulateGift('Tiktok', 6000, '13', 'Lula')" class="bg-slate-950 hover:bg-red-950/40 border border-slate-800 hover:border-red-500/50 p-2 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 truncate">
-                        <img src="https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/73d72d6ffb4742a28178cdfbdb2b812f.png" class="w-6 h-6 object-contain" onerror="this.src='https://images.emojiterra.com/google/android-12l/512px/1f3bc.png'">
-                        <span class="truncate">Tiktok <span class="text-[9px] text-red-400 font-bold">(Lula)</span></span>
-                    </span>
-                    <span class="text-red-400 font-bold whitespace-nowrap">+6k</span>
-                </div>
-                <!-- 3. Dino (Flávio) 15000 pts -->
-                <div onclick="simulateGift('Dino', 15000, '22', 'Flávio')" class="bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-500/50 p-2 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 truncate">
-                        <img src="https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/713f9fec6f3e4bc99e6931295b9eb4ae.png" class="w-6 h-6 object-contain" onerror="this.src='https://images.emojiterra.com/google/android-12l/512px/1f995.png'">
-                        <span class="truncate">Dino <span class="text-[9px] text-blue-400 font-bold">(Flávio)</span></span>
-                    </span>
-                    <span class="text-blue-400 font-bold whitespace-nowrap">+15k</span>
-                </div>
-                <!-- 4. Fantasminha (Lula) 15000 pts -->
-                <div onclick="simulateGift('Fantasminha', 15000, '13', 'Lula')" class="bg-slate-950 hover:bg-red-950/40 border border-slate-800 hover:border-red-500/50 p-2 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 truncate">
-                        <img src="https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/087a329d91f24d29a5cb7460bf0be0e8.png" class="w-6 h-6 object-contain" onerror="this.src='https://images.emojiterra.com/google/android-12l/512px/1f47b.png'">
-                        <span class="truncate">Fantasminha <span class="text-[9px] text-red-400 font-bold">(Lula)</span></span>
-                    </span>
-                    <span class="text-red-400 font-bold whitespace-nowrap">+15k</span>
-                </div>
-                <!-- 5. Buque de flor (Flavio) 30000 pts -->
-                <div onclick="simulateGift('Buquê de Flor', 30000, '22', 'Flávio')" class="bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-500/50 p-2 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 truncate">
-                        <img src="https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/7074479133800645414.png" class="w-6 h-6 object-contain" onerror="this.src='https://images.emojiterra.com/google/android-12l/512px/1f490.png'">
-                        <span class="truncate">Buquê <span class="text-[9px] text-blue-400 font-bold">(Flávio)</span></span>
-                    </span>
-                    <span class="text-blue-400 font-bold whitespace-nowrap">+30k</span>
-                </div>
-                <!-- 6. Rosquinha (Lula) 30000 pts -->
-                <div onclick="simulateGift('Rosquinha', 30000, '13', 'Lula')" class="bg-slate-950 hover:bg-red-950/40 border border-slate-800 hover:border-red-500/50 p-2 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 truncate">
-                        <img src="https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/7065985011910821638.png" class="w-6 h-6 object-contain" onerror="this.src='https://images.emojiterra.com/google/android-12l/512px/1f36f.png'">
-                        <span class="truncate">Rosquinha <span class="text-[9px] text-red-400 font-bold">(Lula)</span></span>
-                    </span>
-                    <span class="text-red-400 font-bold whitespace-nowrap">+30k</span>
-                </div>
-                <!-- 7. Mão em coração (Flavio) 100000 pts -->
-                <div onclick="simulateGift('Mão em Coração', 100000, '22', 'Flávio')" class="bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-500/50 p-2 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 truncate">
-                        <img src="https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/7074478294244244774.png" class="w-6 h-6 object-contain" onerror="this.src='https://images.emojiterra.com/google/android-12l/512px/1faf6.png'">
-                        <span class="truncate">Mão Coração <span class="text-[9px] text-blue-400 font-bold">(Flávio)</span></span>
-                    </span>
-                    <span class="text-blue-400 font-bold whitespace-nowrap">+100k</span>
-                </div>
-                <!-- 8. Confete (Lula) 100000 pts -->
-                <div onclick="simulateGift('Confete', 100000, '13', 'Lula')" class="bg-slate-950 hover:bg-red-950/40 border border-slate-800 hover:border-red-500/50 p-2 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 truncate">
-                        <img src="https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/7074479579730331942.png" class="w-6 h-6 object-contain" onerror="this.src='https://images.emojiterra.com/google/android-12l/512px/1f38a.png'">
-                        <span class="truncate">Confete <span class="text-[9px] text-red-400 font-bold">(Lula)</span></span>
-                    </span>
-                    <span class="text-red-400 font-bold whitespace-nowrap">+100k</span>
-                </div>
-                <!-- 9. Galaxia (Flavio) 1000000 pts -->
-                <div onclick="simulateGift('Galáxia', 1000000, '22', 'Flávio')" class="bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-500/50 p-2 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 truncate">
-                        <img src="https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/5a9142f7c006509f6ff1bfdd6e964991.png" class="w-6 h-6 object-contain" onerror="this.src='https://images.emojiterra.com/google/android-12l/512px/1f30c.png'">
-                        <span class="truncate">Galáxia <span class="text-[9px] text-blue-400 font-bold">(Flávio)</span></span>
-                    </span>
-                    <span class="text-blue-400 font-bold whitespace-nowrap">+1M</span>
-                </div>
-                <!-- 10. Selo LIVE PRO (Lula) 1000000 pts -->
-                <div onclick="simulateGift('Selo LIVE PRO', 1000000, '13', 'Lula')" class="bg-slate-950 hover:bg-red-950/40 border border-slate-800 hover:border-red-500/50 p-2 rounded-xl cursor-pointer transition flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 truncate">
-                        <img src="https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/713f9fec6f3e4bc99e6931295b9eb4af.png" class="w-6 h-6 object-contain" onerror="this.src='https://images.emojiterra.com/google/android-12l/512px/1f31f.png'">
-                        <span class="truncate">LIVE PRO <span class="text-[9px] text-red-400 font-bold">(Lula)</span></span>
-                    </span>
-                    <span class="text-red-400 font-bold whitespace-nowrap">+1M</span>
-                </div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-1.5 text-[11px] font-mono" id="gifts-container">
+                <!-- Injetado dinamicamente via JS para refletir pontuações personalizadas -->
             </div>
         </div>
 
         <!-- RODAPÉ -->
-        <footer class="bg-cardBg border border-cardBorder rounded-2xl p-3 md:p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xl">
-            <button onclick="resetSimulation()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold rounded-xl border border-slate-700 transition text-xs">
+        <footer class="bg-cardBg border border-cardBorder rounded-xl px-3 py-1 flex items-center justify-between gap-4 shadow-xl flex-shrink-0">
+            <button onclick="resetSimulation()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold rounded-lg border border-slate-700 transition text-[10px]">
                 <i class="fa-solid fa-rotate-left"></i> Zerar Apuração
             </button>
-            <div class="text-gray-400 text-[11px] text-center md:text-right font-mono max-w-xl leading-relaxed">
+            <div class="text-gray-400 text-[9px] text-center md:text-right font-mono max-w-2xl leading-tight">
                 Esta live não está fazendo chantagem, nem obrigando ninguém a mandar nenhum tipo de presente; a pessoa ao enviar o presente tem total consciência de que ela está mandando por conta própria sem ter sido intimidada a enviar qualquer tipo de presente.
             </div>
         </footer>
@@ -318,16 +234,38 @@
 
     <!-- MODAL DE CONEXÃO TIKTOK OCULTO (Para não atrapalhar a live) -->
     <div id="connection-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-cardBg border border-cyan-900/60 rounded-2xl p-6 max-w-md w-full shadow-2xl relative">
+        <div class="bg-cardBg border border-cyan-900/60 rounded-2xl p-6 max-w-lg w-full shadow-2xl relative">
             <button onclick="toggleConnectionModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             <h3 class="font-black text-white text-lg mb-3 flex items-center gap-2">
-                <i class="fa-brands fa-tiktok text-cyan-400"></i> Conectar TikTok Live Real
+                <i class="fa-brands fa-tiktok text-cyan-400"></i> Como Conectar a Live do TikTok ao Site
             </h3>
-            <p class="text-xs text-gray-400 mb-4 font-mono">
-                Conecte ao seu servidor WebSocket ou TikTok Bridge para capturar comentários em tempo real ("13" e "22"). Sem restrições de frequência!
-            </p>
+            <div class="text-xs text-gray-300 space-y-3 mb-4 font-mono leading-relaxed max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
+                <p>Como o TikTok não permite conexão direta via navegador (por motivos de segurança CORS/WebSocket), você precisará rodar um pequeno programa ponte (Bridge) no seu computador.</p>
+                
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <p class="font-bold text-cyan-400">Passo 1: Instalar o Node.js no seu PC</p>
+                    <p class="text-gray-400">Certifique-se de ter o Node.js instalado em seu computador (baixe em nodejs.org).</p>
+                </div>
 
-            <div class="flex flex-col gap-3 mb-4">
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <p class="font-bold text-cyan-400">Passo 2: Baixar a Ponte (TikTok Live Bridge)</p>
+                    <p class="text-gray-400">Em uma pasta no seu PC, abra o terminal e digite os comandos:</p>
+                    <code class="block bg-black p-2 rounded text-emerald-400 text-[10px]">npm install tiktok-live-connector ws</code>
+                </div>
+
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <p class="font-bold text-cyan-400">Passo 3: Rodar o Servidor de Conexão</p>
+                    <p class="text-gray-400">Crie um arquivo chamado <code class="text-yellow-400">server.js</code> com o código de integração WebSocket para capturar comentários e presentes e execute:</p>
+                    <code class="block bg-black p-2 rounded text-emerald-400 text-[10px]">node server.js</code>
+                </div>
+
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <p class="font-bold text-cyan-400">Passo 4: Inserir seus dados no painel</p>
+                    <p class="text-gray-400">Digite seu <code class="text-white">@username</code> exato da live do TikTok e clique em <b>Conectar Agora</b>. Pronto! Os comentários ("13", "22") e presentes serão computados automaticamente em tempo real no mapa e no placar.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3 mb-2">
                 <div>
                     <label class="block text-[11px] font-mono text-gray-300 mb-1">@username da Live:</label>
                     <div class="relative">
@@ -341,12 +279,65 @@
                 </div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex gap-2 mt-4">
                 <button id="btn-connect-tiktok" onclick="connectTikTokLive(); toggleConnectionModal();" class="flex-grow py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
                     Conectar Agora
                 </button>
                 <button onclick="disconnectTikTokLive(); toggleConnectionModal();" class="px-4 py-2.5 bg-red-950/80 hover:bg-red-900 text-red-300 font-bold rounded-xl border border-red-800 transition text-xs">
                     Desconectar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURAÇÃO DE FOTOS E PONTUAÇÕES -->
+    <div id="config-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-cardBg border border-yellow-900/60 rounded-2xl p-5 max-w-lg w-full shadow-2xl relative max-h-[90vh] flex flex-col">
+            <button onclick="toggleConfigModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-black text-white text-sm mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-yellow-400"></i> Painel de Configuração (Fotos e Presentes)
+            </h3>
+            
+            <div class="overflow-y-auto custom-scrollbar space-y-4 pr-2 flex-grow text-xs font-mono">
+                <!-- Seção Candidatos -->
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-white mb-2 text-xs flex items-center gap-1.5"><i class="fa-solid fa-users text-cyan-400"></i> Fotos dos Candidatos (Buscar da Galeria)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">Foto Lula (13):</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="cfg-img-red" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-[10px]" placeholder="URL ou escolha da galeria">
+                                <label class="cursor-pointer bg-cyan-700 hover:bg-cyan-600 text-white px-2.5 py-1.5 rounded text-[10px] flex items-center justify-center transition">
+                                    <i class="fa-solid fa-image"></i>
+                                    <input type="file" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'cfg-img-red')">
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-400 mb-1">Foto Flávio (22):</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="cfg-img-blue" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-white text-[10px]" placeholder="URL ou escolha da galeria">
+                                <label class="cursor-pointer bg-cyan-700 hover:bg-cyan-600 text-white px-2.5 py-1.5 rounded text-[10px] flex items-center justify-center transition">
+                                    <i class="fa-solid fa-image"></i>
+                                    <input type="file" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'cfg-img-blue')">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção Pontuação dos Presentes -->
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-white mb-2 text-xs flex items-center gap-1.5"><i class="fa-solid fa-gift text-yellow-400"></i> Pontuação dos Presentes</h4>
+                    <div id="gifts-config-list" class="space-y-2">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-2 border-t border-slate-800 flex justify-end gap-2">
+                <button onclick="saveConfigurations()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-black font-bold rounded-xl transition text-xs">
+                    Salvar Alterações
                 </button>
             </div>
         </div>
@@ -390,8 +381,94 @@
             votes22: 0,
             statesData: {},
             wsConnection: null,
-            simulatorInterval: null
+            simulatorInterval: null,
+            gifts: [
+                { id: 1, name: 'Rosa', points: 6000, candidateNum: '22', candidateName: 'Flávio', color: 'blue', icon: 'https://p16-sign-va.tiktokcdn.com/obj/musically-maliva-obj/1802958348911621.png', fallback: 'https://images.emojiterra.com/google/android-12l/512px/1f339.png' },
+                { id: 2, name: 'Tiktok', points: 6000, candidateNum: '13', candidateName: 'Lula', color: 'red', icon: 'https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/73d72d6ffb4742a28178cdfbdb2b812f.png', fallback: 'https://images.emojiterra.com/google/android-12l/512px/1f3bc.png' },
+                { id: 3, name: 'Dino', points: 15000, candidateNum: '22', candidateName: 'Flávio', color: 'blue', icon: 'https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/713f9fec6f3e4bc99e6931295b9eb4ae.png', fallback: 'https://images.emojiterra.com/google/android-12l/512px/1f995.png' },
+                { id: 4, name: 'Fantasminha', points: 15000, candidateNum: '13', candidateName: 'Lula', color: 'red', icon: 'https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/087a329d91f24d29a5cb7460bf0be0e8.png', fallback: 'https://images.emojiterra.com/google/android-12l/512px/1f47b.png' },
+                { id: 5, name: 'Buquê de Flor', points: 30000, candidateNum: '22', candidateName: 'Flávio', color: 'blue', icon: 'https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/7074479133800645414.png', fallback: 'https://images.emojiterra.com/google/android-12l/512px/1f490.png' },
+                { id: 6, name: 'Rosquinha', points: 30000, candidateNum: '13', candidateName: 'Lula', color: 'red', icon: 'https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/7065985011910821638.png', fallback: 'https://images.emojiterra.com/google/android-12l/512px/1f36f.png' },
+                { id: 7, name: 'Mão em Coração', points: 100000, candidateNum: '22', candidateName: 'Flávio', color: 'blue', icon: 'https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/7074478294244244774.png', fallback: 'https://images.emojiterra.com/google/android-12l/512px/1faf6.png' },
+                { id: 8, name: 'Confete', points: 100000, candidateNum: '13', candidateName: 'Lula', color: 'red', icon: 'https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/7074479579730331942.png', fallback: 'https://images.emojiterra.com/google/android-12l/512px/1f38a.png' },
+                { id: 9, name: 'Galáxia', points: 1000000, candidateNum: '22', candidateName: 'Flávio', color: 'blue', icon: 'https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/5a9142f7c006509f6ff1bfdd6e964991.png', fallback: 'https://images.emojiterra.com/google/android-12l/512px/1f30c.png' },
+                { id: 10, name: 'Selo LIVE PRO', points: 1000000, candidateNum: '13', candidateName: 'Lula', color: 'red', icon: 'https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/713f9fec6f3e4bc99e6931295b9eb4af.png', fallback: 'https://images.emojiterra.com/google/android-12l/512px/1f31f.png' }
+            ]
         };
+
+        function toggleConfigModal() {
+            const modal = document.getElementById('config-modal');
+            if (modal.classList.contains('hidden')) {
+                document.getElementById('cfg-img-red').value = document.getElementById('img-red').src;
+                document.getElementById('cfg-img-blue').value = document.getElementById('img-blue').src;
+                
+                const listContainer = document.getElementById('gifts-config-list');
+                listContainer.innerHTML = '';
+                appState.gifts.forEach((g, idx) => {
+                    listContainer.innerHTML += `
+                        <div class="flex items-center justify-between gap-2 bg-slate-900 p-2 rounded border border-slate-800">
+                            <span class="text-white font-bold truncate w-28">${g.name} <span class="text-[9px] text-${g.color === 'blue' ? 'blue-400' : 'red-400'}">(${g.candidateName})</span></span>
+                            <input type="number" id="gift-pts-${idx}" value="${g.points}" class="w-28 bg-slate-950 border border-slate-700 rounded p-1 text-white text-right font-mono text-xs">
+                        </div>
+                    `;
+                });
+            }
+            modal.classList.toggle('hidden');
+        }
+
+        function handleImageUpload(event, targetInputId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(targetInputId).value = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveConfigurations() {
+            const newImgRed = document.getElementById('cfg-img-red').value.trim();
+            const newImgBlue = document.getElementById('cfg-img-blue').value.trim();
+
+            if (newImgRed) document.getElementById('img-red').src = newImgRed;
+            if (newImgBlue) document.getElementById('img-blue').src = newImgBlue;
+
+            appState.gifts.forEach((g, idx) => {
+                const inputVal = document.getElementById(`gift-pts-${idx}`);
+                if (inputVal) {
+                    const parsed = parseInt(inputVal.value);
+                    if (!isNaN(parsed) && parsed > 0) {
+                        g.points = parsed;
+                    }
+                }
+            });
+
+            renderGiftsBar();
+            toggleConfigModal();
+        }
+
+        function renderGiftsBar() {
+            const container = document.getElementById('gifts-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            appState.gifts.forEach(g => {
+                const colorClass = g.color === 'blue' ? 'text-blue-400 hover:border-blue-500/50 hover:bg-blue-950/40' : 'text-red-400 hover:border-red-500/50 hover:bg-red-950/40';
+                const tagColor = g.color === 'blue' ? 'text-blue-400' : 'text-red-400';
+                const formattedPoints = g.points >= 1000000 ? (g.points/1000000) + 'M' : (g.points/1000) + 'k';
+
+                container.innerHTML += `
+                    <div onclick="simulateGift('${g.name}', ${g.points}, '${g.candidateNum}', '${g.candidateName}')" class="bg-slate-950 border border-slate-800 p-1.5 rounded-lg cursor-pointer transition flex items-center justify-between ${colorClass}">
+                        <span class="flex items-center gap-1 truncate">
+                            <img src="${g.icon}" class="w-5 h-5 object-contain" onerror="this.src='${g.fallback}'">
+                            <span class="truncate">${g.name} <span class="text-[8px] ${tagColor} font-bold">(${g.candidateName})</span></span>
+                        </span>
+                        <span class="${tagColor} font-bold whitespace-nowrap">+${formattedPoints}</span>
+                    </div>
+                `;
+            });
+        }
 
         function toggleConnectionModal() {
             const modal = document.getElementById('connection-modal');
@@ -403,8 +480,8 @@
             if (appState.simulatorInterval) {
                 clearInterval(appState.simulatorInterval);
                 appState.simulatorInterval = null;
-                btn.className = "bg-slate-800 hover:bg-slate-700 text-yellow-400 text-[10px] px-2.5 py-1 rounded-lg border border-yellow-800/60 font-mono transition shadow flex items-center gap-1";
-                btn.innerHTML = `<i class="fa-solid fa-robot"></i> Simular Votos`;
+                btn.className = "bg-slate-800 hover:bg-slate-700 text-yellow-400 text-[10px] px-2 py-0.5 rounded-md border border-yellow-800/60 font-mono transition shadow flex items-center gap-1";
+                btn.innerHTML = `<i class="fa-solid fa-robot"></i> Simular`;
             } else {
                 appState.simulatorInterval = setInterval(() => {
                     const randomVote = Math.random() > 0.48 ? '13' : '22';
@@ -419,8 +496,8 @@
                     processRealTikTokVote(randomVote, name, avatar, 4000, 'comentário (+4k)');
                 }, 1200);
 
-                btn.className = "bg-yellow-950 text-yellow-300 text-[10px] px-2.5 py-1 rounded-lg border border-yellow-600 font-mono transition shadow flex items-center gap-1 animate-pulse";
-                btn.innerHTML = `<i class="fa-solid fa-stop"></i> Parar Simulação`;
+                btn.className = "bg-yellow-950 text-yellow-300 text-[10px] px-2 py-0.5 rounded-md border border-yellow-600 font-mono transition shadow flex items-center gap-1 animate-pulse";
+                btn.innerHTML = `<i class="fa-solid fa-stop"></i> Parar`;
             }
         }
 
@@ -441,6 +518,8 @@
             BRAZIL_STATES.forEach(st => {
                 appState.statesData[st.id] = { v13: 0, v22: 0 };
             });
+
+            renderGiftsBar();
 
             const g = document.getElementById('states-group');
             if (g) {
@@ -504,9 +583,6 @@
         function connectTikTokLive() {
             const usernameInput = document.getElementById('tiktok-username').value.trim();
             const wsServerUrl = document.getElementById('ws-server-url').value.trim();
-            const badge = document.getElementById('ws-status-badge');
-            const footerStatus = document.getElementById('footer-status');
-            const btn = document.getElementById('btn-connect-tiktok');
 
             if (!usernameInput) {
                 alert('Insira o @username da live do TikTok');
@@ -517,25 +593,12 @@
                 appState.wsConnection.close();
             }
 
-            badge.className = "text-[10px] bg-yellow-900 text-yellow-300 px-2 py-0.5 rounded-full font-mono border border-yellow-700 animate-pulse";
-            badge.textContent = "Conectando...";
-            footerStatus.textContent = "Conectando ao TikTok...";
-
             try {
                 const ws = new WebSocket(wsServerUrl);
                 appState.wsConnection = ws;
 
                 ws.onopen = () => {
                     appState.isTikTokConnected = true;
-                    badge.className = "text-[10px] bg-emerald-900 text-emerald-300 px-2 py-0.5 rounded-full font-mono border border-emerald-700";
-                    badge.textContent = "AO VIVO TIKTOK";
-                    footerStatus.className = "text-emerald-400";
-                    footerStatus.textContent = `Conectado à live @${usernameInput}`;
-
-                    btn.className = "px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition text-xs flex items-center gap-1.5 shadow-md";
-                    btn.innerHTML = `<i class="fa-solid fa-plug-circle-xmark"></i> Desconectar`;
-                    btn.onclick = disconnectTikTokLive;
-
                     ws.send(JSON.stringify({
                         action: "setUniqueId",
                         uniqueId: usernameInput
@@ -570,7 +633,6 @@
                             let candidateLabel = voteOption === '13' ? 'Lula' : 'Flávio';
 
                             const gNameLower = giftName.toLowerCase();
-                            // Mapeamento automático exato dos 10 presentes e pontuações correspondentes
                             if (gNameLower.includes('rosa')) { voteOption = '22'; points = 6000; candidateLabel = 'Flávio'; }
                             else if (gNameLower.includes('tiktok')) { voteOption = '13'; points = 6000; candidateLabel = 'Lula'; }
                             else if (gNameLower.includes('dino')) { voteOption = '22'; points = 15000; candidateLabel = 'Flávio'; }
@@ -582,19 +644,11 @@
                             else if (gNameLower.includes('galaxia')) { voteOption = '22'; points = 1000000; candidateLabel = 'Flávio'; }
                             else if (gNameLower.includes('selo') || gNameLower.includes('live pro')) { voteOption = '13'; points = 1000000; candidateLabel = 'Lula'; }
 
-                            // Processa automaticamente a apuração do presente na live
                             processRealTikTokVote(voteOption, nickname, avatar, points, `apoio: ${giftName} (${candidateLabel})`);
                         }
                     } catch (err) {
                         console.error("Erro no WebSocket:", err);
                     }
-                };
-
-                ws.onerror = (err) => {
-                    badge.className = "text-[10px] bg-red-950 text-red-400 px-2 py-0.5 rounded-full font-mono border border-red-800";
-                    badge.textContent = "Erro de Conexão";
-                    footerStatus.className = "text-red-400";
-                    footerStatus.textContent = "Falha ao conectar ao servidor WebSocket";
                 };
 
                 ws.onclose = () => {
@@ -612,14 +666,6 @@
                 appState.wsConnection = null;
             }
             appState.isTikTokConnected = false;
-
-            const badge = document.getElementById('ws-status-badge');
-            const footerStatus = document.getElementById('footer-status');
-
-            if(badge) badge.className = "text-[10px] bg-slate-800 text-gray-400 px-2 py-0.5 rounded-full font-mono border border-slate-700";
-            if(badge) badge.textContent = "Desconectado";
-            if(footerStatus) footerStatus.className = "text-yellow-400";
-            if(footerStatus) footerStatus.textContent = "Desconectado";
         }
 
         function processRealTikTokVote(voteOption, nickname, avatar, points = 4000, type = 'voto') {
@@ -648,27 +694,27 @@
 
             const div = document.createElement('div');
             const isGift = type.includes('apoio');
-            div.className = `flex items-center justify-between text-xs p-2 rounded-xl border shadow-md ${isGift ? 'bg-amber-950/40 border-amber-500/50' : 'bg-slate-900/80 border-slate-800'}`;
+            div.className = `flex items-center justify-between text-[11px] p-1.5 rounded-lg border shadow-sm ${isGift ? 'bg-amber-950/40 border-amber-500/50' : 'bg-slate-900/80 border-slate-800'}`;
 
             const is13 = val === '13';
             const badgeColor = is13 ? "bg-red-600 text-white" : "bg-blue-600 text-white";
             const userImg = avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60&auto=format&fit=crop&q=80";
 
             div.innerHTML = `
-                <div class="flex items-center gap-2 overflow-hidden">
-                    <img src="${userImg}" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60&auto=format&fit=crop&q=80'" class="w-7 h-7 rounded-full object-cover border border-cyan-400/70 shadow">
+                <div class="flex items-center gap-1.5 overflow-hidden">
+                    <img src="${userImg}" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60&auto=format&fit=crop&q=80'" class="w-6 h-6 rounded-full object-cover border border-cyan-400/70 shadow flex-shrink-0">
                     <div class="truncate">
-                        <span class="font-bold text-gray-200 block truncate max-w-[110px]">${nickname}</span>
-                        <span class="text-[9px] text-gray-400 block">${type}</span>
+                        <span class="font-bold text-gray-200 block truncate max-w-[100px]">${nickname}</span>
+                        <span class="text-[8px] text-gray-400 block">${type}</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-1.5">
-                    <span class="font-black px-2.5 py-0.5 rounded-md text-[11px] font-mono shadow-md ${badgeColor}">+${points.toLocaleString()} ${val}</span>
+                <div class="flex items-center gap-1">
+                    <span class="font-black px-2 py-0.2 rounded text-[10px] font-mono shadow ${badgeColor}">+${points.toLocaleString()} ${val}</span>
                 </div>
             `;
 
             chat.insertBefore(div, chat.firstChild);
-            if (chat.children.length > 40) chat.removeChild(chat.lastChild);
+            if (chat.children.length > 30) chat.removeChild(chat.lastChild);
         }
 
         function updateUI() {
@@ -690,16 +736,16 @@
 
             if (total === 0) {
                 statusMsg.textContent = "Aguardando votos da live (+4.000 por comentário)...";
-                statusMsg.className = "text-gray-300 text-xs md:text-sm font-mono font-bold tracking-tight px-3 py-1 bg-slate-950/90 rounded-xl border border-slate-800 shadow-inner";
+                statusMsg.className = "text-gray-300 text-xs font-mono font-bold tracking-tight px-3 py-0.5 bg-slate-950/90 rounded-lg border border-slate-800 shadow-inner";
             } else if (diff < 10000) {
                 statusMsg.textContent = "🔥 Disputa acirrada! Menos de 10 mil votos de diferença!";
-                statusMsg.className = "text-yellow-400 text-xs md:text-sm font-mono font-bold tracking-tight px-3 py-1 bg-yellow-950/40 rounded-xl border border-yellow-800/60 shadow-inner animate-pulse";
+                statusMsg.className = "text-yellow-400 text-xs font-mono font-bold tracking-tight px-3 py-0.5 bg-yellow-950/40 rounded-lg border border-yellow-800/60 shadow-inner animate-pulse";
             } else if (appState.votes22 > appState.votes13) {
                 statusMsg.innerHTML = `<span class="text-blueTeam font-black">Flávio está à frente</span> por <span class="text-white font-black">${diff.toLocaleString('pt-BR')}</span> votos!`;
-                statusMsg.className = "text-gray-200 text-xs md:text-sm font-mono font-bold tracking-tight px-3 py-1 bg-blue-950/30 rounded-xl border border-blue-900/60 shadow-inner";
+                statusMsg.className = "text-gray-200 text-xs font-mono font-bold tracking-tight px-3 py-0.5 bg-blue-950/30 rounded-lg border border-blue-900/60 shadow-inner";
             } else {
                 statusMsg.innerHTML = `<span class="text-redTeam font-black">Lula está à frente</span> por <span class="text-white font-black">${diff.toLocaleString('pt-BR')}</span> votos!`;
-                statusMsg.className = "text-gray-200 text-xs md:text-sm font-mono font-bold tracking-tight px-3 py-1 bg-red-950/30 rounded-xl border border-red-900/60 shadow-inner";
+                statusMsg.className = "text-gray-200 text-xs font-mono font-bold tracking-tight px-3 py-0.5 bg-red-950/30 rounded-lg border border-red-900/60 shadow-inner";
             }
 
             BRAZIL_STATES.forEach(st => {
@@ -768,7 +814,7 @@
             BRAZIL_STATES.forEach(st => {
                 appState.statesData[st.id] = { v13: 0, v22: 0 };
             });
-            document.getElementById('tiktok-chat').innerHTML = `<div class="text-center text-gray-500 text-xs py-12 font-mono">Aguardando comentários da live do TikTok...<br>Cada "13" ou "22" adiciona +4.000 votos e exibe a foto do espectador!</div>`;
+            document.getElementById('tiktok-chat').innerHTML = `<div class="text-center text-gray-500 text-[11px] py-10 font-mono">Aguardando comentários da live...<br>Cada "13" ou "22" soma +4.000 votos!</div>`;
             updateUI();
         }
 
