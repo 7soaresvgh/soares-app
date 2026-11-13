@@ -22,6 +22,7 @@ AI_BASE_URL = os.getenv("AI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
 AI_MODEL = os.getenv("AI_MODEL", "gpt-4o-mini")
 AI_TEMPERATURE = float(os.getenv("AI_TEMPERATURE", "0.8"))
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "").strip().lower()
+ACTIVITY_AGENT_TOKEN = os.getenv("ACTIVITY_AGENT_TOKEN", "").strip()
 pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI(title=APP_NAME, version="1.0.0")
@@ -213,12 +214,19 @@ def get_activity(user=Depends(current_user)):
 
 @app.post("/activity")
 def set_activity(data: ActivityIn, user=Depends(current_user)):
-    if data.source == "automatic" and user["role"] != "admin":
-        raise HTTPException(403, "Somente a conta administradora pode enviar detecção automática.")
     with db() as c:
         c.execute("UPDATE activity SET is_playing=?,game=?,source=?,updated_at=? WHERE id=1",
                   (int(data.is_playing), data.game.strip(), data.source, now()))
     return {"ok": True, "is_playing": data.is_playing, "game": data.game, "source": data.source}
+
+@app.post("/activity/agent")
+def set_activity_from_windows(data: ActivityIn, x_agent_token: Optional[str] = Header(default=None)):
+    if not ACTIVITY_AGENT_TOKEN or not secrets.compare_digest(x_agent_token or "", ACTIVITY_AGENT_TOKEN):
+        raise HTTPException(401, "Agente Windows não autorizado.")
+    with db() as c:
+        c.execute("UPDATE activity SET is_playing=?,game=?,source='automatic',updated_at=? WHERE id=1",
+                  (int(data.is_playing), data.game.strip(), now()))
+    return {"ok": True, "is_playing": data.is_playing, "game": data.game, "source": "automatic"}
 
 @app.get("/memories")
 def get_memories(user=Depends(current_user)):
