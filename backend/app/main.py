@@ -148,7 +148,7 @@ def register(data: RegisterIn):
                 uid = cur.lastrowid
         except (sqlite3.IntegrityError, psycopg.IntegrityError):
             raise HTTPException(409, "Este e-mail já possui cadastro.")
-        user = c.execute("SELECT id,name,email,role FROM users WHERE id=?", (uid,)).fetchone()
+        user = c.execute("SELECT id,name,email,role FROM users WHERE id=%s" if DATABASE_URL else "SELECT id,name,email,role FROM users WHERE id=?", (uid,)).fetchone()
     return {"token": make_token(user), "user": dict(user)}
 
 @app.post("/auth/login")
@@ -203,8 +203,8 @@ async def chat(data: ChatIn, user=Depends(current_user)):
     with db() as c:
         activity = dict(c.execute("SELECT * FROM activity WHERE id=1").fetchone())
         memories = [r["content"] for r in c.execute(
-            "SELECT content FROM memories WHERE user_id=? ORDER BY id DESC LIMIT 30", (user["id"],)).fetchall()]
-        history = c.execute("SELECT role,content FROM messages WHERE user_id=? ORDER BY id DESC LIMIT 20",
+            "SELECT content FROM memories WHERE user_id=%s ORDER BY id DESC LIMIT 30" if DATABASE_URL else "SELECT content FROM memories WHERE user_id=? ORDER BY id DESC LIMIT 30", (user["id"],)).fetchall()]
+        history = c.execute("SELECT role,content FROM messages WHERE user_id=%s ORDER BY id DESC LIMIT 20" if DATABASE_URL else "SELECT role,content FROM messages WHERE user_id=? ORDER BY id DESC LIMIT 20",
                             (user["id"],)).fetchall()
         history = list(reversed(history))
         c.execute("INSERT INTO messages(user_id,role,content,created_at) VALUES(%s,%s,%s,%s)" if DATABASE_URL else "INSERT INTO messages(user_id,role,content,created_at) VALUES(?,?,?,?)",
@@ -222,7 +222,7 @@ async def chat(data: ChatIn, user=Depends(current_user)):
 def get_messages(limit: int = 60, user=Depends(current_user)):
     limit = max(1, min(limit, 150))
     with db() as c:
-        rows = c.execute("SELECT id,role,content,created_at FROM messages WHERE user_id=? ORDER BY id DESC LIMIT ?",
+        rows = c.execute("SELECT id,role,content,created_at FROM messages WHERE user_id=%s ORDER BY id DESC LIMIT %s" if DATABASE_URL else "SELECT id,role,content,created_at FROM messages WHERE user_id=? ORDER BY id DESC LIMIT ?",
                          (user["id"], limit)).fetchall()
     return {"messages": [dict(r) for r in reversed(rows)]}
 
@@ -258,7 +258,7 @@ def set_activity_from_windows(data: ActivityIn, x_agent_token: Optional[str] = H
 @app.get("/memories")
 def get_memories(user=Depends(current_user)):
     with db() as c:
-        rows = c.execute("SELECT id,content,created_at FROM memories WHERE user_id=? ORDER BY id DESC",
+        rows = c.execute("SELECT id,content,created_at FROM memories WHERE user_id=%s ORDER BY id DESC" if DATABASE_URL else "SELECT id,content,created_at FROM memories WHERE user_id=? ORDER BY id DESC",
                          (user["id"],)).fetchall()
     return {"memories": [dict(r) for r in rows]}
 
