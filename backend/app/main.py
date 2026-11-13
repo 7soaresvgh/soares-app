@@ -208,7 +208,7 @@ async def chat(data: ChatIn, user=Depends(current_user)):
                             (user["id"],)).fetchall()
         history = list(reversed(history))
         c.execute("INSERT INTO messages(user_id,role,content,created_at) VALUES(%s,%s,%s,%s)" if DATABASE_URL else "INSERT INTO messages(user_id,role,content,created_at) VALUES(?,?,?,?)",
-                  (user["id"], "user", data.message, now()))
+                  (user["id"], "user", (data.message.strip() + (" [imagem anexada]" if data.image_data else "")).strip(), now()))
     messages = [{"role":"system","content":system_prompt(user, activity, memories)}]
     messages += [{"role":r["role"],"content":r["content"]} for r in history]
     messages += [{"role":"user","content":data.message}]
