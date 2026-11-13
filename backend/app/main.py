@@ -96,6 +96,9 @@ class LoginIn(BaseModel):
     email: EmailStr
     password: str
 
+class ProfileIn(BaseModel):
+    name: str = Field(min_length=2, max_length=60)
+
 class ChatIn(BaseModel):
     message: str = Field(default="", max_length=12000)
     image_data: Optional[str] = Field(default=None, max_length=7000000)
@@ -164,6 +167,16 @@ def login(data: LoginIn):
 @app.get("/me")
 def me(user=Depends(current_user)):
     return user
+
+@app.patch("/me")
+def update_me(data: ProfileIn, user=Depends(current_user)):
+    name = data.name.strip()
+    if len(name) < 2:
+        raise HTTPException(422, "O nome precisa ter pelo menos 2 caracteres.")
+    with db() as c:
+        c.execute("UPDATE users SET name=%s WHERE id=%s" if DATABASE_URL else "UPDATE users SET name=? WHERE id=?", (name, user["id"]))
+        updated = c.execute("SELECT id,name,email,role FROM users WHERE id=%s" if DATABASE_URL else "SELECT id,name,email,role FROM users WHERE id=?", (user["id"],)).fetchone()
+    return dict(updated)
 
 def system_prompt(user, activity, memories):
     memory_text = "\n".join(f"- {m}" for m in memories) or "Nenhuma memória salva ainda."
