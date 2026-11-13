@@ -120,3 +120,38 @@ function speakText(text){if(!("speechSynthesis" in window)){toast("Leitura de vo
 $("voice-output").onclick=()=>{speakReplies=!speakReplies;$("voice-output").classList.toggle("active",speakReplies);$("voice-output").textContent=speakReplies?"🔈":"🔊";toast(speakReplies?"Leitura das respostas ativada.":"Leitura das respostas desativada.")};
 const oldNavigate=navigate;
 navigate=function(view){if(view==="terms"){currentView=view;["chat","memories","activity","games","terms"].forEach(v=>$(v+"-view").classList.toggle("hidden",v!==view));document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.view===view));$("view-title").textContent="Termos de uso";return}oldNavigate(view)};
+
+// Jogos extras da aba Jogos Soares
+const extraGames={
+ quiz:{title:"Quiz Soares",questions:[["Qual é o planeta conhecido como planeta vermelho?",["Vênus","Marte","Júpiter"],1],["Quanto é 8 × 7?",["54","56","64"],1],["Qual destes é um navegador?",["Edge","Excel","Windows"],0],["Qual é o maior oceano da Terra?",["Atlântico","Índico","Pacífico"],2],["Qual linguagem estrutura páginas web?",["HTML","SQL","Python"],0]]},
+ word:{title:"Palavra embaralhada",words:["ROXO","SOARES","JANELA","TECLADO","ESTRELA","GAMER"]}}
+function startQuiz(){
+ let idx=0,score=0;const q=extraGames.quiz.questions;const root=$("game-content");
+ function render(){if(idx>=q.length){root.innerHTML='<p class="game-info">Quiz finalizado! Você acertou '+score+' de '+q.length+' perguntas. 🎉</p><button class="primary game-action" id="quiz-again">Jogar novamente</button>'; $("quiz-again").onclick=startQuiz;return}
+ const item=q[idx];root.innerHTML='<p class="game-info">Pergunta '+(idx+1)+' de '+q.length+' · Pontos: '+score+'</p><h3 class="quiz-question">'+item[0]+'</h3><div class="quiz-options">'+item[1].map((a,i)=>'<button class="game-back quiz-option" data-answer="'+i+'">'+a+'</button>').join("")+'</div>';
+ root.querySelectorAll("[data-answer]").forEach(btn=>btn.onclick=()=>{if(Number(btn.dataset.answer)===item[2])score++;idx++;render()})}
+ render()
+}
+function startNumber(){
+ const secret=Math.floor(Math.random()*100)+1;let tries=0;const root=$("game-content");
+ root.innerHTML='<p class="game-info">Pensei em um número de 1 a 100. Você consegue descobrir?</p><form id="guess-form" class="guess-form"><input id="guess-value" type="number" min="1" max="100" required placeholder="Seu palpite"><button class="primary">Tentar</button></form><p class="game-info" id="guess-hint">Digite um palpite para começar.</p><button class="game-back" id="guess-again">Novo número</button>';
+ $("guess-form").onsubmit=e=>{e.preventDefault();const n=Number($("guess-value").value);if(n<1||n>100)return;tries++;$("guess-hint").textContent=n===secret?"Acertou em "+tries+" tentativas! 🎉":n<secret?"Muito baixo! Tente um número maior.":"Muito alto! Tente um número menor.";if(n===secret)$("guess-hint").style.color="#69ffc7";$("guess-value").value=""};$("guess-again").onclick=startNumber;
+}
+function startWord(){
+ let idx=0;const words=extraGames.word.words;const root=$("game-content");
+ function render(){if(idx>=words.length){root.innerHTML='<p class="game-info">Você completou todas as palavras! 🏆</p><button class="primary game-action" id="word-again">Jogar novamente</button>';$("word-again").onclick=startWord;return}
+ const answer=words[idx],scrambled=answer.split("").sort(()=>Math.random()-.5).join("");
+ root.innerHTML='<p class="game-info">Palavra '+(idx+1)+' de '+words.length+'</p><h2 class="scrambled-word">'+scrambled+'</h2><form id="word-form" class="guess-form"><input id="word-value" required placeholder="Digite a palavra"><button class="primary">Conferir</button></form><p id="word-hint" class="game-info"></p>';
+ $("word-form").onsubmit=e=>{e.preventDefault();if($("word-value").value.trim().toUpperCase()===answer){idx++;render()}else $("word-hint").textContent="Ainda não! Tente outra vez."}}
+ render()
+}
+const previousOpenGame=openGame;
+openGame=function(name){
+ if(["quiz","number","word"].includes(name)){
+ stopGameTimers();$("game-stage").classList.remove("hidden");$("game-content").innerHTML="";
+ $("game-title").textContent=({quiz:"Quiz Soares",number:"Adivinhe o número",word:"Palavra embaralhada"})[name];
+ if(name==="quiz")startQuiz();if(name==="number")startNumber();if(name==="word")startWord();
+ $("game-stage").scrollIntoView({behavior:"smooth",block:"start"});return
+ }previousOpenGame(name)
+};
+document.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>openGame(b.dataset.game));
