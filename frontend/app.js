@@ -66,3 +66,57 @@ function startReaction(){
  function spawn(){arena.innerHTML="";const t=document.createElement("button");t.className="reaction-target";t.textContent="✦";t.style.left=Math.max(0,Math.random()*(arena.clientWidth-58))+"px";t.style.top=Math.max(0,Math.random()*(arena.clientHeight-58))+"px";t.onclick=()=>{gameScore++;$("reaction-info").textContent="Tempo: "+gameSeconds+"s · Acertos: "+gameScore;spawn()};arena.appendChild(t)}
  $("reaction-start").onclick=()=>{gameScore=0;gameSeconds=20;$("reaction-start").disabled=true;$("reaction-info").textContent="Tempo: "+gameSeconds+"s · Acertos: 0";spawn();gameTimer=setInterval(()=>{gameSeconds--;$("reaction-info").textContent="Tempo: "+gameSeconds+"s · Acertos: "+gameScore;if(gameSeconds<=0){stopGameTimers();arena.innerHTML="";$("reaction-info").textContent="Fim de jogo! Você acertou "+gameScore+" alvos. 🎉";$("reaction-start").disabled=false;$("reaction-start").textContent="Jogar novamente"}},1000)};
 }
+
+
+// --- Recursos extras: Markdown seguro, voz, imagens e navegação ---
+let pendingImageData = null;
+let speakReplies = false;
+function renderRichText(raw){
+  let s=escapeHtml(String(raw??""));
+  s=s.replace(/\*\*(.+?)\*\*/gs,"<strong>$1</strong>").replace(/__(.+?)__/gs,"<strong>$1</strong>");
+  s=s.replace(/\*(?!\*)(.+?)\*(?!\*)/gs,"<em>$1</em>").replace(/`([^`]+)`/g,"<code>$1</code>");
+  s=s.replace(/^### (.+)$/gm,"<h4>$1</h4>").replace(/^## (.+)$/gm,"<h3>$1</h3>").replace(/^# (.+)$/gm,"<h2>$1</h2>");
+  s=s.replace(/\n/g,"<br>");
+  return s;
+}
+addMessage = function(role,content){
+  const box=document.createElement("div");box.className="message "+(role==="user"?"user":"");
+  box.innerHTML='<div class="msg-avatar">'+(role==="user"?"H":"✦")+'</div><div class="bubble">'+renderRichText(content)+'</div>';
+  $("messages").appendChild(box);$("messages").scrollTop=$("messages").scrollHeight;
+  if(role==="assistant" && speakReplies) speakText(content);
+};
+const imagePick=$("image-pick"), imageFile=$("image-file"), imagePreview=$("image-preview");
+imagePick.onclick=()=>imageFile.click();
+imageFile.onchange=()=>{
+ const f=imageFile.files?.[0]; if(!f)return;
+ if(f.size>5*1024*1024){toast("A imagem deve ter até 5 MB.");imageFile.value="";return;}
+ if(!/^image\/(png|jpeg|webp|gif)$/.test(f.type)){toast("Formato não suportado.");imageFile.value="";return;}
+ const reader=new FileReader();reader.onload=()=>{pendingImageData=reader.result;imagePreview.innerHTML='<img alt="Prévia da imagem" src="'+pendingImageData+'"><button type="button" id="remove-image">Remover imagem ×</button>';imagePreview.classList.remove("hidden");$("remove-image").onclick=clearPendingImage;};reader.readAsDataURL(f);
+};
+function clearPendingImage(){pendingImageData=null;imageFile.value="";imagePreview.innerHTML="";imagePreview.classList.add("hidden")}
+const originalSendMessage=sendMessage;
+sendMessage=async function(text){
+ const value=(text??$("chat-input").value).trim();
+ if(!value&&!pendingImageData)return;
+ const imageData=pendingImageData;clearPendingImage();$("chat-input").value="";
+ $("messages").querySelector(".welcome")?.remove();
+ addMessage("user",(value||"Analise esta imagem.")+(imageData?" [imagem anexada]":""));
+ $("send").disabled=true;
+ const pending=document.createElement("div");pending.className="message";pending.innerHTML='<div class="msg-avatar">✦</div><div class="bubble">Analisando…</div>';$("messages").appendChild(pending);
+ try{const payload={message:value||"Descreva e analise a imagem enviada.",...(imageData?{image_data:imageData}:{})};
+ const d=await api("/chat",{method:"POST",body:JSON.stringify(payload)});pending.remove();addMessage("assistant",d.reply);
+ }catch(e){pending.remove();addMessage("assistant","Não consegui processar agora: "+e.message)}
+ finally{$("send").disabled=false}
+};
+$("chat-form").onsubmit=e=>{e.preventDefault();sendMessage()};
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+$("voice-input").onclick=()=>{
+ if(!SpeechRecognition){toast("Seu navegador não oferece reconhecimento de voz. Tente o Chrome ou Edge.");return}
+ const rec=new SpeechRecognition();rec.lang="pt-BR";rec.interimResults=false;rec.maxAlternatives=1;
+ $("voice-input").classList.add("recording");rec.onresult=e=>{$("chat-input").value=($("chat-input").value+" "+e.results[0][0].transcript).trim()};
+ rec.onerror=()=>toast("Não foi possível captar sua voz.");rec.onend=()=>$("voice-input").classList.remove("recording");rec.start();toast("Pode falar…");
+};
+function speakText(text){if(!("speechSynthesis" in window)){toast("Leitura de voz não suportada neste navegador.");return}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(text).replace(/[*_#`]/g,""));u.lang="pt-BR";u.rate=1;window.speechSynthesis.speak(u)}
+$("voice-output").onclick=()=>{speakReplies=!speakReplies;$("voice-output").classList.toggle("active",speakReplies);$("voice-output").textContent=speakReplies?"🔈":"🔊";toast(speakReplies?"Leitura das respostas ativada.":"Leitura das respostas desativada.")};
+const oldNavigate=navigate;
+navigate=function(view){if(view==="terms"){currentView=view;["chat","memories","activity","games","terms"].forEach(v=>$(v+"-view").classList.toggle("hidden",v!==view));document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.view===view));$("view-title").textContent="Termos de uso";return}oldNavigate(view)};
