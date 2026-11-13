@@ -97,7 +97,8 @@ class LoginIn(BaseModel):
     password: str
 
 class ChatIn(BaseModel):
-    message: str = Field(min_length=1, max_length=12000)
+    message: str = Field(default="", max_length=12000)
+    image_data: Optional[str] = Field(default=None, max_length=7000000)
 
 class ActivityIn(BaseModel):
     is_playing: bool
@@ -200,6 +201,10 @@ async def ask_model(messages):
 
 @app.post("/chat")
 async def chat(data: ChatIn, user=Depends(current_user)):
+    if not data.message.strip() and not data.image_data:
+        raise HTTPException(400, "Escreva uma mensagem ou anexe uma imagem.")
+    if data.image_data and not data.image_data.startswith(("data:image/png;base64,", "data:image/jpeg;base64,", "data:image/webp;base64,", "data:image/gif;base64,")):
+        raise HTTPException(400, "Imagem inválida ou formato não suportado.")
     with db() as c:
         activity = dict(c.execute("SELECT * FROM activity WHERE id=1").fetchone())
         memories = [r["content"] for r in c.execute(
@@ -211,7 +216,10 @@ async def chat(data: ChatIn, user=Depends(current_user)):
                   (user["id"], "user", (data.message.strip() + (" [imagem anexada]" if data.image_data else "")).strip(), now()))
     messages = [{"role":"system","content":system_prompt(user, activity, memories)}]
     messages += [{"role":r["role"],"content":r["content"]} for r in history]
-    messages += [{"role":"user","content":data.message}]
+    user_content = [{"type":"text","text":data.message or "Analise a imagem enviada e descreva o que consegue identificar."}]
+    if data.image_data:
+        user_content.append({"type":"image_url","image_url":{"url":data.image_data}})
+    messages += [{"role":"user","content":user_content}]
     answer = await ask_model(messages)
     with db() as c:
         c.execute("INSERT INTO messages(user_id,role,content,created_at) VALUES(%s,%s,%s,%s)" if DATABASE_URL else "INSERT INTO messages(user_id,role,content,created_at) VALUES(?,?,?,?)",
