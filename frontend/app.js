@@ -11,7 +11,7 @@ async function api(path, opts={}) {
 }
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2600)}
 function showAuth(){ $("auth").classList.remove("hidden");$("app").classList.add("hidden"); }
-function showApp(){ $("auth").classList.add("hidden");$("app").classList.remove("hidden");$("profile-name").textContent=me.name;$("welcome-name").textContent=me.name; }
+function showApp(){ $("auth").classList.add("hidden");$("app").classList.remove("hidden");$("profile-name").textContent=me.name;$("welcome-name").textContent=me.name;applyProfile(); }
 function setMode(mode){authMode=mode;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===mode));$("name-field").classList.toggle("hidden",mode!=="register");$("auth-submit").textContent=mode==="login"?"Entrar na sua reserva ↗":"Criar minha conta ↗";$("auth-error").textContent=""}
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setMode(b.dataset.tab));
 $("auth-form").onsubmit=async e=>{e.preventDefault();$("auth-error").textContent="";try{const path=authMode==="login"?"/auth/login":"/auth/register";const body=authMode==="login"?{email:$("email").value,password:$("password").value}:{name:$("name").value,email:$("email").value,password:$("password").value};const d=await api(path,{method:"POST",body:JSON.stringify(body)});token=d.token;localStorage.setItem("sra_token",token);me=d.user;showApp();await loadMessages();await refreshActivity();}catch(err){$("auth-error").textContent=err.message}};
@@ -155,3 +155,53 @@ openGame=function(name){
  }previousOpenGame(name)
 };
 document.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>openGame(b.dataset.game));
+
+
+// --- Perfil personalizável e chuva de caracteres cyber ---
+let profileSymbol=localStorage.getItem("sra_profile_symbol")||"initial";
+let profileColor=localStorage.getItem("sra_profile_color")||"violet";
+const profileColorMap={violet:"linear-gradient(135deg,#a56bff,#5940a8)",blue:"linear-gradient(135deg,#65a7ff,#315caa)",mint:"linear-gradient(135deg,#5be0b1,#197e79)",pink:"linear-gradient(135deg,#ff83c8,#a34487)"};
+function avatarText(){return profileSymbol==="initial"?(me?.name||"H").trim().charAt(0).toUpperCase():profileSymbol}
+function applyProfile(){
+ const name=me?.name||"Heloysa";$("profile-name").textContent=name;$("welcome-name").textContent=name;
+ const avatar=$("profile-avatar");if(avatar){avatar.textContent=avatarText();avatar.style.background=profileColorMap[profileColor]||profileColorMap.violet}
+ const preview=$("profile-preview-avatar");if(preview){preview.textContent=avatarText();preview.style.background=profileColorMap[profileColor]||profileColorMap.violet}
+ const previewName=$("profile-preview-name");if(previewName)previewName.textContent=name;
+ if($("profile-display-name"))$("profile-display-name").value=name;
+ if($("profile-symbol"))$("profile-symbol").value=profileSymbol;
+ document.querySelectorAll(".color-choice").forEach(b=>b.classList.toggle("selected",b.dataset.color===profileColor));
+}
+function initProfile(){
+ $("profile-symbol").onchange=()=>{profileSymbol=$("profile-symbol").value;localStorage.setItem("sra_profile_symbol",profileSymbol);applyProfile()};
+ document.querySelectorAll(".color-choice").forEach(b=>b.onclick=()=>{profileColor=b.dataset.color;localStorage.setItem("sra_profile_color",profileColor);applyProfile()});
+ $("profile-form").onsubmit=async e=>{e.preventDefault();const name=$("profile-display-name").value.trim();if(name.length<2){toast("Digite um nome com pelo menos 2 caracteres.");return}
+ try{me=await api("/me",{method:"PATCH",body:JSON.stringify({name})});applyProfile();toast("Perfil atualizado com sucesso 💜")}
+ catch(err){toast("Não foi possível salvar: "+err.message)}
+ };
+}
+function startHackerRain(){
+ const root=$("hacker-rain");if(!root||root.dataset.ready)return;root.dataset.ready="1";
+ const glyphs="01アイウエオカキクケコ{}[]<>/\\$#@";
+ for(let i=0;i<34;i++){
+  const col=document.createElement("span");col.className="rain-column";
+  let str="";for(let n=0;n<12;n++)str+=glyphs[Math.floor(Math.random()*glyphs.length)]+" ";
+  col.textContent=str;col.style.left=(i/34*100)+"%";
+  col.style.setProperty("--fall-duration",(9+Math.random()*15)+"s");
+  col.style.setProperty("--fall-delay",(-Math.random()*22)+"s");
+  col.style.setProperty("--fall-opacity",(0.18+Math.random()*0.38).toFixed(2));
+  root.appendChild(col);
+ }
+}
+initProfile();startHackerRain();
+const baseNavigate=navigate;
+navigate=function(view){
+ if(view==="terms"){baseNavigate(view);return}
+ const views=["chat","memories","activity","games","profile"];
+ views.forEach(v=>$(v+"-view")?.classList.toggle("hidden",v!==view));
+ document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+ currentView=view;
+ const titles={chat:"Um cantinho para conversar",memories:"Memórias especiais",activity:"Modo Atividade",games:"Jogos Soares",profile:"Personalizar perfil"};
+ $("view-title").textContent=titles[view]||"Soares Reserva AI";
+ if(view==="memories")loadMemories();if(view==="activity")refreshActivity();if(view==="profile")applyProfile();
+};
+document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>navigate(b.dataset.view));
