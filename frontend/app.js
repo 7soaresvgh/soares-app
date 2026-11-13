@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://soares-reserva-ai-heloysa.onrender.com";
 const $ = id => document.getElementById(id);
 let token = localStorage.getItem("sra_token") || "";
 let me = null, authMode = "login", currentView = "chat", isPlaying = false;
