@@ -163,7 +163,7 @@ let profileColor=localStorage.getItem("sra_profile_color")||"violet";
 const profileColorMap={violet:"linear-gradient(135deg,#a56bff,#5940a8)",blue:"linear-gradient(135deg,#65a7ff,#315caa)",mint:"linear-gradient(135deg,#5be0b1,#197e79)",pink:"linear-gradient(135deg,#ff83c8,#a34487)"};
 function avatarText(){return profileSymbol==="initial"?(me?.name||"H").trim().charAt(0).toUpperCase():profileSymbol}
 function applyProfile(){
- const name=me?.name||"Heloysa";$("profile-name").textContent=name;$("welcome-name").textContent=name;
+ const name=me?.name||"Visitante";$("profile-name").textContent=name;$("welcome-name").textContent=name;
  const avatar=$("profile-avatar");if(avatar){avatar.textContent=avatarText();avatar.style.background=profileColorMap[profileColor]||profileColorMap.violet}
  const preview=$("profile-preview-avatar");if(preview){preview.textContent=avatarText();preview.style.background=profileColorMap[profileColor]||profileColorMap.violet}
  const previewName=$("profile-preview-name");if(previewName)previewName.textContent=name;
