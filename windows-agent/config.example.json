@@ -1,0 +1,15 @@
+{
+  "api_base": "http://localhost:8000",
+  "token": "COLE_AQUI_O_TOKEN_DA_CONTA_ADMIN",
+  "poll_seconds": 8,
+  "process_names": [
+    "VALORANT-Win64-Shipping.exe",
+    "FiveM.exe",
+    "GTA5.exe",
+    "RobloxPlayerBeta.exe",
+    "FortniteClient-Win64-Shipping.exe",
+    "cs2.exe",
+    "r5apex.exe",
+    "League of Legends.exe"
+  ]
+}
