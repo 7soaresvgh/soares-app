@@ -1,4 +1,6 @@
 import os, sqlite3, secrets
+import psycopg
+from psycopg.rows import dict_row
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
@@ -17,6 +19,7 @@ JWT_SECRET = os.getenv("JWT_SECRET", "dev-only-change-me")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "10080"))
 DB_PATH = os.getenv("DATABASE_PATH", "./soares_reserva.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 AI_API_KEY = os.getenv("AI_API_KEY", "")
 AI_BASE_URL = os.getenv("AI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
 AI_MODEL = os.getenv("AI_MODEL", "gpt-4o-mini")
@@ -31,35 +34,54 @@ app.add_middleware(CORSMiddleware, allow_origins=origins or ["*"], allow_credent
                    allow_methods=["*"], allow_headers=["*"])
 
 def db():
+    if DATABASE_URL:
+        return psycopg.connect(DATABASE_URL, row_factory=dict_row)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
-    Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
-    with db() as c:
-        c.executescript("""
-        CREATE TABLE IF NOT EXISTS users(
-          id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL,
-          password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'hel', created_at TEXT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS messages(
-          id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, role TEXT NOT NULL,
-          content TEXT NOT NULL, created_at TEXT NOT NULL,
-          FOREIGN KEY(user_id) REFERENCES users(id)
-        );
-        CREATE TABLE IF NOT EXISTS memories(
-          id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, content TEXT NOT NULL,
-          created_at TEXT NOT NULL, FOREIGN KEY(user_id) REFERENCES users(id)
-        );
-        CREATE TABLE IF NOT EXISTS activity(
-          id INTEGER PRIMARY KEY CHECK(id=1), is_playing INTEGER NOT NULL DEFAULT 0,
-          game TEXT NOT NULL DEFAULT '', source TEXT NOT NULL DEFAULT 'manual',
-          updated_at TEXT NOT NULL
-        );
-        INSERT OR IGNORE INTO activity(id,is_playing,game,source,updated_at)
-        VALUES(1,0,'','manual',datetime('now'));
-        """)
+    if DATABASE_URL:
+        with db() as c:
+            c.execute("""CREATE TABLE IF NOT EXISTS users(
+              id BIGSERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL,
+              password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'hel', created_at TIMESTAMPTZ NOT NULL)""")
+            c.execute("""CREATE TABLE IF NOT EXISTS messages(
+              id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id), role TEXT NOT NULL,
+              content TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL)""")
+            c.execute("""CREATE TABLE IF NOT EXISTS memories(
+              id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id), content TEXT NOT NULL,
+              created_at TIMESTAMPTZ NOT NULL)""")
+            c.execute("""CREATE TABLE IF NOT EXISTS activity(
+              id INTEGER PRIMARY KEY CHECK(id=1), is_playing BOOLEAN NOT NULL DEFAULT FALSE,
+              game TEXT NOT NULL DEFAULT '', source TEXT NOT NULL DEFAULT 'manual',
+              updated_at TIMESTAMPTZ NOT NULL)""")
+            c.execute("INSERT INTO activity(id,is_playing,game,source,updated_at) VALUES(1,FALSE,'','manual',NOW()) ON CONFLICT (id) DO NOTHING")
+    else:
+        Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+        with db() as c:
+            c.executescript("""
+            CREATE TABLE IF NOT EXISTS users(
+              id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT UNIQUE NOT NULL,
+              password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'hel', created_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS messages(
+              id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, role TEXT NOT NULL,
+              content TEXT NOT NULL, created_at TEXT NOT NULL,
+              FOREIGN KEY(user_id) REFERENCES users(id)
+            );
+            CREATE TABLE IF NOT EXISTS memories(
+              id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, content TEXT NOT NULL,
+              created_at TEXT NOT NULL, FOREIGN KEY(user_id) REFERENCES users(id)
+            );
+            CREATE TABLE IF NOT EXISTS activity(
+              id INTEGER PRIMARY KEY CHECK(id=1), is_playing INTEGER NOT NULL DEFAULT 0,
+              game TEXT NOT NULL DEFAULT '', source TEXT NOT NULL DEFAULT 'manual',
+              updated_at TEXT NOT NULL
+            );
+            INSERT OR IGNORE INTO activity(id,is_playing,game,source,updated_at)
+            VALUES(1,0,'','manual',datetime('now'));
+            """)
 init_db()
 
 def now():
@@ -100,7 +122,7 @@ def current_user(authorization: Optional[str] = Header(default=None)):
     except (JWTError, ValueError, KeyError):
         raise HTTPException(401, "Sessão inválida ou expirada.")
     with db() as c:
-        user = c.execute("SELECT id,name,email,role FROM users WHERE id=?", (uid,)).fetchone()
+        user = c.execute("SELECT id,name,email,role FROM users WHERE id=%s" if DATABASE_URL else "SELECT id,name,email,role FROM users WHERE id=?", (uid,)).fetchone()
     if not user:
         raise HTTPException(401, "Conta não encontrada.")
     return dict(user)
@@ -113,13 +135,18 @@ def health():
 def register(data: RegisterIn):
     email = data.email.lower()
     with db() as c:
-        count = c.execute("SELECT COUNT(*) n FROM users").fetchone()["n"]
+        count = c.execute("SELECT COUNT(*) AS n FROM users").fetchone()["n"]
         role = "admin" if count == 0 or (ADMIN_EMAIL and email == ADMIN_EMAIL) else "hel"
         try:
-            cur = c.execute("INSERT INTO users(name,email,password_hash,role,created_at) VALUES(?,?,?,?,?)",
-                            (data.name.strip(), email, pwd.hash(data.password), role, now()))
-            uid = cur.lastrowid
-        except sqlite3.IntegrityError:
+            if DATABASE_URL:
+                cur = c.execute("INSERT INTO users(name,email,password_hash,role,created_at) VALUES(%s,%s,%s,%s,%s) RETURNING id",
+                                (data.name.strip(), email, pwd.hash(data.password), role, now()))
+                uid = cur.fetchone()["id"]
+            else:
+                cur = c.execute("INSERT INTO users(name,email,password_hash,role,created_at) VALUES(?,?,?,?,?)",
+                                (data.name.strip(), email, pwd.hash(data.password), role, now()))
+                uid = cur.lastrowid
+        except (sqlite3.IntegrityError, psycopg.IntegrityError):
             raise HTTPException(409, "Este e-mail já possui cadastro.")
         user = c.execute("SELECT id,name,email,role FROM users WHERE id=?", (uid,)).fetchone()
     return {"token": make_token(user), "user": dict(user)}
@@ -127,7 +154,7 @@ def register(data: RegisterIn):
 @app.post("/auth/login")
 def login(data: LoginIn):
     with db() as c:
-        user = c.execute("SELECT * FROM users WHERE email=?", (data.email.lower(),)).fetchone()
+        user = c.execute("SELECT * FROM users WHERE email=%s" if DATABASE_URL else "SELECT * FROM users WHERE email=?", (data.email.lower(),)).fetchone()
     if not user or not pwd.verify(data.password, user["password_hash"]):
         raise HTTPException(401, "E-mail ou senha incorretos.")
     public = {k: user[k] for k in ("id","name","email","role")}
@@ -180,14 +207,14 @@ async def chat(data: ChatIn, user=Depends(current_user)):
         history = c.execute("SELECT role,content FROM messages WHERE user_id=? ORDER BY id DESC LIMIT 20",
                             (user["id"],)).fetchall()
         history = list(reversed(history))
-        c.execute("INSERT INTO messages(user_id,role,content,created_at) VALUES(?,?,?,?)",
+        c.execute("INSERT INTO messages(user_id,role,content,created_at) VALUES(%s,%s,%s,%s)" if DATABASE_URL else "INSERT INTO messages(user_id,role,content,created_at) VALUES(?,?,?,?)",
                   (user["id"], "user", data.message, now()))
     messages = [{"role":"system","content":system_prompt(user, activity, memories)}]
     messages += [{"role":r["role"],"content":r["content"]} for r in history]
     messages += [{"role":"user","content":data.message}]
     answer = await ask_model(messages)
     with db() as c:
-        c.execute("INSERT INTO messages(user_id,role,content,created_at) VALUES(?,?,?,?)",
+        c.execute("INSERT INTO messages(user_id,role,content,created_at) VALUES(%s,%s,%s,%s)" if DATABASE_URL else "INSERT INTO messages(user_id,role,content,created_at) VALUES(?,?,?,?)",
                   (user["id"], "assistant", answer, now()))
     return {"reply": answer}
 
@@ -202,7 +229,7 @@ def get_messages(limit: int = 60, user=Depends(current_user)):
 @app.delete("/messages")
 def clear_messages(user=Depends(current_user)):
     with db() as c:
-        c.execute("DELETE FROM messages WHERE user_id=?", (user["id"],))
+        c.execute("DELETE FROM messages WHERE user_id=%s" if DATABASE_URL else "DELETE FROM messages WHERE user_id=?", (user["id"],))
     return {"ok": True}
 
 @app.get("/activity")
@@ -215,8 +242,8 @@ def get_activity(user=Depends(current_user)):
 @app.post("/activity")
 def set_activity(data: ActivityIn, user=Depends(current_user)):
     with db() as c:
-        c.execute("UPDATE activity SET is_playing=?,game=?,source=?,updated_at=? WHERE id=1",
-                  (int(data.is_playing), data.game.strip(), data.source, now()))
+        c.execute("UPDATE activity SET is_playing=%s,game=%s,source=%s,updated_at=%s WHERE id=1" if DATABASE_URL else "UPDATE activity SET is_playing=?,game=?,source=?,updated_at=? WHERE id=1",
+                  (data.is_playing if DATABASE_URL else int(data.is_playing), data.game.strip(), data.source, now()))
     return {"ok": True, "is_playing": data.is_playing, "game": data.game, "source": data.source}
 
 @app.post("/activity/agent")
@@ -224,8 +251,8 @@ def set_activity_from_windows(data: ActivityIn, x_agent_token: Optional[str] = H
     if not ACTIVITY_AGENT_TOKEN or not secrets.compare_digest(x_agent_token or "", ACTIVITY_AGENT_TOKEN):
         raise HTTPException(401, "Agente Windows não autorizado.")
     with db() as c:
-        c.execute("UPDATE activity SET is_playing=?,game=?,source='automatic',updated_at=? WHERE id=1",
-                  (int(data.is_playing), data.game.strip(), now()))
+        c.execute("UPDATE activity SET is_playing=%s,game=%s,source='automatic',updated_at=%s WHERE id=1" if DATABASE_URL else "UPDATE activity SET is_playing=?,game=?,source='automatic',updated_at=? WHERE id=1",
+                  (data.is_playing if DATABASE_URL else int(data.is_playing), data.game.strip(), now()))
     return {"ok": True, "is_playing": data.is_playing, "game": data.game, "source": "automatic"}
 
 @app.get("/memories")
@@ -238,15 +265,21 @@ def get_memories(user=Depends(current_user)):
 @app.post("/memories")
 def add_memory(data: MemoryIn, user=Depends(current_user)):
     with db() as c:
-        cur = c.execute("INSERT INTO memories(user_id,content,created_at) VALUES(?,?,?)",
-                        (user["id"], data.content.strip(), now()))
-        row = c.execute("SELECT id,content,created_at FROM memories WHERE id=?", (cur.lastrowid,)).fetchone()
+        if DATABASE_URL:
+            cur = c.execute("INSERT INTO memories(user_id,content,created_at) VALUES(%s,%s,%s) RETURNING id",
+                            (user["id"], data.content.strip(), now()))
+            memory_id = cur.fetchone()["id"]
+            row = c.execute("SELECT id,content,created_at FROM memories WHERE id=%s", (memory_id,)).fetchone()
+        else:
+            cur = c.execute("INSERT INTO memories(user_id,content,created_at) VALUES(?,?,?)",
+                            (user["id"], data.content.strip(), now()))
+            row = c.execute("SELECT id,content,created_at FROM memories WHERE id=?", (cur.lastrowid,)).fetchone()
     return dict(row)
 
 @app.delete("/memories/{memory_id}")
 def delete_memory(memory_id: int, user=Depends(current_user)):
     with db() as c:
-        cur = c.execute("DELETE FROM memories WHERE id=? AND user_id=?", (memory_id, user["id"]))
+        cur = c.execute("DELETE FROM memories WHERE id=%s AND user_id=%s" if DATABASE_URL else "DELETE FROM memories WHERE id=? AND user_id=?", (memory_id, user["id"]))
     if cur.rowcount == 0:
         raise HTTPException(404, "Memória não encontrada.")
     return {"ok": True}
