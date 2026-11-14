@@ -1295,3 +1295,12 @@ body{background-image:radial-gradient(ellipse at 12% 0%,rgba(180,76,255,.13),tra
 .saved-account-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:rgba(103,227,192,.13);color:#67e3c0;font-size:18px}
 .saved-account-copy{flex:1;min-width:0}.saved-account-copy small,.saved-account-copy b{display:block}.saved-account-copy small{font-size:8px;letter-spacing:1px;color:#8edcc5}.saved-account-copy b{font-size:12px;margin-top:4px;overflow-wrap:anywhere}.saved-account-arrow{color:#67e3c0}.saved-account-remove{display:block;margin:8px auto 0;border:0;background:none;color:#aaa5c2;font-size:10px;cursor:pointer}
 .remember-account{display:flex;align-items:flex-start;gap:10px;margin:4px 0 12px;color:#e9e4f6;cursor:pointer}.remember-account input{width:16px;height:16px;flex:none;margin:2px 0 0;accent-color:#67e3c0}.remember-account b,.remember-account small{display:block}.remember-account b{font-size:11px;font-weight:600}.remember-account small{margin-top:4px;color:#9691aa;font-size:9px;line-height:1.5}
+
+
+/* Correção do menu de conta no rodapé da barra lateral */
+#app .sidebar-bottom{position:relative!important;z-index:100!important;overflow:visible!important;pointer-events:auto!important}
+#app .sidebar .profile{display:flex!important;align-items:center;min-width:0;cursor:pointer;pointer-events:auto!important;position:relative;z-index:101!important}
+#app .sidebar .profile-logout{position:absolute;right:0;bottom:4px;z-index:102;min-width:34px;min-height:34px;border:1px solid rgba(54,207,255,.28);border-radius:10px;background:rgba(54,207,255,.07);color:#e9dcff;cursor:pointer}
+#app .sidebar-bottom #profile-menu{z-index:10000!important;pointer-events:auto!important}
+#app .sidebar-bottom #profile-menu.hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
+#app .sidebar-bottom #profile-menu:not(.hidden){display:flex!important;flex-direction:column;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
