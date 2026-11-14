@@ -166,6 +166,10 @@ class LoginIn(BaseModel):
     identifier: str = Field(min_length=1, max_length=254)
     password: str
 
+class ChangePasswordIn(BaseModel):
+    current_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+
 class VerifyEmailIn(BaseModel):
     email: EmailStr
     code: str = Field(min_length=6,max_length=6)
@@ -315,6 +319,17 @@ def login(data: LoginIn):
         c.execute("UPDATE users SET plan=%s WHERE id=%s" if DATABASE_URL else "UPDATE users SET plan=? WHERE id=?",
                   (public["plan"], public["id"]))
     return {"token": make_token(public), "user": public}
+
+
+@app.post("/auth/change-password")
+def change_password(data: ChangePasswordIn, user=Depends(current_user)):
+    with db() as c:
+        row = c.execute("SELECT password_hash FROM users WHERE id=%s" if DATABASE_URL else "SELECT password_hash FROM users WHERE id=?", (user["id"],)).fetchone()
+        if not row or not pwd.verify(data.current_password, row["password_hash"]):
+            raise HTTPException(400, "A senha atual está incorreta.")
+        hashed = pwd.hash(data.new_password)
+        c.execute("UPDATE users SET password_hash=%s WHERE id=%s" if DATABASE_URL else "UPDATE users SET password_hash=? WHERE id=?", (hashed, user["id"]))
+    return {"ok": True, "message": "Senha alterada com sucesso."}
 
 @app.get("/me")
 def me(user=Depends(current_user)):
