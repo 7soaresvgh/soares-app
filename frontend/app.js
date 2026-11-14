@@ -302,7 +302,7 @@ loadMessages=async function(){
  $("messages").innerHTML="";
  if(!d.messages.length){
   const welcome=document.createElement("div");welcome.className="welcome";
-  welcome.innerHTML='<div class="welcome-mark"><span>⟡</span><i></i></div><div class="eyebrow">SOARES AI PRO / ONLINE</div><h1>Olá, <span id="welcome-name"></span> ✧</h1><p>Sua sessão está protegida. O que vamos criar hoje?</p><div class="suggestions"><button data-prompt="Quero conversar um pouquinho.">♡ Conversar</button><button data-prompt="Me ajuda a organizar meu dia?">✧ Organizar meu dia</button><button data-prompt="Me dá uma ideia divertida para hoje.">⌘ Uma ideia nova</button></div>';
+  welcome.innerHTML='<div class="welcome-mark"><span>⟡</span><i></i></div><div class="eyebrow">SOARES AI / ONLINE</div><h1>Olá, <span id="welcome-name"></span> ✧</h1><p>Sua sessão está protegida. O que vamos criar hoje?</p><div class="suggestions"><button data-prompt="Quero conversar um pouquinho.">♡ Conversar</button><button data-prompt="Me ajuda a organizar meu dia?">✧ Organizar meu dia</button><button data-prompt="Me dá uma ideia divertida para hoje.">⌘ Uma ideia nova</button></div>';
   $("messages").appendChild(welcome);$("welcome-name").textContent=me?.name||"Visitante";
   welcome.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>sendMessage(b.dataset.prompt));return;
  }
@@ -444,7 +444,7 @@ function renderAvatarPicker(){
  avatarCatalog.forEach(a=>{
   const btn=document.createElement("button");btn.type="button";btn.className="avatar-preset"+(a.id===selectedSoaresAvatar?" selected":"");
   btn.innerHTML='<span class="soares-avatar-art" style="--avatar-a:'+a.a+';--avatar-b:'+a.b+'">'+a.symbol+'</span><b>'+a.name+'</b>';
-  btn.onclick=()=>{selectedSoaresAvatar=a.id;localStorage.setItem(avatarStorageKey,a.id);renderAvatarPicker();applyExpandedProfile();updateAccountChrome();toast(a.name+" selecionado.")};
+  btn.onclick=()=>{selectedSoaresAvatar=a.id;localStorage.setItem(avatarStorageKey,a.id);renderAvatarPicker();applyExpandedProfile();updateAccountChrome();decorateGameCards();decorateGameStage();toast(a.name+" selecionado.")};
   host.appendChild(btn);
  });
 }
@@ -489,11 +489,10 @@ function decorateGameCards(){
  });
 }
 function decorateGameStage(){
- const head=document.querySelector(".game-stage-head");if(!head||head.querySelector(".game-players"))return;
- const strip=document.createElement("div");strip.className="game-players";
+ const head=document.querySelector(".game-stage-head");if(!head)return;
+ let strip=head.querySelector(".game-players");if(!strip){strip=document.createElement("div");strip.className="game-players";head.appendChild(strip)}
  const user=currentAvatar();
  strip.innerHTML='<div class="game-player"><span class="soares-avatar-art" style="--avatar-a:'+user.a+';--avatar-b:'+user.b+'">'+user.symbol+'</span><small>Você</small></div><span class="game-vs">VS</span><div class="game-player"><span class="soares-avatar-art" style="--avatar-a:#67d8bd;--avatar-b:#285d70">✦</span><small>Soares AI</small></div>';
- head.appendChild(strip);
 }
 document.querySelectorAll("[data-game]").forEach(card=>card.addEventListener("click",()=>setTimeout(()=>{decorateGameCards();decorateGameStage()},0)));
 decorateGameCards();
