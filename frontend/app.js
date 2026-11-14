@@ -205,3 +205,124 @@ navigate=function(view){
  if(view==="memories")loadMemories();if(view==="activity")refreshActivity();if(view==="profile")applyProfile();
 };
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>navigate(b.dataset.view));
+
+
+// --- Soares AI PRO: login verificado, Google e histórico persistente ---
+let currentConversationId=null;
+let pendingVerifyEmail="";
+function matrixRain(targetId,count=34){
+ const root=$(targetId);if(!root||root.dataset.ready==="1")return;
+ root.dataset.ready="1";const chars="01アイウエオカキクケコサシスセソタチツテト<>[]{}/\\";
+ for(let i=0;i<count;i++){
+  const col=document.createElement("span");col.className="matrix-stream";
+  let text="";for(let n=0;n<14+Math.floor(Math.random()*22);n++)text+=chars[Math.floor(Math.random()*chars.length)]+"\n";
+  col.textContent=text;col.style.left=(i/count*100)+"%";col.style.setProperty("--speed",(8+Math.random()*13)+"s");
+  col.style.setProperty("--delay",(-Math.random()*20)+"s");col.style.setProperty("--alpha",(0.22+Math.random()*.55).toFixed(2));
+  root.appendChild(col);
+ }
+}
+matrixRain("auth-matrix",42);
+matrixRain("hacker-rain",34);
+
+function finishLogin(d){
+ token=d.token;localStorage.setItem("sra_token",token);me=d.user;currentConversationId=null;
+ $("verify-panel")?.classList.add("hidden");showApp();
+ loadConversations().then(loadMessages).catch(e=>toast(e.message));refreshActivity();
+}
+$("auth-form").onsubmit=async e=>{
+ e.preventDefault();$("auth-error").textContent="";
+ try{
+  const email=$("email").value.trim().toLowerCase();
+  if(authMode==="login"){
+   const d=await api("/auth/login",{method:"POST",body:JSON.stringify({email,password:$("password").value})});
+   finishLogin(d);
+  }else{
+   const d=await api("/auth/register",{method:"POST",body:JSON.stringify({name:$("name").value,email,password:$("password").value})});
+   pendingVerifyEmail=d.email||email;$("verify-email-label").textContent=pendingVerifyEmail;$("verify-panel").classList.remove("hidden");
+   $("auth-error").textContent=d.message||"Confira seu e-mail para confirmar a conta.";
+  }
+ }catch(err){
+  $("auth-error").textContent=err.message;
+  if(authMode==="register"&&/envio|confirmação|código/i.test(err.message)){
+   pendingVerifyEmail=$("email").value.trim().toLowerCase();$("verify-email-label").textContent=pendingVerifyEmail;$("verify-panel").classList.remove("hidden");
+  }
+ }
+};
+$("verify-submit").onclick=async()=>{
+ try{const d=await api("/auth/verify",{method:"POST",body:JSON.stringify({email:pendingVerifyEmail,code:$("verify-code").value.trim()})});finishLogin(d);toast("Conta confirmada. Acesso PRO liberado!")}
+ catch(e){$("auth-error").textContent=e.message}
+};
+$("resend-code").onclick=async()=>{
+ try{await api("/auth/resend",{method:"POST",body:JSON.stringify({email:pendingVerifyEmail})});toast("Novo código enviado.")}
+ catch(e){$("auth-error").textContent=e.message}
+};
+async function handleGoogleCredential(response){
+ try{const d=await api("/auth/google",{method:"POST",body:JSON.stringify({credential:response.credential})});finishLogin(d);toast("Login Google realizado. Acesso PRO ativo!")}
+ catch(e){$("auth-error").textContent=e.message}
+}
+window.handleGoogleCredential=handleGoogleCredential;
+(async()=>{
+ try{
+  const cfg=await api("/auth/config");
+  if(!cfg.google_client_id)return;
+  const script=document.createElement("script");script.src="https://accounts.google.com/gsi/client";script.async=true;script.defer=true;
+  script.onload=()=>{
+   if(!window.google?.accounts?.id)return;
+   google.accounts.id.initialize({client_id:cfg.google_client_id,callback:handleGoogleCredential});
+   google.accounts.id.renderButton($("google-signin"),{theme:"filled_black",size:"large",shape:"pill",text:"continue_with",width:300,logo_alignment:"left"});
+  };
+  document.head.appendChild(script);
+ }catch(e){console.warn("Configuração Google indisponível",e)}
+})();
+
+async function loadConversations(){
+ const d=await api("/conversations");let items=d.conversations||[];
+ if(!items.length){const c=await api("/conversations",{method:"POST"});items=[c]}
+ if(!currentConversationId||!items.some(x=>Number(x.id)===Number(currentConversationId)))currentConversationId=items[0].id;
+ renderConversationList(items);
+}
+function renderConversationList(items){
+ const root=$("conversation-list");if(!root)return;root.innerHTML="";
+ items.forEach(item=>{
+  const row=document.createElement("div");row.className="history-item"+(Number(item.id)===Number(currentConversationId)?" active":"");
+  const open=document.createElement("button");open.type="button";open.className="history-open";open.textContent=item.title||"Nova conversa";open.title=item.title||"Nova conversa";
+  open.onclick=async()=>{currentConversationId=item.id;renderConversationList(items);await loadMessages()};
+  const del=document.createElement("button");del.type="button";del.className="history-delete";del.textContent="×";del.title="Excluir conversa";
+  del.onclick=async()=>{if(!confirm("Excluir esta conversa permanentemente?"))return;try{await api("/conversations/"+item.id,{method:"DELETE"});currentConversationId=null;await loadConversations();await loadMessages()}catch(e){toast(e.message)}};
+  row.append(open,del);root.appendChild(row);
+ });
+}
+loadMessages=async function(){
+ if(!currentConversationId)await loadConversations();
+ const d=await api("/messages?conversation_id="+encodeURIComponent(currentConversationId));
+ $("messages").innerHTML="";
+ if(!d.messages.length){
+  const welcome=document.createElement("div");welcome.className="welcome";
+  welcome.innerHTML='<div class="welcome-mark"><span>⟡</span><i></i></div><div class="eyebrow">SOARES AI PRO / ONLINE</div><h1>Olá, <span id="welcome-name"></span> ✧</h1><p>Sua sessão está protegida. O que vamos criar hoje?</p><div class="suggestions"><button data-prompt="Quero conversar um pouquinho.">♡ Conversar</button><button data-prompt="Me ajuda a organizar meu dia?">✧ Organizar meu dia</button><button data-prompt="Me dá uma ideia divertida para hoje.">⌘ Uma ideia nova</button></div>';
+  $("messages").appendChild(welcome);$("welcome-name").textContent=me?.name||"Visitante";
+  welcome.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>sendMessage(b.dataset.prompt));return;
+ }
+ d.messages.forEach(m=>addMessage(m.role,m.content));
+};
+sendMessage=async function(text){
+ const value=(text??$("chat-input").value).trim();if(!value&&!pendingImageData)return;
+ if(!currentConversationId)await loadConversations();
+ const imageData=pendingImageData;clearPendingImage();$("chat-input").value="";
+ $("messages").querySelector(".welcome")?.remove();addMessage("user",(value||"Analise esta imagem.")+(imageData?" [imagem anexada]":""));
+ $("send").disabled=true;const pending=document.createElement("div");pending.className="message";pending.innerHTML='<div class="msg-avatar">⟡</div><div class="bubble">Processando na rede Soares…</div>';$("messages").appendChild(pending);
+ try{
+  const payload={message:value||"Descreva e analise a imagem enviada.",conversation_id:currentConversationId,...(imageData?{image_data:imageData}:{})};
+  const d=await api("/chat",{method:"POST",body:JSON.stringify(payload)});pending.remove();currentConversationId=d.conversation_id||currentConversationId;addMessage("assistant",d.reply);await loadConversations();
+ }catch(e){pending.remove();addMessage("assistant","Não consegui processar agora: "+e.message)}
+ finally{$("send").disabled=false}
+};
+$("new-chat").onclick=async()=>{
+ try{const c=await api("/conversations",{method:"POST"});currentConversationId=c.id;await loadConversations();await loadMessages();$("chat-input").focus();toast("Nova conversa criada.")}
+ catch(e){toast(e.message)}
+};
+async function bootPro(){
+ if(!token){showAuth();return}
+ try{me=await api("/me");showApp();await loadConversations();await loadMessages();await refreshActivity();setInterval(refreshActivity,15000)}
+ catch(e){token="";localStorage.removeItem("sra_token");showAuth()}
+}
+bootPro();
