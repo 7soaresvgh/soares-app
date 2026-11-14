@@ -387,6 +387,8 @@ async def chat(data: ChatIn, user=Depends(current_user)):
         raise HTTPException(400, "Imagem inválida ou formato não suportado.")
     with db() as c:
         activity = dict(c.execute("SELECT * FROM activity WHERE id=1").fetchone())
+        if (user.get("username") or "").strip().lower() != "lola_dev":
+            activity = {"is_playing": False, "game": "", "source": "private", "updated_at": now()}
         memories = [r["content"] for r in c.execute(
             "SELECT content FROM memories WHERE user_id=%s ORDER BY id DESC LIMIT 30" if DATABASE_URL else "SELECT content FROM memories WHERE user_id=? ORDER BY id DESC LIMIT 30", (user["id"],)).fetchall()]
         conv_id=data.conversation_id
@@ -464,6 +466,8 @@ def clear_messages(conversation_id: Optional[int] = None, user=Depends(current_u
 
 @app.get("/activity")
 def get_activity(user=Depends(current_user)):
+    if (user.get("username") or "").strip().lower() != "lola_dev":
+        raise HTTPException(403, "Este recurso é privado.")
     with db() as c:
         a = dict(c.execute("SELECT * FROM activity WHERE id=1").fetchone())
     return {"is_playing": bool(a["is_playing"]), "game": a["game"],
@@ -471,6 +475,8 @@ def get_activity(user=Depends(current_user)):
 
 @app.post("/activity")
 def set_activity(data: ActivityIn, user=Depends(current_user)):
+    if (user.get("username") or "").strip().lower() != "lola_dev":
+        raise HTTPException(403, "Este recurso é privado.")
     with db() as c:
         c.execute("UPDATE activity SET is_playing=%s,game=%s,source=%s,updated_at=%s WHERE id=1" if DATABASE_URL else "UPDATE activity SET is_playing=?,game=?,source=?,updated_at=? WHERE id=1",
                   (data.is_playing if DATABASE_URL else int(data.is_playing), data.game.strip(), data.source, now()))
