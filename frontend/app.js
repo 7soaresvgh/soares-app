@@ -3,10 +3,29 @@ const $ = id => document.getElementById(id);
 let token = localStorage.getItem("sra_token") || "";
 let me = null, authMode = "login", currentView = "chat", isPlaying = false;
 const headers = () => ({ "Content-Type":"application/json", ...(token ? {Authorization:`Bearer ${token}`} : {}) });
+function apiErrorMessage(detail, fallback="Erro na solicitação.") {
+  if (typeof detail === "string" && detail.trim()) return detail;
+  if (Array.isArray(detail)) {
+    const messages = detail.map(item => {
+      if (typeof item === "string") return item;
+      const where = Array.isArray(item?.loc) ? item.loc.filter(x => x !== "body").join(" → ") : "";
+      const msg = typeof item?.msg === "string" ? item.msg : "";
+      return [where, msg].filter(Boolean).join(": ");
+    }).filter(Boolean);
+    if (messages.length) return messages.join(" · ");
+  }
+  if (detail && typeof detail === "object") {
+    for (const key of ["message", "msg", "error", "description"]) {
+      if (typeof detail[key] === "string" && detail[key].trim()) return detail[key];
+    }
+    try { return JSON.stringify(detail); } catch {}
+  }
+  return fallback;
+}
 async function api(path, opts={}) {
   const r = await fetch(API_BASE+path, { ...opts, headers:{...headers(), ...(opts.headers||{})} });
   const data = await r.json().catch(()=>({detail:"Resposta inválida do servidor."}));
-  if (!r.ok) throw new Error(data.detail || "Erro na solicitação.");
+  if (!r.ok) throw new Error(apiErrorMessage(data?.detail ?? data?.error ?? data, "Erro na solicitação."));
   return data;
 }
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2600)}
