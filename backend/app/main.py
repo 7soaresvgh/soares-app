@@ -122,7 +122,7 @@ class RegisterIn(BaseModel):
     password: str = Field(min_length=8, max_length=128)
 
 class LoginIn(BaseModel):
-    email: EmailStr
+    identifier: str = Field(min_length=1, max_length=254)
     password: str
 
 class VerifyEmailIn(BaseModel):
@@ -258,10 +258,16 @@ async def google_login(data: GoogleLoginIn):
 
 @app.post("/auth/login")
 def login(data: LoginIn):
+    identifier = data.identifier.strip()
     with db() as c:
-        user = c.execute("SELECT * FROM users WHERE email=%s" if DATABASE_URL else "SELECT * FROM users WHERE email=?", (data.email.lower(),)).fetchone()
-    if not user or not pwd.verify(data.password, user["password_hash"]):
-        raise HTTPException(401, "E-mail ou senha incorretos.")
+        candidates = c.execute(
+            "SELECT * FROM users WHERE LOWER(email)=%s OR LOWER(name)=%s ORDER BY id" if DATABASE_URL
+            else "SELECT * FROM users WHERE LOWER(email)=? OR LOWER(name)=? ORDER BY id",
+            (identifier.lower(), identifier.lower())
+        ).fetchall()
+    user = next((candidate for candidate in candidates if pwd.verify(data.password, candidate["password_hash"])), None)
+    if not user:
+        raise HTTPException(401, "Usuário, e-mail ou senha incorretos.")
     public = {k: user[k] for k in ("id","name","email","role","plan")}
     public["plan"] = "pro" if public["email"].lower().endswith("@soaresdev.com") else "free"
     with db() as c:
