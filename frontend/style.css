@@ -451,3 +451,9 @@ body[data-motion="off"] *,body[data-motion="reduced"] *{animation:none!important
 .profile-page .avatar-preset.selected:after{content:"SELECIONADO";margin-left:auto;font:700 8px monospace;color:#80f4d6}
 .profile-page .avatar-preset b{white-space:normal}
 @media(max-width:760px){.profile-menu{left:8px;bottom:64px}.action-modal-card{padding:22px 18px}.avatar-preset{min-height:70px}}
+
+/* Linha de impacto: brilho e densidade de glifos junto ao rodapé */
+.hacker-rain{overflow:hidden}
+.hacker-rain:after{content:"01 0 1 010 01 0 1 010 01 0 1 010 01 0 1 010 01 0 1 010";position:absolute;left:0;right:0;bottom:0;height:28px;display:flex;align-items:flex-end;justify-content:space-around;padding:0 3%;overflow:hidden;color:#69f8c7;font:700 9px/1 monospace;letter-spacing:5px;white-space:nowrap;text-shadow:0 0 7px #37f7bd,0 0 15px #37f7bd;opacity:.34;background:linear-gradient(to top,#29dca51a,transparent);border-bottom:1px solid #64e9c322;animation:matrix-impact-floor 2.8s ease-in-out infinite alternate}
+@keyframes matrix-impact-floor{from{opacity:.18;filter:blur(.2px);box-shadow:0 -3px 14px #37e9b30a}to{opacity:.42;filter:blur(0);box-shadow:0 -5px 22px #37e9b322}}
+@media(prefers-reduced-motion:reduce){.hacker-rain:after{animation:none}}
