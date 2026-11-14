@@ -143,7 +143,7 @@ sendMessage=async function(text){
  const pending=document.createElement("div");pending.className="message";pending.innerHTML='<div class="msg-avatar">✦</div><div class="bubble">Analisando…</div>';$("messages").appendChild(pending);
  try{const payload={message:value||"Descreva e analise a imagem enviada.",...(imageData?{image_data:imageData}:{})};
  const d=await api("/chat",{method:"POST",body:JSON.stringify(payload)});pending.remove();addMessage("assistant",d.reply);
- }catch(e){pending.remove();addMessage("assistant","Não consegui processar agora: "+e.message)}
+ }catch(e){pending.remove();await loadConversations().catch(()=>{});await loadMessages().catch(()=>{});addMessage("assistant","Não consegui processar agora: "+e.message)}
  finally{$("send").disabled=false}
 };
 $("chat-form").onsubmit=e=>{e.preventDefault();sendMessage()};
