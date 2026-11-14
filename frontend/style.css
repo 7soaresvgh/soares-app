@@ -592,3 +592,60 @@ body{background-color:#0a0a0c}
   .sidebar .nav { font-size:8px; }
   .sidebar .nav span { font-size:8px; }
 }
+
+
+/* Caixa de mensagem: foco discreto e controles vetoriais */
+.composer{
+  padding:12px 62px 48px 14px;
+  border:1px solid rgba(174,143,255,.28);
+  border-radius:18px;
+  transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;
+}
+.composer:focus-within{
+  border-color:rgba(174,143,255,.62);
+  box-shadow:0 12px 38px rgba(0,0,0,.32),0 0 0 2px rgba(174,143,255,.08);
+}
+.composer textarea,
+.composer textarea:focus,
+.composer textarea:focus-visible{
+  border:0!important;
+  outline:none!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.composer-tools{left:14px;bottom:10px;display:flex;align-items:center;gap:8px}
+.tool-btn{
+  display:grid;place-items:center;
+  width:32px;height:32px;padding:0;
+  border:1px solid rgba(202,190,230,.14);
+  border-radius:10px;
+  background:rgba(255,255,255,.035);
+  color:#c9c3d8;
+  transition:color .18s ease,border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.tool-btn svg{display:block;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.tool-btn:hover,.tool-btn:focus-visible,.tool-btn.active{
+  color:var(--user-accent,#b18aff);
+  border-color:color-mix(in srgb,var(--user-accent,#b18aff) 55%,transparent);
+  background:color-mix(in srgb,var(--user-accent,#b18aff) 12%,transparent);
+  box-shadow:0 0 14px color-mix(in srgb,var(--user-accent,#b18aff) 14%,transparent);
+}
+.tool-btn:hover{transform:translateY(-1px)}
+.tool-btn:focus-visible{outline:2px solid color-mix(in srgb,var(--user-accent,#b18aff) 48%,transparent);outline-offset:2px}
+.tool-btn.recording{color:#ff8bab;border-color:#ff8bab88;background:#ff477a18}
+.composer-note{
+  left:112px;right:58px;bottom:16px;
+  max-width:none;text-align:center;
+  font-size:9px;line-height:1.25;
+}
+.send{bottom:10px;top:auto;right:12px}
+@media(max-width:760px){
+  .composer{padding:9px 48px 47px 10px}
+  .composer-tools{left:10px;bottom:8px;gap:5px}
+  .tool-btn{width:29px;height:29px}
+  .tool-btn svg{width:17px;height:17px}
+  .composer-note{left:104px;right:48px;bottom:14px;font-size:7px;line-height:1.25}
+  .send{width:34px;height:34px;right:9px;bottom:8px;top:auto}
+}
