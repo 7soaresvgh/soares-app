@@ -160,7 +160,7 @@ document.querySelectorAll("[data-game]").forEach(b=>b.onclick=()=>openGame(b.dat
 // --- Perfil personalizável e chuva de caracteres cyber ---
 let profileSymbol=localStorage.getItem("sra_profile_symbol")||"initial";
 let profileColor=localStorage.getItem("sra_profile_color")||"violet";
-const profileColorMap={violet:"linear-gradient(135deg,#a56bff,#5940a8)",blue:"linear-gradient(135deg,#65a7ff,#315caa)",mint:"linear-gradient(135deg,#5be0b1,#197e79)",pink:"linear-gradient(135deg,#ff83c8,#a34487)"};
+const profileColorMap={violet:"linear-gradient(135deg,#a56bff,#5940a8)",blue:"linear-gradient(135deg,#65a7ff,#315caa)",mint:"linear-gradient(135deg,#5be0b1,#197e79)",pink:"linear-gradient(135deg,#ff83c8,#a34487)",orange:"linear-gradient(135deg,#ffb66b,#a54c29)"};
 function avatarText(){return profileSymbol==="initial"?(me?.name||"H").trim().charAt(0).toUpperCase():profileSymbol}
 function applyProfile(){
  const name=me?.name||"Visitante";$("profile-name").textContent=name;$("welcome-name").textContent=name;
