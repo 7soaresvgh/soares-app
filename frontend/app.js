@@ -264,10 +264,17 @@ function matrixRain(targetId,count=34){
 matrixRain("auth-matrix",42);
 matrixRain("hacker-rain",34);
 
-function finishLogin(d){
+async function finishLogin(d){
  token=d.token;persistAuthToken(token);me=d.user;localStorage.setItem("sra_user",JSON.stringify(me));currentConversationId=null;
  $("verify-panel")?.classList.add("hidden");showApp();
- loadConversations().then(loadMessages).catch(e=>toast(e.message));refreshActivity();
+ try{
+  const fresh=await api("/conversations",{method:"POST"});
+  if(!fresh?.id)throw new Error("O servidor não confirmou a criação do chat.");
+  currentConversationId=Number(fresh.id);
+  localStorage.setItem("sra_current_conversation",String(currentConversationId));
+  await loadConversations();await loadMessages();
+ }catch(e){toast("Entrei na conta, mas não consegui abrir um chat novo: "+e.message)}
+ refreshActivity();
 }
 $("auth-form").onsubmit=async e=>{
  e.preventDefault();$("auth-error").textContent="";
@@ -275,7 +282,7 @@ $("auth-form").onsubmit=async e=>{
   const email=$("email").value.trim().toLowerCase();
   if(authMode==="login"){
    const d=await api("/auth/login",{method:"POST",body:JSON.stringify({email,password:$("password").value})});
-   finishLogin(d);
+   await finishLogin(d);
   }else{
    const d=await api("/auth/register",{method:"POST",body:JSON.stringify({name:$("name").value,email,password:$("password").value})});
    pendingVerifyEmail=d.email||email;$("verify-email-label").textContent=pendingVerifyEmail;$("verify-panel").classList.remove("hidden");
@@ -321,7 +328,7 @@ async function loadConversations(){
  const saved=localStorage.getItem("sra_current_conversation");
  const preferred=currentConversationId||saved;
  if(preferred&&items.some(x=>String(x.id)===String(preferred)))currentConversationId=Number(preferred);
- else currentConversationId=items[0].id;
+ else currentConversationId=Number(items[0].id);
  localStorage.setItem("sra_current_conversation",String(currentConversationId));
  renderConversationList(items);
 }
