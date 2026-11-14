@@ -278,7 +278,11 @@ window.handleGoogleCredential=handleGoogleCredential;
 async function loadConversations(){
  const d=await api("/conversations");let items=d.conversations||[];
  if(!items.length){const c=await api("/conversations",{method:"POST"});items=[c]}
- if(!currentConversationId||!items.some(x=>Number(x.id)===Number(currentConversationId)))currentConversationId=items[0].id;
+ const saved=localStorage.getItem("sra_current_conversation");
+ const preferred=currentConversationId||saved;
+ if(preferred&&items.some(x=>String(x.id)===String(preferred)))currentConversationId=Number(preferred);
+ else currentConversationId=items[0].id;
+ localStorage.setItem("sra_current_conversation",String(currentConversationId));
  renderConversationList(items);
 }
 function renderConversationList(items){
@@ -286,9 +290,9 @@ function renderConversationList(items){
  items.forEach(item=>{
   const row=document.createElement("div");row.className="history-item"+(Number(item.id)===Number(currentConversationId)?" active":"");
   const open=document.createElement("button");open.type="button";open.className="history-open";open.textContent=item.title||"Nova conversa";open.title=item.title||"Nova conversa";
-  open.onclick=async()=>{currentConversationId=item.id;renderConversationList(items);await loadMessages()};
+  open.onclick=async()=>{currentConversationId=Number(item.id);localStorage.setItem("sra_current_conversation",String(currentConversationId));renderConversationList(items);await loadMessages()};
   const del=document.createElement("button");del.type="button";del.className="history-delete";del.textContent="×";del.title="Excluir conversa";
-  del.onclick=async()=>{if(!confirm("Excluir esta conversa permanentemente?"))return;try{await api("/conversations/"+item.id,{method:"DELETE"});currentConversationId=null;await loadConversations();await loadMessages()}catch(e){toast(e.message)}};
+  del.onclick=async()=>{if(!confirm("Excluir esta conversa permanentemente?"))return;try{await api("/conversations/"+item.id,{method:"DELETE"});if(Number(currentConversationId)===Number(item.id))currentConversationId=null;localStorage.removeItem("sra_current_conversation");await loadConversations();await loadMessages();toast("Conversa excluída.")}catch(e){toast(e.message)}};
   row.append(open,del);root.appendChild(row);
  });
 }
@@ -312,18 +316,21 @@ sendMessage=async function(text){
  $("send").disabled=true;const pending=document.createElement("div");pending.className="message";pending.innerHTML='<div class="msg-avatar">⟡</div><div class="bubble">Processando na rede Soares…</div>';$("messages").appendChild(pending);
  try{
   const payload={message:value||"Descreva e analise a imagem enviada.",conversation_id:currentConversationId,...(imageData?{image_data:imageData}:{})};
-  const d=await api("/chat",{method:"POST",body:JSON.stringify(payload)});pending.remove();currentConversationId=d.conversation_id||currentConversationId;addMessage("assistant",d.reply);await loadConversations();
+  const d=await api("/chat",{method:"POST",body:JSON.stringify(payload)});pending.remove();currentConversationId=Number(d.conversation_id||currentConversationId);localStorage.setItem("sra_current_conversation",String(currentConversationId));addMessage("assistant",d.reply);await loadConversations();
  }catch(e){pending.remove();addMessage("assistant","Não consegui processar agora: "+e.message)}
  finally{$("send").disabled=false}
 };
 $("new-chat").onclick=async()=>{
- try{const c=await api("/conversations",{method:"POST"});currentConversationId=c.id;await loadConversations();await loadMessages();$("chat-input").focus();toast("Nova conversa criada.")}
+ try{const c=await api("/conversations",{method:"POST"});currentConversationId=Number(c.id);localStorage.setItem("sra_current_conversation",String(currentConversationId));await loadConversations();await loadMessages();$("chat-input").focus();toast("Nova conversa criada.")}
  catch(e){toast(e.message)}
 };
 async function bootPro(){
  if(!token){showAuth();return}
- try{me=await api("/me");showApp();await loadConversations();await loadMessages();await refreshActivity();setInterval(refreshActivity,15000)}
- catch(e){token="";localStorage.removeItem("sra_token");showAuth()}
+ try{me=await api("/me");showApp();await loadConversations();await loadMessages();await refreshActivity();setInterval(refreshActivity,30000)}
+ catch(e){
+  if(/401|Sessão inválida|expirada|Faça login/i.test(e.message)){token="";localStorage.removeItem("sra_token");showAuth()}
+  else{showApp();toast("Conexão instável. Atualize em instantes; sua sessão foi preservada.");}
+ }
 }
 bootPro();
 
@@ -400,3 +407,57 @@ window.addEventListener("storage",e=>{if(e.key===photoKey){profilePhoto=e.newVal
 
 // Acorda o serviço gratuito do Render logo que a página abre, evitando que o primeiro login espere o cold start.
 fetch(API_BASE+"/health",{cache:"no-store"}).catch(()=>{});
+
+
+// --- Identidade de conta, avatares Soares e navegação ---
+const avatarCatalog=[
+ {id:"nebula",name:"Soares Nebula",symbol:"✦",a:"#7e5ce8",b:"#2c4d88"},
+ {id:"pixel",name:"Soares Pixel",symbol:"▦",a:"#42c9aa",b:"#236a70"},
+ {id:"aurora",name:"Soares Aurora",symbol:"☾",a:"#f18acb",b:"#624aa8"},
+ {id:"phantom",name:"Soares Phantom",symbol:"◈",a:"#7883a8",b:"#222a42"},
+ {id:"bloom",name:"Soares Bloom",symbol:"❀",a:"#f1a0b8",b:"#8855a2"},
+ {id:"circuit",name:"Soares Circuit",symbol:"⌘",a:"#54d9dc",b:"#26518b"},
+ {id:"comet",name:"Soares Comet",symbol:"☄",a:"#ffc16b",b:"#b45c53"},
+ {id:"vortex",name:"Soares Vortex",symbol:"◎",a:"#b18aff",b:"#4b286e"}
+];
+let selectedSoaresAvatar=localStorage.getItem("sra_avatar")||"nebula";
+function currentAvatar(){return avatarCatalog.find(a=>a.id===selectedSoaresAvatar)||avatarCatalog[0]}
+function makeAvatarMarkup(extra=""){const a=currentAvatar();return '<span class="soares-avatar-art '+extra+'" style="--avatar-a:'+a.a+';--avatar-b:'+a.b+'">'+a.symbol+'</span>'}
+function updateAccountChrome(){
+ const pro=String(me?.email||"").toLowerCase().endsWith("@soaresdev.com");
+ const badge=document.querySelector(".plan-badge");if(badge)badge.hidden=!pro;
+ const role=$("profile-role");if(role)role.textContent=pro?"Conta PRO":"Conta padrão";
+ document.querySelectorAll(".msg-avatar").forEach(el=>{if(el.dataset.role==="user"){el.innerHTML=makeAvatarMarkup("tiny-avatar")}});
+ const profile=$("profile-avatar");if(profile&&!profilePhoto){const a=currentAvatar();profile.textContent=a.symbol;profile.style.background='linear-gradient(135deg,'+a.a+','+a.b+')'}
+}
+const originalAddMessage=addMessage;
+addMessage=function(role,content){
+ originalAddMessage(role,content);
+ const el=$("messages").lastElementChild?.querySelector(".msg-avatar");if(el){el.dataset.role=role;if(role==="user"){el.innerHTML=makeAvatarMarkup("tiny-avatar")}else{el.textContent="✦"}}
+};
+function renderAvatarPicker(){
+ const host=$("soares-avatar-picker");if(!host)return;host.innerHTML="";
+ avatarCatalog.forEach(a=>{
+  const btn=document.createElement("button");btn.type="button";btn.className="avatar-preset"+(a.id===selectedSoaresAvatar?" selected":"");
+  btn.innerHTML='<span class="soares-avatar-art" style="--avatar-a:'+a.a+';--avatar-b:'+a.b+'">'+a.symbol+'</span><b>'+a.name+'</b>';
+  btn.onclick=()=>{selectedSoaresAvatar=a.id;localStorage.setItem("sra_avatar",a.id);renderAvatarPicker();applyExpandedProfile();updateAccountChrome();toast(a.name+" selecionado.")};
+  host.appendChild(btn);
+ });
+}
+function openProfileSettings(){navigate("profile");renderAvatarPicker();document.querySelector(".profile-page")?.scrollIntoView({behavior:"smooth",block:"start"})}
+const profileFooter=$(".profile");
+if(profileFooter){profileFooter.setAttribute("role","button");profileFooter.setAttribute("tabindex","0");profileFooter.setAttribute("aria-label","Abrir configurações do perfil");profileFooter.addEventListener("click",e=>{if(e.target.closest("#logout"))return;openProfileSettings()});profileFooter.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openProfileSettings()}})}
+const logoutButton=$("logout");if(logoutButton)logoutButton.addEventListener("click",e=>e.stopPropagation());
+updateAccountChrome();renderAvatarPicker();
+
+const previousNavigateFinal=navigate;
+navigate=function(view){
+ const views=["chat","memories","activity","games","profile","terms"];
+ views.forEach(v=>$(v+"-view")?.classList.toggle("hidden",v!==view));
+ document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+ currentView=view;
+ const titles={chat:"Conversas",memories:"Minhas memórias",activity:"Modo atividade",games:"Jogos Soares",profile:"Configurações do perfil",terms:"Termos de uso"};
+ $("view-title").textContent=titles[view]||"Soares AI";
+ if(view==="memories")loadMemories();if(view==="activity")refreshActivity();if(view==="profile"){applyExpandedProfile();renderAvatarPicker()}
+ if(view==="chat"&&currentConversationId)loadMessages().catch(e=>toast(e.message));
+};
