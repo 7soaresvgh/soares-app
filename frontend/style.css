@@ -1074,7 +1074,7 @@ body{background-image:radial-gradient(ellipse at 12% 0%,rgba(180,76,255,.13),tra
 
 /* === Ocupa toda a coluna direita até a borda da janela (desktop) === */
 @media (min-width: 761px) {
-  .app {
+  #app.app:not(.hidden) {
     display: grid!important;
     width: 100%!important;
     max-width: none!important;
@@ -1129,7 +1129,7 @@ body{background-image:radial-gradient(ellipse at 12% 0%,rgba(180,76,255,.13),tra
 
 /* Escopo explícito: expansão somente dentro do app autenticado, nunca no login */
 @media (min-width: 761px) {
-  #app.app {
+  #app.app:not(.hidden) {
     display: grid!important;
     width: 100%!important;
     max-width: none!important;
@@ -1252,4 +1252,36 @@ body{background-image:radial-gradient(ellipse at 12% 0%,rgba(180,76,255,.13),tra
   #app #chat-view .welcome-title { font-size:clamp(27px,8vw,36px); letter-spacing:-1px; }
   #app #chat-view .welcome .suggestions { width:100%; display:grid; grid-template-columns:1fr; gap:8px; margin-top:20px; }
   #app #chat-view .welcome .suggestions button { width:100%; }
+}
+
+
+/* === Correção definitiva: sidebar somente com sessão autenticada === */
+#app.app.hidden { display:none!important; }
+@media (min-width: 821px) {
+  #auth.auth-wrap {
+    width:100%;
+    min-height:100vh;
+    padding:0;
+    display:grid;
+    place-items:stretch;
+  }
+  #auth .auth-shell {
+    width:100%;
+    max-width:none;
+    min-height:100vh;
+    margin:0;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    border:0;
+    border-radius:0!important;
+    overflow:hidden;
+  }
+  #auth .auth-showcase,
+  #auth .auth-panel {
+    min-width:0;
+    width:100%;
+    min-height:100vh;
+  }
+  #auth .auth-showcase { padding:clamp(28px,4vw,64px); }
+  #auth .auth-showcase-copy { max-width:100%; }
+  #auth .auth-showcase-copy h1 { overflow-wrap:normal; word-break:normal; }
 }
