@@ -1304,3 +1304,7 @@ body{background-image:radial-gradient(ellipse at 12% 0%,rgba(180,76,255,.13),tra
 #app .sidebar-bottom #profile-menu{z-index:10000!important;pointer-events:auto!important}
 #app .sidebar-bottom #profile-menu.hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
 #app .sidebar-bottom #profile-menu:not(.hidden){display:flex!important;flex-direction:column;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+
+
+/* Identificação da versão e data da última atualização */
+.app-version{display:flex;align-items:center;gap:7px;padding:10px 5px 2px;margin-top:10px;border-top:1px solid rgba(85,255,198,.12);color:#77718f;font:10px "DM Sans",sans-serif;letter-spacing:.25px}.app-version span{color:#9d83d8;font-weight:800}.app-version i{font-style:normal;color:#72ffd1}.app-version small{font-size:9px;color:#77718f}
