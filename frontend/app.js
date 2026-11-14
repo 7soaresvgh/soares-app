@@ -397,3 +397,6 @@ bindExpandedProfile();applyExpandedProfile();
 const oldProfileNavigate=navigate;
 navigate=function(view){oldProfileNavigate(view);if(view==="profile")applyExpandedProfile()};
 window.addEventListener("storage",e=>{if(e.key===photoKey){profilePhoto=e.newValue||"";applyExpandedProfile()}});
+
+// Acorda o serviço gratuito do Render logo que a página abre, evitando que o primeiro login espere o cold start.
+fetch(API_BASE+"/health",{cache:"no-store"}).catch(()=>{});
