@@ -457,3 +457,16 @@ body[data-motion="off"] *,body[data-motion="reduced"] *{animation:none!important
 .hacker-rain:after{content:"01 0 1 010 01 0 1 010 01 0 1 010 01 0 1 010 01 0 1 010";position:absolute;left:0;right:0;bottom:0;height:28px;display:flex;align-items:flex-end;justify-content:space-around;padding:0 3%;overflow:hidden;color:#69f8c7;font:700 9px/1 monospace;letter-spacing:5px;white-space:nowrap;text-shadow:0 0 7px #37f7bd,0 0 15px #37f7bd;opacity:.34;background:linear-gradient(to top,#29dca51a,transparent);border-bottom:1px solid #64e9c322;animation:matrix-impact-floor 2.8s ease-in-out infinite alternate}
 @keyframes matrix-impact-floor{from{opacity:.18;filter:blur(.2px);box-shadow:0 -3px 14px #37e9b30a}to{opacity:.42;filter:blur(0);box-shadow:0 -5px 22px #37e9b322}}
 @media(prefers-reduced-motion:reduce){.hacker-rain:after{animation:none}}
+
+/* Ajustes de navegação solicitados */
+.sidebar .profile{cursor:pointer;position:relative;transition:background .2s,border-color .2s,box-shadow .2s}
+.sidebar .profile:hover,.sidebar .profile:focus-visible{background:linear-gradient(100deg,#45e6c414,#9a70ff18);border-color:#65e9d34a;box-shadow:0 0 22px #52e8c21a;outline:none}
+.sidebar .profile #logout{pointer-events:none}
+.profile-page .profile-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);align-items:start}
+.profile-page .profile-editor{border:1px solid #70e8d42c;border-radius:18px;background:linear-gradient(145deg,#101820df,#171225df);backdrop-filter:blur(18px);box-shadow:inset 0 1px #ffffff0b,0 18px 55px #0004;padding:clamp(16px,2vw,24px)}
+.profile-page .profile-editor h4{font:750 15px Manrope,sans-serif;letter-spacing:.01em}
+.profile-page .field select{width:100%;min-height:44px;cursor:pointer;transition:border-color .2s,box-shadow .2s,background .2s}
+.profile-page .field select:hover{border-color:#7aebd6!important;box-shadow:0 0 16px #5fe8ca20}
+.profile-page .field input{border:1px solid #52636b;border-radius:10px;background:#0a1018;color:#e8f4f6;padding:12px 14px;transition:.2s}
+.profile-page .field input:focus{outline:0;border-color:#6bead1;box-shadow:0 0 0 3px #6bead126}
+@media(max-width:760px){.profile-page .profile-layout{grid-template-columns:1fr}}
