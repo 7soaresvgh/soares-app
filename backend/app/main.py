@@ -183,11 +183,11 @@ async def register(data: RegisterIn):
         role = "admin" if count == 0 or (ADMIN_EMAIL and email == ADMIN_EMAIL) else "hel"
         try:
             if DATABASE_URL:
-                cur = c.execute("INSERT INTO users(name,email,password_hash,role,created_at) VALUES(%s,%s,%s,%s,%s) RETURNING id",
+                cur = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(%s,%s,%s,%s,%s,FALSE,'pro') RETURNING id",
                                 (data.name.strip(), email, pwd.hash(data.password), role, now()))
                 uid = cur.fetchone()["id"]
             else:
-                cur = c.execute("INSERT INTO users(name,email,password_hash,role,created_at) VALUES(?,?,?,?,?)",
+                cur = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(?,?,?,?,?,0,'pro')",
                                 (data.name.strip(), email, pwd.hash(data.password), role, now()))
                 uid = cur.lastrowid
         except (sqlite3.IntegrityError, psycopg.IntegrityError):
