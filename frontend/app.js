@@ -172,8 +172,8 @@ function applyProfile(){
  document.querySelectorAll(".color-choice").forEach(b=>b.classList.toggle("selected",b.dataset.color===profileColor));
 }
 function initProfile(){
- $("profile-symbol").onchange=()=>{profileSymbol=$("profile-symbol").value;localStorage.setItem("sra_profile_symbol",profileSymbol);applyProfile()};
- document.querySelectorAll(".color-choice").forEach(b=>b.onclick=()=>{profileColor=b.dataset.color;localStorage.setItem("sra_profile_color",profileColor);applyProfile()});
+ $("profile-symbol").onchange=()=>{profileSymbol=$("profile-symbol").value;localStorage.setItem("sra_profile_symbol"+(me?.id?"_user_"+me.id:""),profileSymbol);applyProfile()};
+ document.querySelectorAll(".color-choice").forEach(b=>b.onclick=()=>{profileColor=b.dataset.color;localStorage.setItem("sra_profile_color"+(me?.id?"_user_"+me.id:""),profileColor);applyProfile()});
  $("profile-form").onsubmit=async e=>{e.preventDefault();const name=$("profile-display-name").value.trim();if(name.length<2){toast("Digite um nome com pelo menos 2 caracteres.");return}
  try{me=await api("/me",{method:"PATCH",body:JSON.stringify({name})});applyProfile();toast("Perfil atualizado com sucesso 💜")}
  catch(err){toast("Não foi possível salvar: "+err.message)}
@@ -346,9 +346,9 @@ $("auth-form").onsubmit=async e=>{
  }catch(err){$("auth-error").textContent=err.message}
  finally{submit.disabled=false;submit.textContent=authMode==="login"?"Entrar na sua conta ↗":"Criar minha conta ↗"}
 };
-const profilePrefsKey="sra_profile_preferences";
+let profilePrefsKey="sra_profile_preferences";
 let profilePrefs=JSON.parse(localStorage.getItem(profilePrefsKey)||"{}");
-const photoKey="sra_profile_photo";
+let photoKey="sra_profile_photo";
 let profilePhoto=localStorage.getItem(photoKey)||"";
 const savePrefs=()=>localStorage.setItem(profilePrefsKey,JSON.stringify(profilePrefs));
 const accentMap={violet:"#b28aff",mint:"#55e7b5",blue:"#67a9ff",rose:"#ff83bd",amber:"#ffc16b"};
@@ -376,7 +376,7 @@ function applyExpandedProfile(){
  const rain=$("hacker-rain");if(rain){rain.style.display=profilePrefs.rain==="off"?"none":"";rain.style.opacity=profilePrefs.rain==="subtle"?".16":".46"}
 }
 function bindExpandedProfile(){
- $("profile-symbol").onchange=()=>{profileSymbol=$("profile-symbol").value;localStorage.setItem("sra_profile_symbol",profileSymbol);applyExpandedProfile()};
+ $("profile-symbol").onchange=()=>{profileSymbol=$("profile-symbol").value;localStorage.setItem("sra_profile_symbol"+(me?.id?"_user_"+me.id:""),profileSymbol);applyExpandedProfile()};
  document.querySelectorAll(".color-choice").forEach(b=>b.onclick=()=>{profileColor=b.dataset.color;localStorage.setItem("sra_profile_color",profileColor);applyExpandedProfile()});
  $("profile-photo").onchange=()=>{
   const file=$("profile-photo").files?.[0];if(!file)return;
@@ -386,12 +386,12 @@ function bindExpandedProfile(){
     const canvas=document.createElement("canvas"),size=420,scale=Math.min(1,size/Math.max(img.width,img.height));canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);
     canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
     profilePhoto=canvas.toDataURL("image/jpeg",.78);
-    try{localStorage.setItem(photoKey,profilePhoto);applyExpandedProfile();toast("Foto de perfil atualizada.")}
+    try{localStorage.setItem(photoKey,profilePhoto);applyExpandedProfile();updateAccountChrome();toast("Foto de perfil atualizada.")}
     catch(e){toast("A foto é grande demais para o armazenamento deste navegador.")}
    };img.src=reader.result;
   };reader.readAsDataURL(file);
  };
- $("remove-profile-photo").onclick=()=>{profilePhoto="";localStorage.removeItem(photoKey);$("profile-photo").value="";applyExpandedProfile();toast("Foto removida.")};
+ $("remove-profile-photo").onclick=()=>{profilePhoto="";localStorage.removeItem(photoKey);$("profile-photo").value="";applyExpandedProfile();updateAccountChrome();toast("Foto removida.")};
  for(const id of ["profile-theme","profile-accent","profile-density","profile-motion","profile-rain"])$(id).onchange=()=>{profilePrefs[id.replace("profile-","")]= $(id).value;savePrefs();applyExpandedProfile()};
  $("profile-form").onsubmit=async e=>{
   e.preventDefault();const name=$("profile-display-name").value.trim();if(name.length<2)return toast("Digite um nome com pelo menos 2 caracteres.");
@@ -420,7 +420,8 @@ const avatarCatalog=[
  {id:"comet",name:"Soares Comet",symbol:"☄",a:"#ffc16b",b:"#b45c53"},
  {id:"vortex",name:"Soares Vortex",symbol:"◎",a:"#b18aff",b:"#4b286e"}
 ];
-let selectedSoaresAvatar=localStorage.getItem("sra_avatar")||"nebula";
+let avatarStorageKey="sra_avatar";
+let selectedSoaresAvatar=localStorage.getItem(avatarStorageKey)||"nebula";
 function currentAvatar(){return avatarCatalog.find(a=>a.id===selectedSoaresAvatar)||avatarCatalog[0]}
 function makeAvatarMarkup(extra=""){const a=currentAvatar();return '<span class="soares-avatar-art '+extra+'" style="--avatar-a:'+a.a+';--avatar-b:'+a.b+'">'+a.symbol+'</span>'}
 function updateAccountChrome(){
@@ -440,7 +441,7 @@ function renderAvatarPicker(){
  avatarCatalog.forEach(a=>{
   const btn=document.createElement("button");btn.type="button";btn.className="avatar-preset"+(a.id===selectedSoaresAvatar?" selected":"");
   btn.innerHTML='<span class="soares-avatar-art" style="--avatar-a:'+a.a+';--avatar-b:'+a.b+'">'+a.symbol+'</span><b>'+a.name+'</b>';
-  btn.onclick=()=>{selectedSoaresAvatar=a.id;localStorage.setItem("sra_avatar",a.id);renderAvatarPicker();applyExpandedProfile();updateAccountChrome();toast(a.name+" selecionado.")};
+  btn.onclick=()=>{selectedSoaresAvatar=a.id;localStorage.setItem(avatarStorageKey,a.id);renderAvatarPicker();applyExpandedProfile();updateAccountChrome();toast(a.name+" selecionado.")};
   host.appendChild(btn);
  });
 }
@@ -449,7 +450,22 @@ const profileFooter=$(".profile");
 if(profileFooter){profileFooter.setAttribute("role","button");profileFooter.setAttribute("tabindex","0");profileFooter.setAttribute("aria-label","Abrir configurações do perfil");profileFooter.addEventListener("click",e=>{if(e.target.closest("#logout"))return;openProfileSettings()});profileFooter.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openProfileSettings()}})}
 const logoutButton=$("logout");if(logoutButton)logoutButton.addEventListener("click",e=>e.stopPropagation());
 updateAccountChrome();renderAvatarPicker();
-
+const baseShowApp=showApp;
+showApp=function(){baseShowApp();switchProfileStorage();updateAccountChrome();};
+function switchProfileStorage(){
+ if(!me?.id)return;
+ const suffix="_user_"+me.id;
+ profilePrefsKey="sra_profile_preferences"+suffix;photoKey="sra_profile_photo"+suffix;avatarStorageKey="sra_avatar"+suffix;
+ profilePrefs=JSON.parse(localStorage.getItem(profilePrefsKey)||"{}");
+ profilePhoto=localStorage.getItem(photoKey)||"";
+ selectedSoaresAvatar=localStorage.getItem(avatarStorageKey)||"nebula";
+ profileColor=localStorage.getItem("sra_profile_color"+suffix)||"violet";
+ profileSymbol=localStorage.getItem("sra_profile_symbol"+suffix)||"initial";
+ applyExpandedProfile();renderAvatarPicker();updateAccountChrome();
+}
+const baseApplyExpandedProfile=applyExpandedProfile;
+applyExpandedProfile=function(){baseApplyExpandedProfile();if(!profilePhoto){const a=currentAvatar();["profile-avatar","profile-preview-avatar"].forEach(id=>{const el=$(id);if(el){el.textContent=a.symbol;el.style.background='linear-gradient(135deg,'+a.a+','+a.b+')';el.style.backgroundImage="none"}})}};
+const baseProfileColorSet=localStorage.setItem.bind(localStorage);
 const previousNavigateFinal=navigate;
 navigate=function(view){
  const views=["chat","memories","activity","games","profile","terms"];
@@ -461,3 +477,21 @@ navigate=function(view){
  if(view==="memories")loadMemories();if(view==="activity")refreshActivity();if(view==="profile"){applyExpandedProfile();renderAvatarPicker()}
  if(view==="chat"&&currentConversationId)loadMessages().catch(e=>toast(e.message));
 };
+
+function decorateGameCards(){
+ document.querySelectorAll(".game-card").forEach(card=>{
+  if(card.querySelector(".game-avatar-stamp"))return;
+  const stamp=document.createElement("span");stamp.className="game-avatar-stamp";
+  stamp.innerHTML=makeAvatarMarkup("tiny-avatar")+'<small>Seu personagem</small>';
+  card.appendChild(stamp);
+ });
+}
+function decorateGameStage(){
+ const head=document.querySelector(".game-stage-head");if(!head||head.querySelector(".game-players"))return;
+ const strip=document.createElement("div");strip.className="game-players";
+ const user=currentAvatar();
+ strip.innerHTML='<div class="game-player"><span class="soares-avatar-art" style="--avatar-a:'+user.a+';--avatar-b:'+user.b+'">'+user.symbol+'</span><small>Você</small></div><span class="game-vs">VS</span><div class="game-player"><span class="soares-avatar-art" style="--avatar-a:#67d8bd;--avatar-b:#285d70">✦</span><small>Soares AI</small></div>';
+ head.appendChild(strip);
+}
+document.querySelectorAll("[data-game]").forEach(card=>card.addEventListener("click",()=>setTimeout(()=>{decorateGameCards();decorateGameStage()},0)));
+decorateGameCards();
