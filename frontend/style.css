@@ -842,3 +842,122 @@ body{background-image:radial-gradient(ellipse at 12% 0%,rgba(180,76,255,.13),tra
     padding:34px 24px;
   }
 }
+
+/* === Refinamento mobile exclusivo do login/cadastro === */
+@media (max-width:760px){
+  #auth.auth-wrap{
+    width:100%;
+    min-height:100vh;
+    min-height:100dvh;
+    height:auto;
+    padding:0;
+    overflow-x:hidden;
+    overflow-y:auto;
+    display:block;
+  }
+  #auth .auth-shell{
+    width:100%;
+    min-height:100vh;
+    min-height:100dvh;
+    height:auto;
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:auto 1fr;
+    overflow:visible;
+  }
+  #auth .auth-showcase{
+    min-height:0;
+    height:auto;
+    padding:18px 22px 20px;
+    gap:12px;
+    border-right:0;
+    border-bottom:1px solid rgba(54,207,255,.24);
+  }
+  #auth .auth-topline{
+    font-size:8px;
+    letter-spacing:1.2px;
+  }
+  #auth .auth-visual,
+  #auth .auth-feature-row,
+  #auth .auth-grid-glow{
+    display:none!important;
+  }
+  #auth .auth-showcase-copy{
+    position:relative;
+    z-index:1;
+    margin:auto 0 0;
+  }
+  #auth .auth-showcase-copy .eyebrow{
+    font-size:9px;
+    letter-spacing:1.5px;
+  }
+  #auth .auth-showcase-copy h1{
+    font-size:clamp(25px,7vw,34px);
+    line-height:1.08;
+    margin:7px 0;
+  }
+  #auth .auth-showcase-copy p{
+    max-width:390px;
+    font-size:11px;
+    line-height:1.5;
+    margin:0;
+  }
+  #auth .auth-panel{
+    min-height:0;
+    height:auto;
+    padding:26px 22px 22px;
+    overflow:visible;
+    justify-content:flex-start;
+  }
+  #auth .auth-panel > *{
+    max-width:430px;
+  }
+  #auth .auth-panel-head{
+    margin-bottom:16px;
+  }
+  #auth .auth-panel-head .brand-mark{
+    width:40px;
+    height:40px;
+    margin-bottom:9px;
+  }
+  #auth .auth-panel h2{
+    font-size:25px;
+    text-align:center;
+  }
+  #auth .auth-subtitle{
+    font-size:11px;
+    text-align:center;
+    margin-top:7px;
+  }
+  #auth .auth-panel .tabs{
+    margin:19px 0 15px;
+  }
+  #auth .auth-panel .field{
+    margin:12px 0;
+  }
+  #auth .auth-panel .field input{
+    padding:13px 12px;
+    font-size:16px;
+  }
+  #auth .auth-submit{
+    margin:12px 0 8px;
+    padding:14px;
+  }
+  #auth .auth-privacy{
+    margin-top:10px;
+    font-size:9px;
+    text-align:center;
+  }
+  #auth .auth-panel-footer{
+    margin-top:20px;
+  }
+  #auth #google-signin:empty,
+  #auth .auth-or:empty{
+    display:none;
+  }
+}
+@media (max-width:380px){
+  #auth .auth-showcase{padding:16px 18px 18px}
+  #auth .auth-panel{padding:22px 18px 20px}
+  #auth .auth-panel h2{font-size:23px}
+  #auth .auth-panel .tabs{margin-top:15px}
+}
