@@ -380,7 +380,7 @@ function applyExpandedProfile(){
 }
 function bindExpandedProfile(){
  $("profile-symbol").onchange=()=>{profileSymbol=$("profile-symbol").value;localStorage.setItem("sra_profile_symbol"+(me?.id?"_user_"+me.id:""),profileSymbol);applyExpandedProfile()};
- document.querySelectorAll(".color-choice").forEach(b=>b.onclick=()=>{profileColor=b.dataset.color;localStorage.setItem("sra_profile_color",profileColor);applyExpandedProfile()});
+ document.querySelectorAll(".color-choice").forEach(b=>b.onclick=()=>{profileColor=b.dataset.color;localStorage.setItem("sra_profile_color"+(me?.id?"_user_"+me.id:""),profileColor);applyExpandedProfile()});
  $("profile-photo").onchange=()=>{
   const file=$("profile-photo").files?.[0];if(!file)return;
   if(!file.type.startsWith("image/")){toast("Escolha um arquivo de imagem.");return}
@@ -401,7 +401,7 @@ function bindExpandedProfile(){
   try{me=await api("/me",{method:"PATCH",body:JSON.stringify({name})});profilePrefs.status=$("profile-status").value.trim()||"Disponível agora";savePrefs();applyExpandedProfile();toast("Perfil salvo.")}
   catch(err){toast("Não foi possível salvar: "+err.message)}
  };
- $("reset-profile-style").onclick=()=>{profilePrefs={};savePrefs();profileColor="violet";profileSymbol="initial";localStorage.setItem("sra_profile_color",profileColor);localStorage.setItem("sra_profile_symbol",profileSymbol);applyExpandedProfile();toast("Aparência restaurada.")};
+ $("reset-profile-style").onclick=()=>{profilePrefs={};savePrefs();profileColor="violet";profileSymbol="initial";localStorage.setItem("sra_profile_color"+(me?.id?"_user_"+me.id:""),profileColor);localStorage.setItem("sra_profile_symbol"+(me?.id?"_user_"+me.id:""),profileSymbol);applyExpandedProfile();toast("Aparência restaurada.")};
 }
 bindExpandedProfile();applyExpandedProfile();
 const oldProfileNavigate=navigate;
