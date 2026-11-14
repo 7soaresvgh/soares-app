@@ -525,8 +525,8 @@ decorateGameCards();
  if(!menu||!modal||!profile)return;
  const close=()=>{modal.classList.add("hidden");menu.classList.add("hidden")};
  document.addEventListener("click",e=>{
-  if(profile.contains(e.target)&&!e.target.closest("#logout")){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();menu.classList.toggle("hidden");return}
-  if(!menu.contains(e.target)&&!e.target.closest("#profile-menu"))menu.classList.add("hidden");
+  if(profile.contains(e.target)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();menu.classList.toggle("hidden");profile.setAttribute("aria-expanded",String(!menu.classList.contains("hidden")));return}
+  if(!menu.contains(e.target)&&!e.target.closest("#profile-menu")){menu.classList.add("hidden");profile.setAttribute("aria-expanded","false")}
  },true);
  menu.addEventListener("click",async e=>{
   const b=e.target.closest("[data-profile-action]");if(!b)return;
