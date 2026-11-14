@@ -27,11 +27,13 @@
       <div class="tabs"><button class="tab active" data-tab="login">Entrar</button><button class="tab" data-tab="register">Criar conta</button></div>
       <div id="google-signin" class="google-signin"></div>
       <div class="auth-or"><span>OU CONTINUE COM E-MAIL</span></div>
+      <div id="saved-account" class="saved-account hidden"><button type="button" id="saved-account-continue" class="saved-account-continue"><span class="saved-account-icon">↗</span><span class="saved-account-copy"><small>CONTA SALVA NESTE DISPOSITIVO</small><b id="saved-account-label">Continuar</b></span><span class="saved-account-arrow">→</span></button><button type="button" id="saved-account-remove" class="saved-account-remove">Remover conta salva</button></div>
       <form id="auth-form">
         <div id="name-field" class="field hidden"><label for="name">Nome de exibição</label><input id="name" placeholder="Como quer aparecer?" maxlength="60"></div>
         <div id="username-field" class="field hidden"><label for="username">Nome de usuário único</label><input id="username" placeholder="Ex.: Seu_User" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" autocomplete="username"><small class="tiny muted">Use de 3 a 24 letras, números ou _ (sublinhado).</small></div>
         <div class="field"><label for="email">Usuário ou e-mail</label><input id="email" type="text" required placeholder="Seu usuário ou e-mail" autocomplete="username"></div>
         <div class="field"><label for="password">Senha</label><input id="password" type="password" minlength="8" required placeholder="Mínimo de 8 caracteres" autocomplete="current-password"></div>
+        <label id="remember-account-wrap" class="remember-account"><input id="remember-account" type="checkbox"><span><b>Lembrar minha conta neste dispositivo</b><small>Na próxima vez, você poderá selecionar sua conta. A senha fica protegida pelo navegador.</small></span></label>
         <button class="primary full auth-submit" id="auth-submit">Entrar na sua conta <span>↗</span></button>
         <div id="auth-error" class="error" role="alert"></div>
         <div id="verify-panel" class="verify-panel hidden">
