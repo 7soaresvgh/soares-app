@@ -474,7 +474,7 @@ body[data-motion="off"] *,body[data-motion="reduced"] *{animation:none!important
 /* Correção definitiva do popover do perfil */
 .sidebar{overflow:visible!important;z-index:40}
 .sidebar-bottom{position:relative;overflow:visible!important;z-index:60}
-.profile-menu{position:absolute!important;left:0!important;right:0!important;bottom:calc(100% + 10px)!important;top:auto!important;width:100%!important;max-width:300px;z-index:9999!important;max-height:min(70vh,460px);overflow-y:auto}
+.profile-menu{position:absolute!important;left:0!important;right:0!important;bottom:100%!important;margin-bottom:10px;top:auto!important;width:100%!important;max-width:300px;z-index:9999!important;max-height:min(70vh,460px);overflow-y:auto}
 .sidebar .profile{position:relative;z-index:60;cursor:pointer;user-select:none}
 .sidebar .profile:focus-visible{outline:2px solid var(--user-accent,#55e7b5);outline-offset:3px}
 .profile-menu button{width:100%;min-height:42px}
