@@ -252,3 +252,45 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 .profile{border-top-color:rgba(85,255,198,.17)}
 @media(max-width:760px){.topbar-status{gap:5px}.plan-badge{font-size:8px;padding:7px}.conversation-list{max-height:150px;grid-template-columns:1fr 1fr}.history-heading{padding-top:12px}.auth-matrix{opacity:.36}}
 @media(prefers-reduced-motion:reduce){.matrix-stream,.auth-showcase:after{animation:none}}
+
+
+/* Soares AI — identidade editorial própria e perfil */
+:root{--user-accent:#b28aff}
+.auth-wrap{background:#090b10!important}
+.auth-shell{border-radius:8px 26px 8px 26px!important}
+.auth-showcase{background:linear-gradient(145deg,#101b1c,#101019 62%,#17101f)!important}
+.auth-panel{background:#111218!important}
+.app{max-width:1680px!important;gap:30px!important}
+.sidebar{border-radius:8px 20px 8px 20px!important;background:#111319!important;border-color:#282c35!important;box-shadow:8px 8px 0 #07080b!important}
+.main{max-width:1240px!important}
+.topbar{border-color:#292d36!important}
+.topbar h2,.profile-page h3,.games-heading h3{letter-spacing:-.8px}
+.chat-intro{border-radius:5px 18px 5px 18px!important;background:linear-gradient(100deg,#151a1b,#171521)!important;border-color:#30383a!important;box-shadow:none!important}
+.intro-title span{background:none!important;color:#86d8bd!important}
+.suggestions button{border-radius:5px 12px 5px 12px!important;background:#1a1d23!important;border-color:#30343d!important}
+.bubble{border-radius:5px 15px 15px 15px!important;background:#1a1d24!important;border-color:#30343b!important}
+.message.user .bubble{background:#283c3a!important;border-color:#41635c!important}
+.composer{border-radius:8px!important;background:#11151a!important;border-color:#39423f!important;box-shadow:none!important}
+.primary,.send{background:var(--user-accent)!important;color:#111!important;box-shadow:none!important}
+.nav.active,.nav:hover{box-shadow:inset 3px 0 var(--user-accent)!important}
+.profile-page{max-width:1000px!important;margin:28px auto}
+.profile-kicker{font:700 10px monospace;letter-spacing:2px;color:#8acbb6}
+.profile-layout{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:22px}
+.profile-card{padding:24px!important;border:1px solid #30343d!important;border-radius:9px 20px 9px 20px!important;background:#14171d!important;box-shadow:0 14px 38px #0003}
+.profile-card h4{font:700 16px Manrope;margin:2px 0 20px}
+.photo-picker{display:flex!important;align-items:center;gap:12px;padding:15px;border:1px dashed #59635e;border-radius:9px;background:#191e20;color:#d9e9e1;cursor:pointer}
+.photo-picker span:first-child{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#28443a;color:#9ce3c5;font-size:22px}
+.text-action,.secondary-action{border:1px solid #383e43;border-radius:7px;padding:9px 12px;background:#1a1e24;color:#c9d4cf;cursor:pointer;margin-top:10px}
+.profile-editor .field input,.profile-editor .field select{background:#0e1116;border-color:#343a40}
+.profile-avatar-large{overflow:hidden;border:2px solid #a6d9c3}
+.avatar-colors .color-choice[data-color="orange"]{background:linear-gradient(135deg,#ffb66b,#a54c29)}
+.color-choice.selected{outline:2px solid #fff;outline-offset:3px}
+body[data-density="compact"] .bubble{padding:10px 13px;font-size:12px}
+body[data-density="large"] .bubble{padding:18px 21px;font-size:16px}
+body[data-motion="off"] *,body[data-motion="reduced"] *{animation:none!important;transition:none!important}
+.rain-column,.matrix-stream{will-change:transform;backface-visibility:hidden}
+.hacker-rain{opacity:.46!important;z-index:0!important}
+.matrix-stream{display:block;height:145vh;top:-145vh!important;line-height:1.55!important;animation-name:matrix-edge-fall!important;animation-duration:var(--speed)!important;animation-delay:var(--delay)!important;transform:translate3d(0,0,0)}
+@keyframes matrix-edge-fall{from{transform:translate3d(0,-8vh,0)}to{transform:translate3d(0,245vh,0)}}
+.auth-matrix{opacity:.75!important}
+@media(max-width:760px){.profile-layout{grid-template-columns:1fr}.profile-card{padding:18px!important}}
