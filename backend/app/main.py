@@ -128,6 +128,9 @@ class VerifyEmailIn(BaseModel):
     email: EmailStr
     code: str = Field(min_length=6,max_length=6)
 
+class ResendCodeIn(BaseModel):
+    email: EmailStr
+
 class GoogleLoginIn(BaseModel):
     credential: str = Field(min_length=20,max_length=10000)
 
@@ -213,7 +216,7 @@ def verify_email(data: VerifyEmailIn):
     return {"token":make_token(user),"user":dict(user)}
 
 @app.post("/auth/resend")
-async def resend_code(data: VerifyEmailIn):
+async def resend_code(data: ResendCodeIn):
     email=data.email.lower()
     with db() as c:
         user=c.execute("SELECT id FROM users WHERE email=%s" if DATABASE_URL else "SELECT id FROM users WHERE email=?",(email,)).fetchone()
