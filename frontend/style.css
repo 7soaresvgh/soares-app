@@ -470,3 +470,29 @@ body[data-motion="off"] *,body[data-motion="reduced"] *{animation:none!important
 .profile-page .field input{border:1px solid #52636b;border-radius:10px;background:#0a1018;color:#e8f4f6;padding:12px 14px;transition:.2s}
 .profile-page .field input:focus{outline:0;border-color:#6bead1;box-shadow:0 0 0 3px #6bead126}
 @media(max-width:760px){.profile-page .profile-layout{grid-template-columns:1fr}}
+
+/* Correção definitiva do popover do perfil */
+.sidebar{overflow:visible!important;z-index:40}
+.sidebar-bottom{position:relative;overflow:visible!important;z-index:60}
+.profile-menu{position:absolute!important;left:0!important;right:0!important;bottom:calc(100% + 10px)!important;top:auto!important;width:100%!important;max-width:300px;z-index:9999!important;max-height:min(70vh,460px);overflow-y:auto}
+.sidebar .profile{position:relative;z-index:60;cursor:pointer;user-select:none}
+.sidebar .profile:focus-visible{outline:2px solid var(--user-accent,#55e7b5);outline-offset:3px}
+.profile-menu button{width:100%;min-height:42px}
+.soares-avatar-frame{position:relative;display:inline-block;flex:0 0 54px;width:54px;height:64px;overflow:hidden;border-radius:12px;background:#0b1017;border:1px solid #ffffff30;box-shadow:0 5px 18px #0006}
+.soares-avatar-frame .soares-avatar-image{position:absolute;display:block;width:400%;height:200%;max-width:none;max-height:none;object-fit:fill}
+.soares-avatar-image.avatar-art-nebula{left:0;top:0}
+.soares-avatar-image.avatar-art-pixel{left:-100%;top:0}
+.soares-avatar-image.avatar-art-aurora{left:-200%;top:0}
+.soares-avatar-image.avatar-art-phantom{left:-300%;top:0}
+.soares-avatar-image.avatar-art-bloom{left:0;top:-100%}
+.soares-avatar-image.avatar-art-circuit{left:-100%;top:-100%}
+.soares-avatar-image.avatar-art-comet{left:-200%;top:-100%}
+.soares-avatar-image.avatar-art-vortex{left:-300%;top:-100%}
+.soares-avatar-frame.tiny-avatar{width:36px;height:38px;flex-basis:36px;border-radius:9px}
+.profile-avatar-large .soares-avatar-frame,.profile-preview-avatar .soares-avatar-frame{width:70px;height:78px;flex-basis:70px}
+.avatar-preset .soares-avatar-frame{width:54px;height:64px;flex-basis:54px}
+.profile-page .profile-editor{background:linear-gradient(145deg,rgba(18,22,31,.88),rgba(20,14,32,.84))!important;border:1px solid color-mix(in srgb,var(--user-accent,#55e7b5) 32%,transparent)!important;backdrop-filter:blur(22px)}
+.profile-page .field select{appearance:none!important;-webkit-appearance:none!important;background-color:rgba(8,12,20,.88)!important;border:1px solid #ffffff24!important;border-radius:12px!important;padding:14px 44px 14px 15px!important;box-shadow:inset 0 1px #ffffff0a,0 8px 24px #0003;transition:border-color .22s,box-shadow .22s,transform .22s!important}
+.profile-page .field select:hover,.profile-page .field select:focus{border-color:var(--user-accent,#55e7b5)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--user-accent,#55e7b5) 18%,transparent),0 0 24px color-mix(in srgb,var(--user-accent,#55e7b5) 16%,transparent)!important;transform:translateY(-1px)}
+body{background-color:#0a0a0c}
+@media(max-width:760px){.sidebar-bottom{flex:1 0 100%}.profile-menu{max-width:min(100%,340px)!important;left:0!important;right:auto!important}}
