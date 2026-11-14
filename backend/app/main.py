@@ -125,6 +125,16 @@ def normalized_username(value):
     value = re.sub(r'[^a-z0-9_]', '', value)
     return value[:20] or 'usuario'
 
+def available_username(c, value):
+    base = normalized_username(value)
+    candidate = base
+    suffix = 1
+    while c.execute('SELECT id FROM users WHERE LOWER(username)=%s' if DATABASE_URL else 'SELECT id FROM users WHERE LOWER(username)=?', (candidate.lower(),)).fetchone():
+        tail = str(suffix)
+        candidate = base[:max(1, 24-len(tail))] + tail
+        suffix += 1
+    return candidate
+
 def backfill_usernames(c):
     rows = c.execute('SELECT id,name,username FROM users ORDER BY id').fetchall()
     used = set()
@@ -147,7 +157,7 @@ def now():
     return datetime.now(timezone.utc).isoformat()
 
 class RegisterIn(BaseModel):
-    username: str = Field(min_length=3, max_length=24, pattern=r'^[a-zA-Z0-9_]+
+    username: str = Field(min_length=3, max_length=24, pattern="^[a-zA-Z0-9_]+$")
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
 
@@ -220,11 +230,11 @@ def register(data: RegisterIn):
             if DATABASE_URL:
                 uid = c.execute("INSERT INTO users(username,name,email,password_hash,role,created_at,email_verified,plan) VALUES(%s,%s,%s,%s,%s,%s,TRUE,%s) RETURNING id",
                     (data.username.strip().lower(), data.name.strip(), email, pwd.hash(data.password), role, now(), "pro" if email.endswith("@soaresdev.com") else "free")).fetchone()["id"]
-                user = c.execute("SELECT id,name,email,role,plan FROM users WHERE id=%s", (uid,)).fetchone()
+                user = c.execute("SELECT id,username,name,email,role,plan FROM users WHERE id=%s", (uid,)).fetchone()
             else:
                 uid = c.execute("INSERT INTO users(username,name,email,password_hash,role,created_at,email_verified,plan) VALUES(?,?,?,?,?,?,1,?)",
                     (data.username.strip().lower(), data.name.strip(), email, pwd.hash(data.password), role, now(), "pro" if email.endswith("@soaresdev.com") else "free")).lastrowid
-                user = c.execute("SELECT id,name,email,role,plan FROM users WHERE id=?", (uid,)).fetchone()
+                user = c.execute("SELECT id,username,name,email,role,plan FROM users WHERE id=?", (uid,)).fetchone()
         except (sqlite3.IntegrityError, psycopg.IntegrityError):
             raise HTTPException(409, "Este nome de usuário ou e-mail já está em uso.")
     public = dict(user)
@@ -271,7 +281,7 @@ async def google_login(data: GoogleLoginIn):
     if info.get("aud")!=GOOGLE_CLIENT_ID or info.get("email_verified")!="true" or info.get("iss") not in ("accounts.google.com","https://accounts.google.com"): raise HTTPException(401,"Não foi possível validar sua conta Google.")
     email=info.get("email","").lower(); name=info.get("name") or email.split("@")[0]; sub=info.get("sub")
     with db() as c:
-        user=c.execute("SELECT id,name,email,role,plan FROM users WHERE email=%s" if DATABASE_URL else "SELECT id,name,email,role,plan FROM users WHERE email=?",(email,)).fetchone()
+        user=c.execute("SELECT id,username,name,email,role,plan FROM users WHERE email=%s" if DATABASE_URL else "SELECT id,username,name,email,role,plan FROM users WHERE email=?",(email,)).fetchone()
         if user:
             plan = "pro" if email.endswith("@soaresdev.com") else "free"
             c.execute("UPDATE users SET email_verified=TRUE,google_sub=%s,plan=%s WHERE id=%s" if DATABASE_URL else "UPDATE users SET email_verified=1,google_sub=?,plan=? WHERE id=?",(sub,plan,user["id"]))
@@ -279,11 +289,11 @@ async def google_login(data: GoogleLoginIn):
         else:
             ph=pwd.hash(secrets.token_urlsafe(32))
             if DATABASE_URL:
-                uid=c.execute("INSERT INTO users(username,name,email,password_hash,role,created_at,email_verified,plan,google_sub) VALUES(%s,%s,%s,%s,'hel',%s,TRUE,%s,%s) RETURNING id",(normalized_username(name),name,email,ph,now(),"pro" if email.endswith("@soaresdev.com") else "free",sub)).fetchone()["id"]
-                user=c.execute("SELECT id,name,email,role,plan FROM users WHERE id=%s",(uid,)).fetchone()
+                uid=c.execute("INSERT INTO users(username,name,email,password_hash,role,created_at,email_verified,plan,google_sub) VALUES(%s,%s,%s,%s,'hel',%s,TRUE,%s,%s) RETURNING id",(available_username(c,name),name,email,ph,now(),"pro" if email.endswith("@soaresdev.com") else "free",sub)).fetchone()["id"]
+                user=c.execute("SELECT id,username,name,email,role,plan FROM users WHERE id=%s",(uid,)).fetchone()
             else:
-                uid=c.execute("INSERT INTO users(username,name,email,password_hash,role,created_at,email_verified,plan,google_sub) VALUES(?,?,?,?,'hel',?,1,?,?)",(normalized_username(name),name,email,ph,now(),"pro" if email.endswith("@soaresdev.com") else "free",sub)).lastrowid
-                user=c.execute("SELECT id,name,email,role,plan FROM users WHERE id=?",(uid,)).fetchone()
+                uid=c.execute("INSERT INTO users(username,name,email,password_hash,role,created_at,email_verified,plan,google_sub) VALUES(?,?,?,?,'hel',?,1,?,?)",(available_username(c,name),name,email,ph,now(),"pro" if email.endswith("@soaresdev.com") else "free",sub)).lastrowid
+                user=c.execute("SELECT id,username,name,email,role,plan FROM users WHERE id=?",(uid,)).fetchone()
     return {"token":make_token(user),"user":dict(user)}
 
 @app.post("/auth/login")
@@ -538,7 +548,7 @@ def current_user(authorization: Optional[str] = Header(default=None)):
     except (JWTError, ValueError, KeyError):
         raise HTTPException(401, "Sessão inválida ou expirada.")
     with db() as c:
-        user = c.execute("SELECT id,name,email,role,plan FROM users WHERE id=%s" if DATABASE_URL else "SELECT id,name,email,role,plan FROM users WHERE id=?", (uid,)).fetchone()
+        user = c.execute("SELECT id,username,name,email,role,plan FROM users WHERE id=%s" if DATABASE_URL else "SELECT id,username,name,email,role,plan FROM users WHERE id=?", (uid,)).fetchone()
     if not user:
         raise HTTPException(401, "Conta não encontrada.")
     profile = dict(user)
@@ -562,11 +572,11 @@ def register(data: RegisterIn):
             if DATABASE_URL:
                 uid = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(%s,%s,%s,%s,%s,TRUE,%s) RETURNING id",
                     (data.name.strip(), email, pwd.hash(data.password), role, now(), "pro" if email.endswith("@soaresdev.com") else "free")).fetchone()["id"]
-                user = c.execute("SELECT id,name,email,role,plan FROM users WHERE id=%s", (uid,)).fetchone()
+                user = c.execute("SELECT id,username,name,email,role,plan FROM users WHERE id=%s", (uid,)).fetchone()
             else:
                 uid = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(?,?,?,?,?,1,?)",
                     (data.name.strip(), email, pwd.hash(data.password), role, now(), "pro" if email.endswith("@soaresdev.com") else "free")).lastrowid
-                user = c.execute("SELECT id,name,email,role,plan FROM users WHERE id=?", (uid,)).fetchone()
+                user = c.execute("SELECT id,username,name,email,role,plan FROM users WHERE id=?", (uid,)).fetchone()
         except (sqlite3.IntegrityError, psycopg.IntegrityError):
             raise HTTPException(409, "Este e-mail já possui cadastro.")
     public = dict(user)
@@ -577,7 +587,7 @@ def verify_email(data: VerifyEmailIn):
     email=data.email.lower()
     with db() as c:
         row=c.execute("SELECT * FROM email_verifications WHERE email=%s ORDER BY id DESC LIMIT 1" if DATABASE_URL else "SELECT * FROM email_verifications WHERE email=? ORDER BY id DESC LIMIT 1",(email,)).fetchone()
-        user=c.execute("SELECT id,name,email,role,plan FROM users WHERE email=%s" if DATABASE_URL else "SELECT id,name,email,role,plan FROM users WHERE email=?",(email,)).fetchone()
+        user=c.execute("SELECT id,username,name,email,role,plan FROM users WHERE email=%s" if DATABASE_URL else "SELECT id,username,name,email,role,plan FROM users WHERE email=?",(email,)).fetchone()
         expired=not row or row["expires_at"] < (datetime.now(timezone.utc) if DATABASE_URL else datetime.now(timezone.utc).isoformat())
         if expired or not user or not pwd.verify(data.code,row["code_hash"]): raise HTTPException(400,"Código inválido ou expirado. Solicite outro.")
         c.execute("UPDATE users SET email_verified=TRUE WHERE email=%s" if DATABASE_URL else "UPDATE users SET email_verified=1 WHERE email=?",(email,))
@@ -613,7 +623,7 @@ async def google_login(data: GoogleLoginIn):
     if info.get("aud")!=GOOGLE_CLIENT_ID or info.get("email_verified")!="true" or info.get("iss") not in ("accounts.google.com","https://accounts.google.com"): raise HTTPException(401,"Não foi possível validar sua conta Google.")
     email=info.get("email","").lower(); name=info.get("name") or email.split("@")[0]; sub=info.get("sub")
     with db() as c:
-        user=c.execute("SELECT id,name,email,role,plan FROM users WHERE email=%s" if DATABASE_URL else "SELECT id,name,email,role,plan FROM users WHERE email=?",(email,)).fetchone()
+        user=c.execute("SELECT id,username,name,email,role,plan FROM users WHERE email=%s" if DATABASE_URL else "SELECT id,username,name,email,role,plan FROM users WHERE email=?",(email,)).fetchone()
         if user:
             plan = "pro" if email.endswith("@soaresdev.com") else "free"
             c.execute("UPDATE users SET email_verified=TRUE,google_sub=%s,plan=%s WHERE id=%s" if DATABASE_URL else "UPDATE users SET email_verified=1,google_sub=?,plan=? WHERE id=?",(sub,plan,user["id"]))
@@ -622,10 +632,10 @@ async def google_login(data: GoogleLoginIn):
             ph=pwd.hash(secrets.token_urlsafe(32))
             if DATABASE_URL:
                 uid=c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan,google_sub) VALUES(%s,%s,%s,'hel',%s,TRUE,%s,%s) RETURNING id",(name,email,ph,now(),"pro" if email.endswith("@soaresdev.com") else "free",sub)).fetchone()["id"]
-                user=c.execute("SELECT id,name,email,role,plan FROM users WHERE id=%s",(uid,)).fetchone()
+                user=c.execute("SELECT id,username,name,email,role,plan FROM users WHERE id=%s",(uid,)).fetchone()
             else:
                 uid=c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan,google_sub) VALUES(?,?,?,'hel',?,1,?,?)",(name,email,ph,now(),"pro" if email.endswith("@soaresdev.com") else "free",sub)).lastrowid
-                user=c.execute("SELECT id,name,email,role,plan FROM users WHERE id=?",(uid,)).fetchone()
+                user=c.execute("SELECT id,username,name,email,role,plan FROM users WHERE id=?",(uid,)).fetchone()
     return {"token":make_token(user),"user":dict(user)}
 
 @app.post("/auth/login")
