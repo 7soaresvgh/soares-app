@@ -242,6 +242,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 .message.user .bubble{background:linear-gradient(120deg,#254f58,#463574);border:1px solid rgba(90,255,201,.16)}
 .history-heading{display:flex;justify-content:space-between;padding:22px 10px 8px;color:#8c85a5;font:800 9px monospace;letter-spacing:1.7px}
 .history-heading span{color:#72ffd1}
+.history-group-label{padding:9px 9px 3px;color:#77718f;font:700 9px 'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase}
 .conversation-list{display:grid;gap:4px;max-height:34vh;overflow:auto;padding:0 2px 10px}
 .history-item{display:flex;align-items:center;gap:3px;border-radius:9px;border:1px solid transparent}
 .history-item.active{background:rgba(0,255,174,.08);border-color:rgba(87,255,200,.18)}
