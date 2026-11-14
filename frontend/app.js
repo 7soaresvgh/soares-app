@@ -330,7 +330,7 @@ loadMessages=async function(){
  $("messages").innerHTML="";
  if(!d.messages.length){
   const welcome=document.createElement("div");welcome.className="welcome";
-  welcome.innerHTML='<div class="welcome-mark"><span>⟡</span><i></i></div><div class="eyebrow">SOARES AI / ONLINE</div><h1>Olá, <span id="welcome-name"></span> ✧</h1><p>Sua sessão está protegida. O que vamos criar hoje?</p><div class="suggestions"><button data-prompt="Quero conversar um pouquinho.">♡ Conversar</button><button data-prompt="Me ajuda a organizar meu dia?">✧ Organizar meu dia</button><button data-prompt="Me dá uma ideia divertida para hoje.">⌘ Uma ideia nova</button></div>';
+  welcome.innerHTML='<div class="welcome-mark"><span>✦</span><i></i></div><div class="eyebrow">SOARES AI / ONLINE</div><h1 class="welcome-title">Sua central <span>inteligente.</span></h1><p>Converse, explore ideias e aproveite seu espaço digital.</p><div class="suggestions"><button data-prompt="Quero conversar um pouquinho.">♡ Conversar um pouquinho</button><button data-prompt="Me ajuda a organizar meu dia?">✧ Organizar meu dia</button><button data-prompt="Me dá uma ideia divertida para hoje.">⌘ Uma ideia para hoje</button></div>';
   $("messages").appendChild(welcome);$("welcome-name").textContent=me?.name||"";
   welcome.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>sendMessage(b.dataset.prompt));return;
  }
