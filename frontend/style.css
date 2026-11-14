@@ -496,3 +496,99 @@ body[data-motion="off"] *,body[data-motion="reduced"] *{animation:none!important
 .profile-page .field select:hover,.profile-page .field select:focus{border-color:var(--user-accent,#55e7b5)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--user-accent,#55e7b5) 18%,transparent),0 0 24px color-mix(in srgb,var(--user-accent,#55e7b5) 16%,transparent)!important;transform:translateY(-1px)}
 body{background-color:#0a0a0c}
 @media(max-width:760px){.sidebar-bottom{flex:1 0 100%}.profile-menu{max-width:min(100%,340px)!important;left:0!important;right:auto!important}}
+
+
+/* Mobile layout real da Soares Reserva AI — navegação e chat adaptáveis */
+@media (max-width: 760px) {
+  html, body { min-height:100%; }
+  body { overflow-x:hidden; background:
+    radial-gradient(ellipse at 10% 0%,rgba(125,62,205,.22),transparent 42%),
+    radial-gradient(ellipse at 95% 85%,rgba(26,125,115,.13),transparent 38%), #080811; }
+  .app { display:flex; flex-direction:column; gap:10px; width:100%; min-height:100dvh; padding:10px 10px calc(12px + env(safe-area-inset-bottom)); }
+  .sidebar {
+    position:relative; top:auto; height:auto; min-height:0; width:100%;
+    display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px;
+    padding:12px; border-radius:18px; overflow:visible;
+    background:linear-gradient(145deg,rgba(25,19,46,.97),rgba(10,15,28,.96));
+    border:1px solid rgba(173,125,255,.3);
+    box-shadow:0 10px 32px #0006,0 0 24px #822bff12;
+  }
+  .sidebar .brand { grid-column:1; grid-row:1; min-width:0; padding:0; gap:9px; }
+  .sidebar .brand b { font-size:13px; }
+  .sidebar .brand small { font-size:8px; letter-spacing:1px; }
+  .sidebar .brand-mark { width:36px; height:36px; flex:0 0 36px; }
+  .sidebar .new-chat { grid-column:2; grid-row:1; width:auto; margin:0; padding:10px 12px; white-space:nowrap; font-size:11px; border-radius:11px; }
+  .sidebar .side-label,.sidebar .history-heading { display:none; }
+  .sidebar .conversation-list { grid-column:1/-1; grid-row:2; display:flex; flex:initial; width:100%; max-height:42px; gap:6px; overflow-x:auto; overflow-y:hidden; padding:0 0 2px; }
+  .sidebar .history-item { flex:0 0 auto; max-width:190px; }
+  .sidebar .history-open { max-width:160px; padding:7px 10px; font-size:10px; }
+  .sidebar .nav {
+    display:flex; justify-content:center; align-items:center; min-width:0;
+    margin:0; padding:10px 4px; border:1px solid rgba(174,139,255,.13);
+    border-radius:11px; background:rgba(255,255,255,.025);
+    font-size:10px; white-space:normal; text-align:center;
+  }
+  .sidebar .nav:nth-of-type(6) { grid-column:1; }
+  .sidebar .nav span { margin-left:4px; font-size:10px; }
+  .sidebar .nav.active { border-color:#a56bff88; background:linear-gradient(120deg,#6d35aa55,#31235b88); box-shadow:inset 0 0 18px #8d43ff18,0 0 12px #8d43ff18; }
+  .sidebar-bottom { grid-column:1/-1; display:block!important; position:relative; margin:0; min-width:0; }
+  .sidebar .profile { padding:8px 2px 0; gap:9px; border-top:1px solid rgba(190,166,255,.15); }
+  .sidebar .profile-info b { font-size:11px; }
+  .sidebar .profile-info small { font-size:9px; }
+  .profile-menu { left:0!important; right:auto!important; bottom:calc(100% + 8px)!important; width:min(300px,calc(100vw - 44px))!important; }
+  .main { width:100%; min-width:0; min-height:0; height:auto; padding:0 2px; margin:0; }
+  .topbar { min-height:58px; height:auto; gap:8px; margin:0 2px 8px; padding:7px 2px; }
+  .topbar .eyebrow { font-size:8px; letter-spacing:1.3px; }
+  .topbar h2 { font-size:15px; line-height:1.25; }
+  .topbar-status { gap:5px; }
+  .plan-badge { font-size:8px; padding:6px 8px; white-space:nowrap; }
+  .status-pill { font-size:9px; padding:6px 8px; white-space:nowrap; }
+  .chat-view { display:flex; flex-direction:column; height:calc(100dvh - 270px); min-height:390px; }
+  .chat-intro { margin:0 0 5px; padding:12px 13px; border-radius:14px; }
+  .chat-intro .intro-kicker { font-size:8px; letter-spacing:1.2px; }
+  .chat-intro .intro-title { font-size:20px; line-height:1.2; }
+  .chat-intro p { font-size:11px; margin:5px 0 0; }
+  .messages { flex:1; min-height:150px; padding:10px 3px 14px; }
+  .welcome { width:100%; padding:22px 10px; }
+  .welcome h1 { font-size:25px; }
+  .welcome p { font-size:13px; line-height:1.65; }
+  .welcome .orb { width:78px; height:78px; margin-bottom:14px; }
+  .suggestions { display:grid; grid-template-columns:1fr; gap:7px; margin-top:17px; }
+  .suggestions button { width:100%; padding:10px 12px; font-size:11px; }
+  .message { max-width:100%; gap:7px; margin:10px 0; }
+  .bubble { max-width:calc(100vw - 76px); font-size:13px; line-height:1.6; padding:11px 13px; overflow-wrap:anywhere; }
+  .composer { flex:0 0 auto; width:100%; margin:8px auto max(5px,env(safe-area-inset-bottom)); padding:9px 51px 48px 10px; border-radius:15px; }
+  .composer textarea { min-height:38px; max-height:110px; font-size:14px; padding:7px; }
+  .composer-tools { left:11px; bottom:8px; gap:5px; }
+  .tool-btn { width:28px; height:28px; }
+  .composer-note { left:105px; right:48px; bottom:14px; font-size:7px; line-height:1.2; }
+  .send { width:34px; height:34px; right:9px; top:9px; }
+  .section-card { width:100%; margin:10px auto; padding:17px; }
+  .profile-page .profile-layout { grid-template-columns:1fr; }
+  .game-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .game-card { min-height:145px; padding:13px; }
+  .game-card b { font-size:12px; }
+  .game-card small { font-size:10px; }
+  .terms-page { margin:8px 0; padding:17px; }
+  footer { padding:12px 4px; }
+}
+@media (max-width:430px) {
+  .app { padding:8px 8px calc(10px + env(safe-area-inset-bottom)); gap:8px; }
+  .sidebar { padding:10px; gap:7px; }
+  .sidebar .brand b { font-size:12px; }
+  .sidebar .new-chat { padding:9px 10px; font-size:10px; }
+  .sidebar .nav { font-size:9px; padding:9px 2px; }
+  .sidebar .nav span { font-size:9px; }
+  .topbar-status .status-pill { display:none; }
+  .chat-view { height:calc(100dvh - 260px); min-height:370px; }
+  .chat-intro { padding:10px 11px; }
+  .chat-intro .intro-title { font-size:18px; }
+  .game-grid { grid-template-columns:1fr; }
+}
+@media (max-width:350px) {
+  .sidebar { grid-template-columns:1fr; }
+  .sidebar .brand,.sidebar .new-chat { grid-column:1; }
+  .sidebar .new-chat { justify-self:stretch; }
+  .sidebar .nav { font-size:8px; }
+  .sidebar .nav span { font-size:8px; }
+}
