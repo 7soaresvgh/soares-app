@@ -25,7 +25,10 @@ function apiErrorMessage(detail, fallback="Erro na solicitação.") {
 async function api(path, opts={}) {
   const r = await fetch(API_BASE+path, { ...opts, headers:{...headers(), ...(opts.headers||{})} });
   const data = await r.json().catch(()=>({detail:"Resposta inválida do servidor."}));
-  if (!r.ok) throw new Error(apiErrorMessage(data?.detail ?? data?.error ?? data, "Erro na solicitação."));
+  if (!r.ok) {
+    if (path === "/auth/login" && (r.status === 401 || r.status === 422)) throw new Error("Senha ou usuário incorreto");
+    throw new Error(apiErrorMessage(data?.detail ?? data?.error ?? data, "Erro na solicitação."));
+  }
   return data;
 }
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2600)}
@@ -362,7 +365,7 @@ $("auth-form").onsubmit=async e=>{
  e.preventDefault();const submit=$("auth-submit");submit.disabled=true;submit.textContent=authMode==="login"?"Entrando…":"Criando sua conta…";$("auth-error").textContent="";
  try{
   const email=$("email").value.trim().toLowerCase();
-  const body=authMode==="login"?{email,password:$("password").value}:{name:$("name").value.trim(),email,password:$("password").value};
+   const body=authMode==="login"?{identifier:$("email").value.trim(),password:$("password").value}:{username:$("username").value.trim().toLowerCase(),name:$("name").value.trim(),email,password:$("password").value};
   const d=await api(authMode==="login"?"/auth/login":"/auth/register",{method:"POST",body:JSON.stringify(body)});
   finishLogin(d);if(authMode==="register")toast("Conta criada! Você já está dentro. ✦");
  }catch(err){$("auth-error").textContent=err.message}
