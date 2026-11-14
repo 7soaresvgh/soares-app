@@ -403,3 +403,14 @@ body[data-motion="off"] *,body[data-motion="reduced"] *{animation:none!important
 }
 @media(hover:none){.game-card:hover{transform:none;box-shadow:0 8px 24px #0003}}
 @media(prefers-reduced-motion:reduce){.matrix-stream{animation:none!important}}
+
+.game-avatar-stamp{display:flex;align-items:center;gap:7px;margin-top:14px;padding-top:10px;border-top:1px solid #ffffff12;position:relative;z-index:1}
+.game-avatar-stamp .soares-avatar-art{width:25px;height:25px;flex-basis:25px;border-radius:8px;font-size:14px}
+.game-avatar-stamp small{font-size:9px;color:#a7c7bb}
+.game-players{display:flex;align-items:center;gap:13px;padding:8px 13px;border:1px solid #ffffff18;border-radius:12px;background:#10171a}
+.game-player{display:flex;align-items:center;gap:7px}
+.game-player .soares-avatar-art{width:30px;height:30px;flex-basis:30px;font-size:16px}
+.game-player small{font-size:10px;color:#d6e6df}
+.game-vs{font:800 9px monospace;color:#88b6a6}
+.game-stage-head{flex-wrap:wrap;gap:10px}
+@media(max-width:760px){.game-avatar-stamp small{font-size:8px}.game-players{padding:6px 9px;gap:8px}}
