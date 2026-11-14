@@ -42,7 +42,7 @@ function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;","
 function addMessage(role,content){const box=document.createElement("div");box.className="message "+(role==="user"?"user":"");box.innerHTML=`<div class="msg-avatar">${role==="user"?"H":"✦"}</div><div class="bubble">${escapeHtml(content)}</div>`;$("messages").appendChild(box);$("messages").scrollTop=$("messages").scrollHeight}
 async function loadMessages(){const d=await api("/messages");$("messages").innerHTML="";if(!d.messages.length){$("messages").innerHTML=document.querySelector(".welcome").outerHTML;$("welcome-name").textContent=me.name;document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>sendMessage(b.dataset.prompt));return}d.messages.forEach(m=>addMessage(m.role,m.content))}
 async function sendMessage(text){const value=(text??$("chat-input").value).trim();if(!value)return;$("chat-input").value="";$("messages").querySelector(".welcome")?.remove();addMessage("user",value);$("send").disabled=true;const pending=document.createElement("div");pending.className="message";pending.innerHTML='<div class="msg-avatar">✦</div><div class="bubble">Estou pensando…</div>';$("messages").appendChild(pending);$("messages").scrollTop=$("messages").scrollHeight;try{const d=await api("/chat",{method:"POST",body:JSON.stringify({message:value})});pending.remove();addMessage("assistant",d.reply)}catch(e){pending.remove();addMessage("assistant","Não consegui responder agora: "+e.message)}finally{$("send").disabled=false}}
-$("chat-form").onsubmit=e=>{e.preventDefault();sendMessage()};$("chat-input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage()}};$("new-chat").onclick=async()=>{if(confirm("Apagar o histórico desta conta?")){await api("/messages",{method:"DELETE"});await loadMessages();toast("Nova conversa iniciada.")}};
+$("chat-form").onsubmit=e=>{e.preventDefault();sendMessage()};$("chat-input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage()}};
 document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>sendMessage(b.dataset.prompt));
 function navigate(view){currentView=view;["chat","memories","activity","games"].forEach(v=>$(v+"-view").classList.toggle("hidden",v!==view));document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.view===view));$("view-title").textContent={chat:"Um cantinho para conversar",memories:"Memórias especiais",activity:"Modo Atividade",games:"Jogos Soares"}[view];if(view==="memories")loadMemories();if(view==="activity")refreshActivity()}
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>navigate(b.dataset.view));
@@ -343,8 +343,17 @@ sendMessage=async function(text){
  finally{$("send").disabled=false}
 };
 $("new-chat").onclick=async()=>{
- try{const c=await api("/conversations",{method:"POST"});currentConversationId=Number(c.id);localStorage.setItem("sra_current_conversation",String(currentConversationId));await loadConversations();await loadMessages();$("chat-input").focus();toast("Nova conversa criada.")}
- catch(e){toast(e.message)}
+ const button=$("new-chat");if(button.dataset.creating==="1")return;
+ button.dataset.creating="1";button.disabled=true;
+ try{
+  const c=await api("/conversations",{method:"POST"});
+  if(!c?.id)throw new Error("O servidor não confirmou a criação da conversa.");
+  currentConversationId=Number(c.id);
+  localStorage.setItem("sra_current_conversation",String(currentConversationId));
+  await loadConversations();await loadMessages();$("chat-input").focus();
+  toast("Nova conversa criada. O histórico anterior foi preservado.");
+ }catch(e){currentConversationId=Number(localStorage.getItem("sra_current_conversation"))||null;toast("Não foi possível criar a conversa: "+e.message)}
+ finally{button.dataset.creating="0";button.disabled=false}
 };
 async function bootPro(){
  if(!token){showAuth();return}
