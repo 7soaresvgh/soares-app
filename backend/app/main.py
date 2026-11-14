@@ -117,8 +117,6 @@ def migrate_schema():
             c.execute("""CREATE TABLE IF NOT EXISTS conversations(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,title TEXT NOT NULL DEFAULT 'Nova conversa',created_at TEXT NOT NULL,updated_at TEXT NOT NULL)""")
             c.execute("""INSERT INTO conversations(user_id,title,created_at,updated_at) SELECT u.id,'Histórico anterior',datetime('now'),datetime('now') FROM users u WHERE EXISTS(SELECT 1 FROM messages m WHERE m.user_id=u.id AND m.conversation_id IS NULL) AND NOT EXISTS(SELECT 1 FROM conversations v WHERE v.user_id=u.id)""")
             c.execute("""UPDATE messages SET conversation_id=(SELECT v.id FROM conversations v WHERE v.user_id=messages.user_id ORDER BY v.id LIMIT 1) WHERE conversation_id IS NULL""")
-migrate_schema()
-
 def normalized_username(value):
     value = unicodedata.normalize('NFKD', str(value or '').strip().lower())
     value = ''.join(ch for ch in value if not unicodedata.combining(ch))
@@ -155,6 +153,8 @@ def backfill_usernames(c):
 
 def now():
     return datetime.now(timezone.utc).isoformat()
+
+migrate_schema()
 
 class RegisterIn(BaseModel):
     username: str = Field(min_length=3, max_length=24, pattern="^[a-zA-Z0-9_]+$")
