@@ -23,6 +23,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 AI_API_KEY = os.getenv("AI_API_KEY", "")
 AI_BASE_URL = os.getenv("AI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
 AI_MODEL = os.getenv("AI_MODEL", "gpt-4o-mini")
+AI_PRO_MODEL = os.getenv("AI_PRO_MODEL", AI_MODEL)
 AI_TEMPERATURE = float(os.getenv("AI_TEMPERATURE", "0.8"))
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "").strip().lower()
 ACTIVITY_AGENT_TOKEN = os.getenv("ACTIVITY_AGENT_TOKEN", "").strip()
@@ -302,7 +303,7 @@ async def ask_model(messages):
         return ("A conexão com o modelo de IA ainda não foi configurada. "
                 "O administrador precisa preencher AI_API_KEY no arquivo .env do backend.")
     url = AI_BASE_URL + "/chat/completions"
-    body = {"model": AI_MODEL, "messages": messages, "temperature": AI_TEMPERATURE}
+    body = {"model": AI_PRO_MODEL, "messages": messages, "temperature": AI_TEMPERATURE}
     async with httpx.AsyncClient(timeout=90) as client:
         try:
             r = await client.post(url, json=body, headers={"Authorization": f"Bearer {AI_API_KEY}"})
@@ -348,7 +349,7 @@ async def chat(data: ChatIn, user=Depends(current_user)):
         c.execute("INSERT INTO messages(user_id,role,content,created_at,conversation_id) VALUES(%s,%s,%s,%s,%s)" if DATABASE_URL else "INSERT INTO messages(user_id,role,content,created_at,conversation_id) VALUES(?,?,?,?,?)",
                   (user["id"], "assistant", answer, now(), conv_id))
     with db() as c:
-        c.execute("UPDATE conversations SET updated_at=%s WHERE id=%s" if DATABASE_URL else "UPDATE conversations SET updated_at=? WHERE id=?",(now(),conv_id))
+        c.execute("UPDATE conversations SET title=CASE WHEN title='Nova conversa' THEN %s ELSE title END,updated_at=%s WHERE id=%s" if DATABASE_URL else "UPDATE conversations SET title=CASE WHEN title='Nova conversa' THEN ? ELSE title END,updated_at=? WHERE id=?",(data.message.strip()[:48] or "Nova conversa",now(),conv_id))
     return {"reply":answer,"conversation_id":conv_id}
 
 @app.get("/conversations")
@@ -369,7 +370,9 @@ def create_conversation(user=Depends(current_user)):
 
 @app.delete("/conversations/{conversation_id}")
 def delete_conversation(conversation_id:int,user=Depends(current_user)):
-    with db() as c: cur=c.execute("DELETE FROM conversations WHERE id=%s AND user_id=%s" if DATABASE_URL else "DELETE FROM conversations WHERE id=? AND user_id=?",(conversation_id,user["id"]))
+    with db() as c:
+        c.execute("DELETE FROM messages WHERE conversation_id=%s AND user_id=%s" if DATABASE_URL else "DELETE FROM messages WHERE conversation_id=? AND user_id=?",(conversation_id,user["id"]))
+        cur=c.execute("DELETE FROM conversations WHERE id=%s AND user_id=%s" if DATABASE_URL else "DELETE FROM conversations WHERE id=? AND user_id=?",(conversation_id,user["id"]))
     if cur.rowcount==0: raise HTTPException(404,"Conversa não encontrada.")
     return {"ok":True}
 
