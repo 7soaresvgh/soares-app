@@ -327,13 +327,30 @@ async function loadConversations(){
 }
 function renderConversationList(items){
  const root=$("conversation-list");if(!root)return;root.innerHTML="";
- items.forEach(item=>{
-  const row=document.createElement("div");row.className="history-item"+(Number(item.id)===Number(currentConversationId)?" active":"");
-  const open=document.createElement("button");open.type="button";open.className="history-open";open.textContent=item.title||"Nova conversa";open.title=item.title||"Nova conversa";
-  open.onclick=async()=>{currentConversationId=Number(item.id);localStorage.setItem("sra_current_conversation",String(currentConversationId));renderConversationList(items);await loadMessages()};
-  const del=document.createElement("button");del.type="button";del.className="history-delete";del.textContent="×";del.title="Excluir conversa";
-  del.onclick=async()=>{if(!confirm("Excluir esta conversa permanentemente?"))return;try{await api("/conversations/"+item.id,{method:"DELETE"});if(Number(currentConversationId)===Number(item.id))currentConversationId=null;localStorage.removeItem("sra_current_conversation");await loadConversations();await loadMessages();toast("Conversa excluída.")}catch(e){toast(e.message)}};
-  row.append(open,del);root.appendChild(row);
+ const now=new Date();const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ const yesterday=new Date(today);yesterday.setDate(yesterday.getDate()-1);
+ const week=new Date(today);week.setDate(week.getDate()-7);
+ const month=new Date(today);month.setDate(month.getDate()-30);
+ const groups=[["Hoje",[]],["Ontem",[]],["Últimos 7 dias",[]],["Últimos 30 dias",[]],["Anteriores",[]]];
+ const groupFor=item=>{
+  const raw=item.updated_at||item.created_at;const date=raw?new Date(raw):new Date();
+  if(Number.isNaN(date.getTime()))return groups[4];
+  if(date>=today)return groups[0];if(date>=yesterday)return groups[1];
+  if(date>=week)return groups[2];if(date>=month)return groups[3];return groups[4];
+ };
+ items.forEach(item=>groupFor(item)[1].push(item));
+ groups.forEach(([label,entries])=>{
+  if(!entries.length)return;
+  const heading=document.createElement("div");heading.className="history-group-label";heading.textContent=label;root.appendChild(heading);
+  entries.forEach(item=>{
+   const row=document.createElement("div");row.className="history-item"+(Number(item.id)===Number(currentConversationId)?" active":"");
+   const title=item.title||"Novo Chat";
+   const open=document.createElement("button");open.type="button";open.className="history-open";open.textContent=title;open.title=title;
+   open.onclick=async()=>{currentConversationId=Number(item.id);localStorage.setItem("sra_current_conversation",String(currentConversationId));renderConversationList(items);await loadMessages();};
+   const del=document.createElement("button");del.type="button";del.className="history-delete";del.textContent="×";del.title="Excluir conversa";
+   del.onclick=async()=>{if(!confirm("Excluir esta conversa permanentemente?"))return;try{await api("/conversations/"+item.id,{method:"DELETE"});if(Number(currentConversationId)===Number(item.id))currentConversationId=null;localStorage.removeItem("sra_current_conversation");await loadConversations();await loadMessages();toast("Conversa excluída.")}catch(e){toast(e.message)}};
+   row.append(open,del);root.appendChild(row);
+  });
  });
 }
 loadMessages=async function(){
