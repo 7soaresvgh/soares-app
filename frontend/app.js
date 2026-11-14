@@ -265,15 +265,26 @@ matrixRain("auth-matrix",42);
 matrixRain("hacker-rain",34);
 
 async function finishLogin(d){
- token=d.token;persistAuthToken(token);me=d.user;localStorage.setItem("sra_user",JSON.stringify(me));currentConversationId=null;
- $("verify-panel")?.classList.add("hidden");showApp();
+ token=d.token;persistAuthToken(token);me=d.user;localStorage.setItem("sra_user",JSON.stringify(me));
+ // Um login manual sempre inicia uma conversa inédita; não reutiliza o ID anterior do navegador.
+ currentConversationId=null;localStorage.removeItem("sra_current_conversation");
+ $("verify-panel")?.classList.add("hidden");
  try{
-  const fresh=await api("/conversations",{method:"POST"});
-  if(!fresh?.id)throw new Error("O servidor não confirmou a criação do chat.");
-  currentConversationId=Number(fresh.id);
-  localStorage.setItem("sra_current_conversation",String(currentConversationId));
-  await loadConversations();await loadMessages();
- }catch(e){toast("Entrei na conta, mas não consegui abrir um chat novo: "+e.message)}
+  const fresh=await api("/conversations",{method:"POST",body:JSON.stringify({})});
+  const freshId=Number(fresh?.id);
+  if(!Number.isSafeInteger(freshId)||freshId<=0)throw new Error("O servidor não retornou um ID válido para o novo chat.");
+  currentConversationId=freshId;
+  localStorage.setItem("sra_current_conversation",String(freshId));
+  showApp();
+  const history=await api("/conversations");
+  const items=(history.conversations||[]).slice().sort((a,b)=>(Date.parse(b.updated_at||b.created_at||0)||0)-(Date.parse(a.updated_at||a.created_at||0)||0)||Number(b.id)-Number(a.id));
+  renderConversationList(items);
+  await loadMessages();
+  $("chat-input")?.focus();
+ }catch(e){
+  showApp();
+  toast("Não foi possível criar o chat desta entrada: "+e.message);
+ }
  refreshActivity();
 }
 $("auth-form").onsubmit=async e=>{
@@ -296,7 +307,7 @@ $("auth-form").onsubmit=async e=>{
  }
 };
 $("verify-submit").onclick=async()=>{
- try{const d=await api("/auth/verify",{method:"POST",body:JSON.stringify({email:pendingVerifyEmail,code:$("verify-code").value.trim()})});finishLogin(d);toast("Conta confirmada. Acesso PRO liberado!")}
+ try{const d=await api("/auth/verify",{method:"POST",body:JSON.stringify({email:pendingVerifyEmail,code:$("verify-code").value.trim()})});await finishLogin(d);toast("Conta confirmada. Acesso PRO liberado!")}
  catch(e){$("auth-error").textContent=e.message}
 };
 $("resend-code").onclick=async()=>{
@@ -304,7 +315,7 @@ $("resend-code").onclick=async()=>{
  catch(e){$("auth-error").textContent=e.message}
 };
 async function handleGoogleCredential(response){
- try{const d=await api("/auth/google",{method:"POST",body:JSON.stringify({credential:response.credential})});finishLogin(d);toast("Login Google realizado. Acesso PRO ativo!")}
+ try{const d=await api("/auth/google",{method:"POST",body:JSON.stringify({credential:response.credential})});await finishLogin(d);toast("Login Google realizado. Acesso PRO ativo!")}
  catch(e){$("auth-error").textContent=e.message}
 }
 window.handleGoogleCredential=handleGoogleCredential;
@@ -449,7 +460,7 @@ $("auth-form").onsubmit=async e=>{
    const body=authMode==="login"?{identifier:$("email").value.trim(),password:$("password").value}:{username:$("username").value.trim().toLowerCase(),name:$("name").value.trim(),email,password:$("password").value};
   const d=await api(authMode==="login"?"/auth/login":"/auth/register",{method:"POST",body:JSON.stringify(body)});
   if(authMode==="login"&&$("remember-account")?.checked)saveAccountChoice($("email").value.trim());
-  finishLogin(d);if(authMode==="register")toast("Conta criada! Você já está dentro. ✦");
+  await finishLogin(d);if(authMode==="register")toast("Conta criada! Você já está dentro. ✦");
  }catch(err){$("auth-error").textContent=err.message}
  finally{submit.disabled=false;submit.textContent=authMode==="login"?"Entrar na sua conta ↗":"Criar minha conta ↗"}
 };
