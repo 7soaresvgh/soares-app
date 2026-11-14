@@ -235,6 +235,7 @@ const baseNavigate=navigate;
 navigate=function(view){
  if(view==="terms"){baseNavigate(view);return}
  if(view==="activity"&&!isLolaAccount()){baseNavigate("chat");return}
+ if(view==="activity"&&isLolaAccount()&&"Notification" in window&&Notification.permission==="default"){Notification.requestPermission()}
  const views=["chat","memories","activity","games","profile"];
  views.forEach(v=>$(v+"-view")?.classList.toggle("hidden",v!==view));
  document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
