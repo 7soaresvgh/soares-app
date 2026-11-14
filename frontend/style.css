@@ -1070,3 +1070,58 @@ body{background-image:radial-gradient(ellipse at 12% 0%,rgba(180,76,255,.13),tra
     border-radius: 13px!important;
   }
 }
+
+
+/* === Ocupa toda a coluna direita até a borda da janela (desktop) === */
+@media (min-width: 761px) {
+  .app {
+    display: grid!important;
+    width: 100%!important;
+    max-width: none!important;
+    margin: 0!important;
+    padding: 0!important;
+    gap: 0!important;
+    grid-template-columns: 272px minmax(0, 1fr)!important;
+    box-sizing: border-box;
+  }
+  .sidebar {
+    position: fixed!important;
+    left: 0!important;
+    top: 0!important;
+    bottom: 0!important;
+    width: 272px!important;
+    height: 100dvh!important;
+    margin: 0!important;
+  }
+  .main {
+    grid-column: 2!important;
+    width: auto!important;
+    max-width: none!important;
+    min-width: 0!important;
+    margin: 0!important;
+    padding: 8px clamp(24px, 2.4vw, 42px) 0!important;
+    box-sizing: border-box;
+  }
+  .topbar,
+  .chat-view {
+    width: 100%!important;
+    max-width: none!important;
+    min-width: 0!important;
+  }
+  .chat-view {
+    align-self: stretch!important;
+  }
+  .chat-intro,
+  .messages {
+    width: 100%!important;
+    max-width: none!important;
+    box-sizing: border-box!important;
+  }
+  .composer {
+    width: 100%!important;
+    max-width: none!important;
+    margin-left: 0!important;
+    margin-right: 0!important;
+    box-sizing: border-box!important;
+  }
+}
