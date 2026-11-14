@@ -476,7 +476,7 @@ function updateAccountChrome(){
  const badge=document.querySelector(".plan-badge");if(badge)badge.hidden=!pro;
  const role=$("profile-role");if(role)role.textContent=pro?"Conta PRO":"Conta padrão";
  document.querySelectorAll(".msg-avatar").forEach(el=>{if(el.dataset.role==="user"){el.innerHTML=makeAvatarMarkup("tiny-avatar")}});
- const profile=$("profile-avatar");if(profile&&!profilePhoto){profile.innerHTML=makeAvatarMarkup("tiny-avatar")}
+ const profile=$("profile-avatar");if(profile){profile.innerHTML=makeAvatarMarkup("tiny-avatar");profile.style.backgroundImage="none";profile.style.backgroundColor="transparent"}
 }
 const originalAddMessage=addMessage;
 addMessage=function(role,content){
@@ -511,7 +511,7 @@ function switchProfileStorage(){
  applyExpandedProfile();renderAvatarPicker();updateAccountChrome();
 }
 const baseApplyExpandedProfile=applyExpandedProfile;
-applyExpandedProfile=function(){baseApplyExpandedProfile();if(!profilePhoto){const a=currentAvatar();["profile-avatar","profile-preview-avatar"].forEach(id=>{const el=$(id);if(el){el.innerHTML=makeAvatarMarkup("tiny-avatar");el.style.backgroundImage="none"}})}};
+applyExpandedProfile=function(){baseApplyExpandedProfile();["profile-avatar","profile-preview-avatar"].forEach(id=>{const el=$(id);if(el){el.innerHTML=makeAvatarMarkup("tiny-avatar");el.style.backgroundImage="none";el.style.backgroundColor="transparent"}})};
 const baseProfileColorSet=localStorage.setItem.bind(localStorage);
 const previousNavigateFinal=navigate;
 navigate=function(view){
