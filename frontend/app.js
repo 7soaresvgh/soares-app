@@ -47,7 +47,7 @@ function saveAccountChoice(identifier){try{localStorage.setItem("sra_saved_accou
 function removeSavedAccount(){try{localStorage.removeItem("sra_saved_account")}catch{};if($("remember-account"))$("remember-account").checked=false;renderSavedAccount()}
 function submitAuthForm(){ $("auth-form").requestSubmit() }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setMode(b.dataset.tab));
-$("saved-account-continue").onclick=()=>{const saved=readSavedAccount();if(!saved?.identifier)return;$("email").value=saved.identifier;$("password").focus();if($("password").value.trim())submitAuthForm()};
+$("saved-account-continue").onclick=()=>{const saved=readSavedAccount();if(!saved?.identifier)return;$("email").value=saved.identifier;$("password").focus();setTimeout(()=>{if($("password").value.trim())submitAuthForm();else $("auth-error").textContent="Selecione sua conta e use a senha salva pelo navegador, se disponível."},350)};
 $("saved-account-remove").onclick=removeSavedAccount;
 $("auth-form").onsubmit=async e=>{e.preventDefault();$("auth-error").textContent="";try{const identifier=$("email").value.trim();const path=authMode==="login"?"/auth/login":"/auth/register";const body=authMode==="login"?{identifier,password:$("password").value}:{username:$("username").value.trim().toLowerCase(),name:$("name").value,email:identifier,password:$("password").value};const d=await api(path,{method:"POST",body:JSON.stringify(body)});if(authMode==="login"&&$("remember-account").checked)saveAccountChoice(identifier);token=d.token;persistAuthToken(token);me=d.user;showApp();await loadMessages();await refreshActivity();}catch(err){$("auth-error").textContent=err.message}};
 renderSavedAccount();
