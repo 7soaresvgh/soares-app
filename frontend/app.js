@@ -323,10 +323,14 @@ window.handleGoogleCredential=handleGoogleCredential;
 })();
 
 async function loadConversations(){
- const d=await api("/conversations");let items=d.conversations||[];
- if(!items.length){const c=await api("/conversations",{method:"POST"});items=[c]}
- const saved=localStorage.getItem("sra_current_conversation");
- const preferred=currentConversationId||saved;
+ const d=await api("/conversations");
+ let items=(d.conversations||[]).slice().sort((a,b)=>{
+  const ta=Date.parse(a.updated_at||a.created_at||0)||0;
+  const tb=Date.parse(b.updated_at||b.created_at||0)||0;
+  return tb-ta||Number(b.id)-Number(a.id);
+ });
+ if(!items.length){const c=await api("/conversations",{method:"POST"});items=[c];}
+ const preferred=currentConversationId||localStorage.getItem("sra_current_conversation");
  if(preferred&&items.some(x=>String(x.id)===String(preferred)))currentConversationId=Number(preferred);
  else currentConversationId=Number(items[0].id);
  localStorage.setItem("sra_current_conversation",String(currentConversationId));
@@ -334,30 +338,33 @@ async function loadConversations(){
 }
 function renderConversationList(items){
  const root=$("conversation-list");if(!root)return;root.innerHTML="";
- const now=new Date();const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
- const yesterday=new Date(today);yesterday.setDate(yesterday.getDate()-1);
- const week=new Date(today);week.setDate(week.getDate()-7);
- const month=new Date(today);month.setDate(month.getDate()-30);
- const groups=[["Hoje",[]],["Ontem",[]],["Últimos 7 dias",[]],["Últimos 30 dias",[]],["Anteriores",[]]];
- const groupFor=item=>{
-  const raw=item.updated_at||item.created_at;const date=raw?new Date(raw):new Date();
-  if(Number.isNaN(date.getTime()))return groups[4];
-  if(date>=today)return groups[0];if(date>=yesterday)return groups[1];
-  if(date>=week)return groups[2];if(date>=month)return groups[3];return groups[4];
- };
- items.forEach(item=>groupFor(item)[1].push(item));
- groups.forEach(([label,entries])=>{
-  if(!entries.length)return;
-  const heading=document.createElement("div");heading.className="history-group-label";heading.textContent=label;root.appendChild(heading);
-  entries.forEach(item=>{
-   const row=document.createElement("div");row.className="history-item"+(Number(item.id)===Number(currentConversationId)?" active":"");
-   const title=item.title||"Novo Chat";
-   const open=document.createElement("button");open.type="button";open.className="history-open";open.textContent=title;open.title=title;
-   open.onclick=async()=>{currentConversationId=Number(item.id);localStorage.setItem("sra_current_conversation",String(currentConversationId));renderConversationList(items);await loadMessages();};
-   const del=document.createElement("button");del.type="button";del.className="history-delete";del.textContent="×";del.title="Excluir conversa";
-   del.onclick=async()=>{if(!confirm("Excluir esta conversa permanentemente?"))return;try{await api("/conversations/"+item.id,{method:"DELETE"});if(Number(currentConversationId)===Number(item.id))currentConversationId=null;localStorage.removeItem("sra_current_conversation");await loadConversations();await loadMessages();toast("Conversa excluída.")}catch(e){toast(e.message)}};
-   row.append(open,del);root.appendChild(row);
+ const ordered=items.slice().sort((a,b)=>{
+  const ta=Date.parse(a.updated_at||a.created_at||0)||0;
+  const tb=Date.parse(b.updated_at||b.created_at||0)||0;
+  return tb-ta||Number(b.id)-Number(a.id);
+ });
+ ordered.forEach(item=>{
+  const row=document.createElement("div");
+  row.className="history-item"+(Number(item.id)===Number(currentConversationId)?" active":"");
+  const title=item.title||"Novo Chat";
+  const open=document.createElement("button");open.type="button";open.className="history-open";open.textContent=title;open.title=title;
+  open.addEventListener("click",async()=>{
+   currentConversationId=Number(item.id);
+   localStorage.setItem("sra_current_conversation",String(currentConversationId));
+   renderConversationList(ordered);
+   try{await loadMessages();}catch(e){toast("Não foi possível abrir a conversa: "+e.message);}
   });
+  const del=document.createElement("button");del.type="button";del.className="history-delete";del.textContent="×";del.title="Excluir conversa";
+  del.addEventListener("click",async()=>{
+   if(!confirm("Excluir esta conversa permanentemente?"))return;
+   try{
+    await api("/conversations/"+item.id,{method:"DELETE"});
+    if(Number(currentConversationId)===Number(item.id))currentConversationId=null;
+    localStorage.removeItem("sra_current_conversation");
+    await loadConversations();await loadMessages();toast("Conversa excluída.");
+   }catch(e){toast(e.message);}
+  });
+  row.append(open,del);root.appendChild(row);
  });
 }
 loadMessages=async function(){
@@ -384,19 +391,32 @@ sendMessage=async function(text){
  }catch(e){pending.remove();addMessage("assistant","Não consegui processar agora: "+e.message)}
  finally{$("send").disabled=false}
 };
-$("new-chat").onclick=async()=>{
- const button=$("new-chat");if(button.dataset.creating==="1")return;
+async function createNewChat(){
+ const button=$("new-chat");if(!button||button.dataset.creating==="1")return;
  button.dataset.creating="1";button.disabled=true;
  try{
   const c=await api("/conversations",{method:"POST"});
-  if(!c?.id)throw new Error("O servidor não confirmou a criação da conversa.");
+  if(!c||c.id==null)throw new Error("O servidor não confirmou a criação do chat.");
   currentConversationId=Number(c.id);
   localStorage.setItem("sra_current_conversation",String(currentConversationId));
-  await loadConversations();await loadMessages();$("chat-input").focus();
-  toast("Nova conversa criada. O histórico anterior foi preservado.");
- }catch(e){currentConversationId=Number(localStorage.getItem("sra_current_conversation"))||null;toast("Não foi possível criar a conversa: "+e.message)}
- finally{button.dataset.creating="0";button.disabled=false}
-};
+  await loadConversations();
+  currentConversationId=Number(c.id);
+  localStorage.setItem("sra_current_conversation",String(currentConversationId));
+  await loadMessages();
+  $("chat-input").focus();
+  toast("Novo chat criado. O histórico anterior continua salvo.");
+ }catch(e){
+  toast("Falha ao criar novo chat: "+e.message);
+ }finally{
+  button.dataset.creating="0";button.disabled=false;
+ }
+}
+const newChatButton=$("new-chat");
+if(newChatButton){
+ newChatButton.type="button";
+ newChatButton.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();createNewChat();});
+ newChatButton.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();createNewChat();}});
+}
 async function bootPro(){
  if(!token){showAuth();return}
  try{me=JSON.parse(localStorage.getItem("sra_user")||"null")}catch{me=null}
