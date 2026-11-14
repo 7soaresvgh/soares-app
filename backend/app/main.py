@@ -176,33 +176,24 @@ def health():
     return {"ok": True, "app": APP_NAME, "ai_configured": bool(AI_API_KEY)}
 
 @app.post("/auth/register")
-async def register(data: RegisterIn):
+def register(data: RegisterIn):
     email = data.email.lower()
     with db() as c:
         count = c.execute("SELECT COUNT(*) AS n FROM users").fetchone()["n"]
         role = "admin" if count == 0 or (ADMIN_EMAIL and email == ADMIN_EMAIL) else "hel"
         try:
             if DATABASE_URL:
-                cur = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(%s,%s,%s,%s,%s,FALSE,'pro') RETURNING id",
-                                (data.name.strip(), email, pwd.hash(data.password), role, now()))
-                uid = cur.fetchone()["id"]
+                uid = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(%s,%s,%s,%s,%s,TRUE,'pro') RETURNING id",
+                    (data.name.strip(), email, pwd.hash(data.password), role, now())).fetchone()["id"]
+                user = c.execute("SELECT id,name,email,role,plan FROM users WHERE id=%s", (uid,)).fetchone()
             else:
-                cur = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(?,?,?,?,?,0,'pro')",
-                                (data.name.strip(), email, pwd.hash(data.password), role, now()))
-                uid = cur.lastrowid
+                uid = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(?,?,?,?,?,1,'pro')",
+                    (data.name.strip(), email, pwd.hash(data.password), role, now())).lastrowid
+                user = c.execute("SELECT id,name,email,role,plan FROM users WHERE id=?", (uid,)).fetchone()
         except (sqlite3.IntegrityError, psycopg.IntegrityError):
             raise HTTPException(409, "Este e-mail já possui cadastro.")
-        user = c.execute("SELECT id,name,email,role FROM users WHERE id=%s" if DATABASE_URL else "SELECT id,name,email,role FROM users WHERE id=?", (uid,)).fetchone()
-    code=f"{secrets.randbelow(1000000):06d}"
-    with db() as c:
-        c.execute("DELETE FROM email_verifications WHERE email=%s" if DATABASE_URL else "DELETE FROM email_verifications WHERE email=?",(email,))
-        exp=datetime.now(timezone.utc)+timedelta(minutes=15)
-        c.execute("INSERT INTO email_verifications(email,code_hash,expires_at,created_at) VALUES(%s,%s,%s,%s)" if DATABASE_URL else "INSERT INTO email_verifications(email,code_hash,expires_at,created_at) VALUES(?,?,?,?)",(email,pwd.hash(code),exp if DATABASE_URL else exp.isoformat(),now()))
-    if not RESEND_API_KEY: raise HTTPException(503,"Cadastro criado, mas o envio de confirmação não está configurado. Configure RESEND_API_KEY e EMAIL_FROM no Render.")
-    async with httpx.AsyncClient(timeout=20) as client:
-        mail=await client.post("https://api.resend.com/emails",headers={"Authorization":f"Bearer {RESEND_API_KEY}"},json={"from":EMAIL_FROM,"to":[email],"subject":"Confirme seu e-mail — Soares AI","html":f"<div style='font-family:Arial;background:#101020;color:#fff;padding:28px;border-radius:16px'><h2>Confirme seu e-mail</h2><p>Seu código de acesso:</p><div style='font-size:32px;letter-spacing:8px;color:#b78cff;font-weight:bold'>{code}</div><p>O código expira em 15 minutos.</p></div>"})
-    if mail.status_code>=400: raise HTTPException(502,"Não foi possível enviar o código. Confira a configuração do e-mail.")
-    return {"verification_required":True,"email":email,"message":"Enviamos um código para seu e-mail."}
+    public = dict(user)
+    return {"token": make_token(public), "user": public, "message": "Conta criada com sucesso."}
 
 @app.post("/auth/verify")
 def verify_email(data: VerifyEmailIn):
@@ -264,7 +255,6 @@ def login(data: LoginIn):
         user = c.execute("SELECT * FROM users WHERE email=%s" if DATABASE_URL else "SELECT * FROM users WHERE email=?", (data.email.lower(),)).fetchone()
     if not user or not pwd.verify(data.password, user["password_hash"]):
         raise HTTPException(401, "E-mail ou senha incorretos.")
-    if not user["email_verified"]: raise HTTPException(403,"Confirme seu e-mail antes de entrar.")
     public = {k: user[k] for k in ("id","name","email","role","plan")}
     return {"token": make_token(public), "user": public}
 
