@@ -2,13 +2,13 @@
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Soares Reserva AI</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head>
 <body><div class="ambient a1"></div><div class="ambient a2"></div>
-<div id="auth" class="auth-wrap">
+<div id="auth" class="auth-wrap"><div id="auth-matrix" class="auth-matrix" aria-hidden="true"></div>
   <div class="auth-shell">
     <section class="auth-showcase">
       <div class="auth-topline"><span class="auth-live"></span> SOARES NETWORK <span class="auth-topline-right">SECURE ACCESS / 2026</span></div>
       <div class="auth-visual" aria-hidden="true">
         <div class="auth-orbit orbit-one"></div><div class="auth-orbit orbit-two"></div>
-        <div class="auth-symbol">✦</div>
+        <div class="auth-symbol"><span class="logo-glyph">S</span><i class="logo-cut"></i></div>
         <div class="auth-code code-one">0101&nbsp; 1010&nbsp; 0011<br>ACCESS_GRANTED<br>010010&nbsp; 11001</div>
         <div class="auth-code code-two">AI_CORE<br>ONLINE ●<br>SYS_READY</div>
       </div>
@@ -21,23 +21,32 @@
       <div class="auth-grid-glow"></div>
     </section>
     <section class="auth-panel">
-      <div class="auth-panel-head"><div class="brand-mark">✦</div><div class="eyebrow">SOARES RESERVA AI</div></div>
+      <div class="auth-panel-head"><div class="brand-mark"><span class="logo-glyph">S</span></div><div class="eyebrow">SOARES RESERVA AI</div></div>
       <h2>Bem-vindo de volta<span>.</span></h2>
       <p class="auth-subtitle">Entre na sua conta para continuar.</p>
       <div class="tabs"><button class="tab active" data-tab="login">Entrar</button><button class="tab" data-tab="register">Criar conta</button></div>
+      <div id="google-signin" class="google-signin"></div>
+      <div class="auth-or"><span>OU CONTINUE COM E-MAIL</span></div>
       <form id="auth-form">
         <div id="name-field" class="field hidden"><label>Como devemos te chamar?</label><input id="name" placeholder="Seu nome" maxlength="60"></div>
         <div class="field"><label for="email">E-mail</label><input id="email" type="email" required placeholder="voce@email.com" autocomplete="email"></div>
         <div class="field"><label for="password">Senha</label><input id="password" type="password" minlength="8" required placeholder="Mínimo de 8 caracteres" autocomplete="current-password"></div>
         <button class="primary full auth-submit" id="auth-submit">Entrar na sua conta <span>↗</span></button>
         <div id="auth-error" class="error" role="alert"></div>
+        <div id="verify-panel" class="verify-panel hidden">
+          <p>Enviamos um código de 6 dígitos para <b id="verify-email-label"></b>.</p>
+          <label for="verify-code">Código de confirmação</label>
+          <input id="verify-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
+          <button type="button" id="verify-submit" class="primary full">Confirmar e entrar</button>
+          <button type="button" id="resend-code" class="resend-code">Reenviar código</button>
+        </div>
       </form>
-      <div class="auth-privacy"><span>◈</span> Suas conversas são privadas e vinculadas à sua conta.</div>
+      <div class="auth-privacy"><span>◈</span> E-mail confirmado ou Google verificado. Todas as contas recebem acesso PRO.</div>
       <div class="auth-panel-footer">SOARES AI <span>•</span> INTELIGÊNCIA DIGITAL</div>
     </section>
   </div>
 </div>
-<div id="app" class="app hidden"><aside class="sidebar glass"><div class="brand"><div class="brand-mark small">✦</div><div><b>Soares Reserva AI</b><small>INTELLIGÊNCIA DIGITAL</small></div></div><button id="new-chat" class="new-chat">＋ Nova conversa</button><div class="side-label">SEU ESPAÇO</div><button class="nav active" data-view="chat">◈ <span>Conversar</span></button><button class="nav" data-view="memories">♡ <span>Minhas memórias</span></button><button class="nav" data-view="activity">◉ <span>Modo atividade</span></button><button class="nav" data-view="games">♧ <span>Jogos Soares</span></button><button class="nav" data-view="profile">◉ <span>Personalizar perfil</span></button><button class="nav" data-view="terms">▤ <span>Termos de uso</span></button><div class="sidebar-bottom"><div class="profile"><div class="avatar" id="profile-avatar">H</div><div class="profile-info"><b id="profile-name">Visitante</b><small id="profile-role">Conta pessoal</small></div><button id="logout" title="Sair">↗</button></div></div></aside>
+<div id="app" class="app hidden"><aside class="sidebar glass"><div class="brand"><div class="brand-mark small">✦</div><div><b>Soares Reserva AI</b><small>INTELLIGÊNCIA DIGITAL</small></div></div><button id="new-chat" class="new-chat">＋ Nova conversa</button><div class="side-label">SEU ESPAÇO</div><div class="history-heading">HISTÓRICO <span>◈</span></div><div id="conversation-list" class="conversation-list"></div><button class="nav active" data-view="chat">◈ <span>Conversar</span></button><button class="nav" data-view="memories">♡ <span>Minhas memórias</span></button><button class="nav" data-view="activity">◉ <span>Modo atividade</span></button><button class="nav" data-view="games">♧ <span>Jogos Soares</span></button><button class="nav" data-view="profile">◉ <span>Personalizar perfil</span></button><button class="nav" data-view="terms">▤ <span>Termos de uso</span></button><div class="sidebar-bottom"><div class="profile"><div class="avatar" id="profile-avatar">H</div><div class="profile-info"><b id="profile-name">Visitante</b><small id="profile-role">Conta PRO</small></div><button id="logout" title="Sair">↗</button></div></div></aside>
 <main class="main"><header class="topbar"><div><div class="eyebrow">SEU ESPAÇO, SEU TEMPO</div><h2 id="view-title">Um cantinho para conversar</h2></div><div class="status-pill"><i></i><span id="status-text">Conectada</span></div></header>
 <section id="chat-view" class="view chat-view"><div class="chat-intro"><div class="intro-kicker"><span class="live-dot"></span> SOARES NETWORK <span class="intro-separator">/</span> SECURE SESSION</div><div class="intro-title">Sua central <span>inteligente.</span></div><p>Converse, explore ideias e aproveite seu espaço digital.</p></div><div class="hacker-rain" id="hacker-rain" aria-hidden="true"></div><div id="messages" class="messages"><div class="welcome"><div class="welcome-mark"><span>✦</span><i></i></div><div class="eyebrow">SOARES AI / ONLINE</div><h1>Oi, <span id="welcome-name">Visitante</span> 💜</h1><p>Estou aqui para conversar, ajudar com suas ideias ou simplesmente fazer companhia.</p><div class="suggestions"><button data-prompt="Quero conversar um pouquinho.">♡ Conversar um pouquinho</button><button data-prompt="Me ajuda a organizar meu dia?">✧ Organizar meu dia</button><button data-prompt="Me dá uma ideia divertida para hoje.">☼ Uma ideia para hoje</button></div></div></div>
 <form id="chat-form" class="composer"><div id="image-preview" class="image-preview hidden"></div><textarea id="chat-input" rows="1" placeholder="Digite sua mensagem..." maxlength="12000"></textarea><div class="composer-tools"><button type="button" id="image-pick" class="tool-btn" title="Enviar imagem">▧</button><input id="image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden><button type="button" id="voice-input" class="tool-btn" title="Falar por voz">🎙</button><button type="button" id="voice-output" class="tool-btn" title="Ativar leitura em voz alta">🔊</button></div><button class="send" id="send" title="Enviar">↑</button><div class="composer-note">A Soares Reserva AI é uma companhia virtual. Ela não envia mensagens em nome do Soares.</div></form></section>
