@@ -448,13 +448,13 @@ const avatarCatalog=[
 let avatarStorageKey="sra_avatar";
 let selectedSoaresAvatar=localStorage.getItem(avatarStorageKey)||"nebula";
 function currentAvatar(){return avatarCatalog.find(a=>a.id===selectedSoaresAvatar)||avatarCatalog[0]}
-function makeAvatarMarkup(extra=""){const a=currentAvatar();return '<span class="soares-avatar-art '+extra+'" style="--avatar-a:'+a.a+';--avatar-b:'+a.b+'">'+a.symbol+'</span>'}
+function makeAvatarMarkup(extra=""){const a=currentAvatar();return '<span class="soares-avatar-art '+extra+' avatar-art-'+a.id+'" role="img" aria-label="'+a.name+'"></span>'}
 function updateAccountChrome(){
  const pro=String(me?.email||"").toLowerCase().endsWith("@soaresdev.com");
  const badge=document.querySelector(".plan-badge");if(badge)badge.hidden=!pro;
  const role=$("profile-role");if(role)role.textContent=pro?"Conta PRO":"Conta padrão";
  document.querySelectorAll(".msg-avatar").forEach(el=>{if(el.dataset.role==="user"){el.innerHTML=makeAvatarMarkup("tiny-avatar")}});
- const profile=$("profile-avatar");if(profile&&!profilePhoto){const a=currentAvatar();profile.textContent=a.symbol;profile.style.background='linear-gradient(135deg,'+a.a+','+a.b+')'}
+ const profile=$("profile-avatar");if(profile&&!profilePhoto){profile.innerHTML=makeAvatarMarkup("tiny-avatar")}
 }
 const originalAddMessage=addMessage;
 addMessage=function(role,content){
@@ -465,7 +465,7 @@ function renderAvatarPicker(){
  const host=$("soares-avatar-picker");if(!host)return;host.innerHTML="";
  avatarCatalog.forEach(a=>{
   const btn=document.createElement("button");btn.type="button";btn.className="avatar-preset"+(a.id===selectedSoaresAvatar?" selected":"");
-  btn.innerHTML='<span class="soares-avatar-art" style="--avatar-a:'+a.a+';--avatar-b:'+a.b+'">'+a.symbol+'</span><b>'+a.name+'</b>';
+  btn.innerHTML='<span class="soares-avatar-art avatar-art-'+a.id+'" role="img" aria-label="'+a.name+'"></span><b>'+a.name+'</b>';
   btn.onclick=()=>{selectedSoaresAvatar=a.id;localStorage.setItem(avatarStorageKey,a.id);renderAvatarPicker();applyExpandedProfile();updateAccountChrome();decorateGameCards();decorateGameStage();toast(a.name+" selecionado.")};
   host.appendChild(btn);
  });
@@ -489,7 +489,7 @@ function switchProfileStorage(){
  applyExpandedProfile();renderAvatarPicker();updateAccountChrome();
 }
 const baseApplyExpandedProfile=applyExpandedProfile;
-applyExpandedProfile=function(){baseApplyExpandedProfile();if(!profilePhoto){const a=currentAvatar();["profile-avatar","profile-preview-avatar"].forEach(id=>{const el=$(id);if(el){el.textContent=a.symbol;el.style.background='linear-gradient(135deg,'+a.a+','+a.b+')';el.style.backgroundImage="none"}})}};
+applyExpandedProfile=function(){baseApplyExpandedProfile();if(!profilePhoto){const a=currentAvatar();["profile-avatar","profile-preview-avatar"].forEach(id=>{const el=$(id);if(el){el.innerHTML=makeAvatarMarkup("tiny-avatar");el.style.backgroundImage="none"}})}};
 const baseProfileColorSet=localStorage.setItem.bind(localStorage);
 const previousNavigateFinal=navigate;
 navigate=function(view){
@@ -518,3 +518,35 @@ function decorateGameStage(){
 }
 document.querySelectorAll("[data-game]").forEach(card=>card.addEventListener("click",()=>setTimeout(()=>{decorateGameCards();decorateGameStage()},0)));
 decorateGameCards();
+
+/* Menu flutuante de perfil e central de conta */
+(()=>{
+ const menu=document.getElementById("profile-menu"),modal=document.getElementById("profile-action-modal"),content=document.getElementById("action-modal-content"),title=document.getElementById("action-modal-title"),profile=document.querySelector(".sidebar .profile");
+ if(!menu||!modal||!profile)return;
+ const close=()=>{modal.classList.add("hidden");menu.classList.add("hidden")};
+ document.addEventListener("click",e=>{
+  if(profile.contains(e.target)&&!e.target.closest("#logout")){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();menu.classList.toggle("hidden");return}
+  if(!menu.contains(e.target)&&!e.target.closest("#profile-menu"))menu.classList.add("hidden");
+ },true);
+ menu.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-profile-action]");if(!b)return;
+  const action=b.dataset.profileAction;menu.classList.add("hidden");
+  if(action==="customize"){navigate("profile");return}
+  if(action==="terms"){navigate("terms");return}
+  if(action==="logout"){if(confirm("Deseja realmente sair da sua conta?"))$("logout").click();return}
+  modal.classList.remove("hidden");
+  if(action==="password"){
+   title.textContent="Alterar senha";
+   content.innerHTML='<p class="muted">Confirme sua senha atual e escolha uma nova senha segura.</p><form id="change-password-form" class="modal-form"><label>Senha atual<input name="current_password" type="password" autocomplete="current-password" required></label><label>Nova senha<input name="new_password" type="password" minlength="8" autocomplete="new-password" required></label><label>Confirmar nova senha<input name="confirm_password" type="password" minlength="8" required></label><button class="primary full">Atualizar senha</button><p class="tiny muted" id="password-feedback"></p></form>';
+   content.querySelector("form").onsubmit=async ev=>{ev.preventDefault();const f=new FormData(ev.currentTarget),n=f.get("new_password");if(n!==f.get("confirm_password")){$("password-feedback").textContent="As novas senhas não coincidem.";return}try{await api("/auth/change-password",{method:"POST",body:JSON.stringify({current_password:f.get("current_password"),new_password:n})});$("password-feedback").textContent="Senha atualizada com sucesso.";ev.currentTarget.reset()}catch(err){$("password-feedback").textContent=err.message}};
+  }else if(action==="account"){
+   title.textContent="Sua conta";content.innerHTML='<div class="account-summary"><b>'+escapeHtml(me?.name||"")+'</b><span>'+escapeHtml(me?.email||"")+'</span><span>@'+escapeHtml(me?.username||"")+'</span><span class="account-plan">'+(String(me?.email||"").toLowerCase().endsWith("@soaresdev.com")?"Conta PRO":"Conta padrão")+'</span></div><button class="secondary-action" id="account-customize">Gerenciar perfil</button>';
+   content.querySelector("#account-customize").onclick=()=>{close();navigate("profile")};
+  }else if(action==="help"){
+   title.textContent="Ajuda";content.innerHTML='<p>Como podemos ajudar?</p><div class="help-links"><a href="mailto:suporte@soaresdev.com">Falar com o suporte</a><button type="button" data-help-faq>Como recuperar meu acesso?</button><button type="button" data-help-faq>Como personalizar meu espaço?</button></div><p class="tiny muted" id="help-answer"></p>';
+   content.querySelectorAll("[data-help-faq]").forEach(x=>x.onclick=()=>{$("help-answer").textContent=x.textContent.includes("recuperar")?"Use a opção Alterar senha quando estiver conectado. Se não conseguir entrar, contate o suporte.":"Abra Tudo de personalizar para escolher avatar, tema, cores, densidade e animações."});
+  }
+ });
+ modal.addEventListener("click",e=>{if(e.target.matches("[data-close-modal]"))close()});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+})();
