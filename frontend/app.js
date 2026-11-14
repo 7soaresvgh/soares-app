@@ -191,7 +191,7 @@ let profileColor=localStorage.getItem("sra_profile_color")||"violet";
 const profileColorMap={violet:"linear-gradient(135deg,#a56bff,#5940a8)",blue:"linear-gradient(135deg,#65a7ff,#315caa)",mint:"linear-gradient(135deg,#5be0b1,#197e79)",pink:"linear-gradient(135deg,#ff83c8,#a34487)",orange:"linear-gradient(135deg,#ffb66b,#a54c29)"};
 function avatarText(){return profileSymbol==="initial"?(me?.name||"H").trim().charAt(0).toUpperCase():profileSymbol}
 function applyProfile(){
- const name=me?.name||"Visitante";$("profile-name").textContent=name;$("welcome-name").textContent=name;
+ const name=me?.name||"";$("profile-name").textContent=name;$("welcome-name").textContent=name;
  const avatar=$("profile-avatar");if(avatar){avatar.textContent=avatarText();avatar.style.background=profileColorMap[profileColor]||profileColorMap.violet}
  const preview=$("profile-preview-avatar");if(preview){preview.textContent=avatarText();preview.style.background=profileColorMap[profileColor]||profileColorMap.violet}
  const previewName=$("profile-preview-name");if(previewName)previewName.textContent=name;
@@ -331,7 +331,7 @@ loadMessages=async function(){
  if(!d.messages.length){
   const welcome=document.createElement("div");welcome.className="welcome";
   welcome.innerHTML='<div class="welcome-mark"><span>⟡</span><i></i></div><div class="eyebrow">SOARES AI / ONLINE</div><h1>Olá, <span id="welcome-name"></span> ✧</h1><p>Sua sessão está protegida. O que vamos criar hoje?</p><div class="suggestions"><button data-prompt="Quero conversar um pouquinho.">♡ Conversar</button><button data-prompt="Me ajuda a organizar meu dia?">✧ Organizar meu dia</button><button data-prompt="Me dá uma ideia divertida para hoje.">⌘ Uma ideia nova</button></div>';
-  $("messages").appendChild(welcome);$("welcome-name").textContent=me?.name||"Visitante";
+  $("messages").appendChild(welcome);$("welcome-name").textContent=me?.name||"";
   welcome.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>sendMessage(b.dataset.prompt));return;
  }
  d.messages.forEach(m=>addMessage(m.role,m.content));
@@ -404,7 +404,7 @@ const savePrefs=()=>localStorage.setItem(profilePrefsKey,JSON.stringify(profileP
 const accentMap={violet:"#b28aff",mint:"#55e7b5",blue:"#67a9ff",rose:"#ff83bd",amber:"#ffc16b"};
 const themeMap={midnight:["#0d0d14","#171722"],graphite:["#101317","#20262d"],violet:["#100c19","#21152e"],forest:["#081511","#10251e"]};
 function applyExpandedProfile(){
- const name=me?.name||"Visitante", status=profilePrefs.status||"Disponível agora";
+ const name=me?.name||"", status=profilePrefs.status||"Disponível agora";
  $("profile-name").textContent=name;$("welcome-name").textContent=name;
  $("profile-preview-name").textContent=name;$("profile-preview-status").textContent=status;
  ["profile-avatar","profile-preview-avatar"].forEach(id=>{
