@@ -450,10 +450,17 @@ def get_messages(limit: int = 60, conversation_id: Optional[int] = None, user=De
     return {"messages": [dict(r) for r in reversed(rows)]}
 
 @app.delete("/messages")
-def clear_messages(user=Depends(current_user)):
+def clear_messages(conversation_id: Optional[int] = None, user=Depends(current_user)):
+    # Segurança: nunca apagar o histórico inteiro da conta por uma chamada sem ID.
+    if not conversation_id:
+        raise HTTPException(400, "Informe conversation_id para excluir somente uma conversa.")
     with db() as c:
-        c.execute("DELETE FROM messages WHERE user_id=%s" if DATABASE_URL else "DELETE FROM messages WHERE user_id=?", (user["id"],))
-    return {"ok": True}
+        cur = c.execute(
+            "DELETE FROM messages WHERE user_id=%s AND conversation_id=%s" if DATABASE_URL else
+            "DELETE FROM messages WHERE user_id=? AND conversation_id=?",
+            (user["id"], conversation_id)
+        )
+    return {"ok": True, "deleted": cur.rowcount}
 
 @app.get("/activity")
 def get_activity(user=Depends(current_user)):
