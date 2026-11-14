@@ -1285,3 +1285,12 @@ body{background-image:radial-gradient(ellipse at 12% 0%,rgba(180,76,255,.13),tra
   #auth .auth-showcase-copy { max-width:100%; }
   #auth .auth-showcase-copy h1 { overflow-wrap:normal; word-break:normal; }
 }
+
+
+/* Conta salva: seleção rápida sem armazenar senha no site */
+.saved-account{margin:0 0 16px;padding:10px;border:1px solid rgba(103,227,192,.22);border-radius:14px;background:rgba(36,65,59,.16)}
+.saved-account-continue{width:100%;display:flex;align-items:center;gap:12px;padding:12px;border:1px solid rgba(103,227,192,.18);border-radius:11px;background:rgba(22,42,39,.55);color:#f7f4ff;text-align:left;cursor:pointer}
+.saved-account-continue:hover{border-color:#67e3c0;background:rgba(35,68,58,.55)}
+.saved-account-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:rgba(103,227,192,.13);color:#67e3c0;font-size:18px}
+.saved-account-copy{flex:1;min-width:0}.saved-account-copy small,.saved-account-copy b{display:block}.saved-account-copy small{font-size:8px;letter-spacing:1px;color:#8edcc5}.saved-account-copy b{font-size:12px;margin-top:4px;overflow-wrap:anywhere}.saved-account-arrow{color:#67e3c0}.saved-account-remove{display:block;margin:8px auto 0;border:0;background:none;color:#aaa5c2;font-size:10px;cursor:pointer}
+.remember-account{display:flex;align-items:flex-start;gap:10px;margin:4px 0 12px;color:#e9e4f6;cursor:pointer}.remember-account input{width:16px;height:16px;flex:none;margin:2px 0 0;accent-color:#67e3c0}.remember-account b,.remember-account small{display:block}.remember-account b{font-size:11px;font-weight:600}.remember-account small{margin-top:4px;color:#9691aa;font-size:9px;line-height:1.5}
