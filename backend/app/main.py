@@ -169,7 +169,12 @@ def current_user(authorization: Optional[str] = Header(default=None)):
         user = c.execute("SELECT id,name,email,role,plan FROM users WHERE id=%s" if DATABASE_URL else "SELECT id,name,email,role,plan FROM users WHERE id=?", (uid,)).fetchone()
     if not user:
         raise HTTPException(401, "Conta não encontrada.")
-    return dict(user)
+    profile = dict(user)
+    profile["plan"] = "pro" if profile["email"].lower().endswith("@soaresdev.com") else "free"
+    with db() as c:
+        c.execute("UPDATE users SET plan=%s WHERE id=%s" if DATABASE_URL else "UPDATE users SET plan=? WHERE id=?",
+                  (profile["plan"], profile["id"]))
+    return profile
 
 @app.get("/health")
 def health():
@@ -183,12 +188,12 @@ def register(data: RegisterIn):
         role = "admin" if count == 0 or (ADMIN_EMAIL and email == ADMIN_EMAIL) else "hel"
         try:
             if DATABASE_URL:
-                uid = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(%s,%s,%s,%s,%s,TRUE,'pro') RETURNING id",
-                    (data.name.strip(), email, pwd.hash(data.password), role, now())).fetchone()["id"]
+                uid = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(%s,%s,%s,%s,%s,TRUE,%s) RETURNING id",
+                    (data.name.strip(), email, pwd.hash(data.password), role, now(), "pro" if email.endswith("@soaresdev.com") else "free")).fetchone()["id"]
                 user = c.execute("SELECT id,name,email,role,plan FROM users WHERE id=%s", (uid,)).fetchone()
             else:
-                uid = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(?,?,?,?,?,1,'pro')",
-                    (data.name.strip(), email, pwd.hash(data.password), role, now())).lastrowid
+                uid = c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan) VALUES(?,?,?,?,?,1,?)",
+                    (data.name.strip(), email, pwd.hash(data.password), role, now(), "pro" if email.endswith("@soaresdev.com") else "free")).lastrowid
                 user = c.execute("SELECT id,name,email,role,plan FROM users WHERE id=?", (uid,)).fetchone()
         except (sqlite3.IntegrityError, psycopg.IntegrityError):
             raise HTTPException(409, "Este e-mail já possui cadastro.")
@@ -242,10 +247,10 @@ async def google_login(data: GoogleLoginIn):
         else:
             ph=pwd.hash(secrets.token_urlsafe(32))
             if DATABASE_URL:
-                uid=c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan,google_sub) VALUES(%s,%s,%s,'hel',%s,TRUE,'pro',%s) RETURNING id",(name,email,ph,now(),sub)).fetchone()["id"]
+                uid=c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan,google_sub) VALUES(%s,%s,%s,'hel',%s,TRUE,%s,%s) RETURNING id",(name,email,ph,now(),"pro" if email.endswith("@soaresdev.com") else "free",sub)).fetchone()["id"]
                 user=c.execute("SELECT id,name,email,role,plan FROM users WHERE id=%s",(uid,)).fetchone()
             else:
-                uid=c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan,google_sub) VALUES(?,?,?,'hel',?,1,'pro',?)",(name,email,ph,now(),sub)).lastrowid
+                uid=c.execute("INSERT INTO users(name,email,password_hash,role,created_at,email_verified,plan,google_sub) VALUES(?,?,?,'hel',?,1,?,?)",(name,email,ph,now(),"pro" if email.endswith("@soaresdev.com") else "free",sub)).lastrowid
                 user=c.execute("SELECT id,name,email,role,plan FROM users WHERE id=?",(uid,)).fetchone()
     return {"token":make_token(user),"user":dict(user)}
 
@@ -256,6 +261,10 @@ def login(data: LoginIn):
     if not user or not pwd.verify(data.password, user["password_hash"]):
         raise HTTPException(401, "E-mail ou senha incorretos.")
     public = {k: user[k] for k in ("id","name","email","role","plan")}
+    public["plan"] = "pro" if public["email"].lower().endswith("@soaresdev.com") else "free"
+    with db() as c:
+        c.execute("UPDATE users SET plan=%s WHERE id=%s" if DATABASE_URL else "UPDATE users SET plan=? WHERE id=?",
+                  (public["plan"], public["id"]))
     return {"token": make_token(public), "user": public}
 
 @app.get("/me")
@@ -288,12 +297,12 @@ Nome da pessoa conectada: {user['name']}.
 Quando a pessoa pedir explicitamente para guardar uma informação, diga que a memória pode ser salva pela área de memórias; não afirme que salvou se não chamou a ferramenta.
 """
 
-async def ask_model(messages):
+async def ask_model(messages, model=None):
     if not AI_API_KEY:
         return ("A conexão com o modelo de IA ainda não foi configurada. "
                 "O administrador precisa preencher AI_API_KEY no arquivo .env do backend.")
     url = AI_BASE_URL + "/chat/completions"
-    body = {"model": AI_PRO_MODEL, "messages": messages, "temperature": AI_TEMPERATURE}
+    body = {"model": model or AI_MODEL, "messages": messages, "temperature": AI_TEMPERATURE}
     async with httpx.AsyncClient(timeout=90) as client:
         try:
             r = await client.post(url, json=body, headers={"Authorization": f"Bearer {AI_API_KEY}"})
@@ -334,7 +343,7 @@ async def chat(data: ChatIn, user=Depends(current_user)):
     if data.image_data:
         user_content.append({"type":"image_url","image_url":{"url":data.image_data}})
     messages += [{"role":"user","content":user_content}]
-    answer = await ask_model(messages)
+    answer = await ask_model(messages, AI_PRO_MODEL if user.get("plan") == "pro" else AI_MODEL)
     with db() as c:
         c.execute("INSERT INTO messages(user_id,role,content,created_at,conversation_id) VALUES(%s,%s,%s,%s,%s)" if DATABASE_URL else "INSERT INTO messages(user_id,role,content,created_at,conversation_id) VALUES(?,?,?,?,?)",
                   (user["id"], "assistant", answer, now(), conv_id))
