@@ -27,7 +27,9 @@ async function api(path, opts={}) {
   const data = await r.json().catch(()=>({detail:"Resposta inválida do servidor."}));
   if (!r.ok) {
     if (path === "/auth/login" && (r.status === 401 || r.status === 422)) throw new Error("Senha ou usuário incorreto");
-    throw new Error(apiErrorMessage(data?.detail ?? data?.error ?? data, "Erro na solicitação."));
+    const err = new Error(apiErrorMessage(data?.detail ?? data?.error ?? data, "Erro na solicitação."));
+    err.status = r.status;
+    throw err;
   }
   return data;
 }
@@ -361,9 +363,19 @@ async function bootPro(){
  if(me)showApp();
  try{me=await api("/me");localStorage.setItem("sra_user",JSON.stringify(me));showApp();await loadConversations();await loadMessages();await refreshActivity();setInterval(refreshActivity,30000)}
  catch(e){
-  if(/401|Sessão inválida|expirada|Faça login/i.test(e.message)){token="";me=null;localStorage.removeItem("sra_token");localStorage.removeItem("sra_user");showAuth()}
-  else if(me){showApp();toast("Sem conexão no momento. Sua sessão continua salva.");}
-  else{showAuth();toast("Não foi possível conectar. Tente novamente em instantes.");}
+  // Só encerra a sessão quando o servidor confirma explicitamente HTTP 401.
+  // Falhas de rede, cold start ou erros 5xx nunca apagam o token salvo.
+  if(e.status===401){
+   token="";me=null;localStorage.removeItem("sra_token");localStorage.removeItem("sra_user");showAuth();
+   $("auth-error").textContent="Sua sessão expirou. Entre novamente para continuar.";
+  } else {
+   try{me=me||JSON.parse(localStorage.getItem("sra_user")||"null")}catch{}
+   if(me){showApp();toast("Sem conexão com o servidor. Você continua conectado; tente atualizar em instantes.");}
+   else {
+    // Mantém a sessão/token intactos e tenta validar novamente sem forçar novo login.
+    showAuth();toast("Não foi possível validar sua sessão agora. Seus dados de acesso foram preservados.");
+   }
+  }
  }
 }
 bootPro();
