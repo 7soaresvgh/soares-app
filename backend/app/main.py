@@ -99,7 +99,7 @@ def migrate_schema():
             c.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS plan TEXT NOT NULL DEFAULT 'pro'")
             c.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub TEXT")
             c.execute("""CREATE TABLE IF NOT EXISTS email_verifications(id BIGSERIAL PRIMARY KEY,email TEXT NOT NULL,code_hash TEXT NOT NULL,expires_at TIMESTAMPTZ NOT NULL,created_at TIMESTAMPTZ NOT NULL)""")
-            c.execute("""CREATE TABLE IF NOT EXISTS conversations(id BIGSERIAL PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,title TEXT NOT NULL DEFAULT 'Nova conversa',created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL)""")
+            c.execute("""CREATE TABLE IF NOT EXISTS conversations(id BIGSERIAL PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,title TEXT NOT NULL DEFAULT 'Novo Chat',created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL)""")
             c.execute("ALTER TABLE messages ADD COLUMN IF NOT EXISTS conversation_id BIGINT REFERENCES conversations(id) ON DELETE CASCADE")
             c.execute("""INSERT INTO conversations(user_id,title,created_at,updated_at) SELECT u.id,'Histórico anterior',NOW(),NOW() FROM users u WHERE EXISTS(SELECT 1 FROM messages m WHERE m.user_id=u.id AND m.conversation_id IS NULL) AND NOT EXISTS(SELECT 1 FROM conversations v WHERE v.user_id=u.id)""")
             c.execute("""UPDATE messages m SET conversation_id=(SELECT v.id FROM conversations v WHERE v.user_id=m.user_id ORDER BY v.id LIMIT 1) WHERE m.conversation_id IS NULL""")
@@ -114,7 +114,7 @@ def migrate_schema():
             mcols={r["name"] for r in c.execute("PRAGMA table_info(messages)").fetchall()}
             if "conversation_id" not in mcols: c.execute("ALTER TABLE messages ADD COLUMN conversation_id INTEGER")
             c.execute("""CREATE TABLE IF NOT EXISTS email_verifications(id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT NOT NULL,code_hash TEXT NOT NULL,expires_at TEXT NOT NULL,created_at TEXT NOT NULL)""")
-            c.execute("""CREATE TABLE IF NOT EXISTS conversations(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,title TEXT NOT NULL DEFAULT 'Nova conversa',created_at TEXT NOT NULL,updated_at TEXT NOT NULL)""")
+            c.execute("""CREATE TABLE IF NOT EXISTS conversations(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,title TEXT NOT NULL DEFAULT 'Novo Chat',created_at TEXT NOT NULL,updated_at TEXT NOT NULL)""")
             c.execute("""INSERT INTO conversations(user_id,title,created_at,updated_at) SELECT u.id,'Histórico anterior',datetime('now'),datetime('now') FROM users u WHERE EXISTS(SELECT 1 FROM messages m WHERE m.user_id=u.id AND m.conversation_id IS NULL) AND NOT EXISTS(SELECT 1 FROM conversations v WHERE v.user_id=u.id)""")
             c.execute("""UPDATE messages SET conversation_id=(SELECT v.id FROM conversations v WHERE v.user_id=messages.user_id ORDER BY v.id LIMIT 1) WHERE conversation_id IS NULL""")
 def normalized_username(value):
@@ -396,13 +396,18 @@ async def chat(data: ChatIn, user=Depends(current_user)):
             cv=c.execute("SELECT id FROM conversations WHERE id=%s AND user_id=%s" if DATABASE_URL else "SELECT id FROM conversations WHERE id=? AND user_id=?",(conv_id,user["id"])).fetchone()
             if not cv: raise HTTPException(404,"Conversa não encontrada.")
         else:
-            title=data.message.strip()[:48] or "Nova conversa"
+            title=data.message.strip()[:48] or "Novo Chat"
             if DATABASE_URL: conv_id=c.execute("INSERT INTO conversations(user_id,title,created_at,updated_at) VALUES(%s,%s,%s,%s) RETURNING id",(user["id"],title,now(),now())).fetchone()["id"]
             else: conv_id=c.execute("INSERT INTO conversations(user_id,title,created_at,updated_at) VALUES(?,?,?,?)",(user["id"],title,now(),now())).lastrowid
         history=c.execute("SELECT role,content FROM messages WHERE user_id=%s AND conversation_id=%s ORDER BY id DESC LIMIT 20" if DATABASE_URL else "SELECT role,content FROM messages WHERE user_id=? AND conversation_id=? ORDER BY id DESC LIMIT 20",(user["id"],conv_id)).fetchall()
         history = list(reversed(history))
         c.execute("INSERT INTO messages(user_id,role,content,created_at,conversation_id) VALUES(%s,%s,%s,%s,%s)" if DATABASE_URL else "INSERT INTO messages(user_id,role,content,created_at,conversation_id) VALUES(?,?,?,?,?)",
                   (user["id"], "user", (data.message.strip() + (" [imagem anexada]" if data.image_data else "")).strip(), now(), conv_id))
+        # Registra título e atividade antes de chamar a IA, para preservar o recente
+        # mesmo quando o provedor demorar ou retornar erro.
+        title_text = data.message.strip()[:48] or "Novo Chat"
+        c.execute("UPDATE conversations SET title=CASE WHEN title IN ('Nova conversa','Novo Chat') THEN %s ELSE title END,updated_at=%s WHERE id=%s" if DATABASE_URL else "UPDATE conversations SET title=CASE WHEN title IN ('Nova conversa','Novo Chat') THEN ? ELSE title END,updated_at=? WHERE id=?",
+                  (title_text, now(), conv_id))
     messages = [{"role":"system","content":system_prompt(user, activity, memories)}]
     messages += [{"role":r["role"],"content":r["content"]} for r in history]
     user_content = [{"type":"text","text":data.message or "Analise a imagem enviada e descreva o que consegue identificar."}]
@@ -414,22 +419,22 @@ async def chat(data: ChatIn, user=Depends(current_user)):
         c.execute("INSERT INTO messages(user_id,role,content,created_at,conversation_id) VALUES(%s,%s,%s,%s,%s)" if DATABASE_URL else "INSERT INTO messages(user_id,role,content,created_at,conversation_id) VALUES(?,?,?,?,?)",
                   (user["id"], "assistant", answer, now(), conv_id))
     with db() as c:
-        c.execute("UPDATE conversations SET title=CASE WHEN title='Nova conversa' THEN %s ELSE title END,updated_at=%s WHERE id=%s" if DATABASE_URL else "UPDATE conversations SET title=CASE WHEN title='Nova conversa' THEN ? ELSE title END,updated_at=? WHERE id=?",(data.message.strip()[:48] or "Nova conversa",now(),conv_id))
+        c.execute("UPDATE conversations SET updated_at=%s WHERE id=%s" if DATABASE_URL else "UPDATE conversations SET updated_at=? WHERE id=?",(now(),conv_id))
     return {"reply":answer,"conversation_id":conv_id}
 
 @app.get("/conversations")
 def list_conversations(user=Depends(current_user)):
     with db() as c:
-        rows=c.execute("SELECT id,title,created_at,updated_at FROM conversations WHERE user_id=%s ORDER BY updated_at DESC" if DATABASE_URL else "SELECT id,title,created_at,updated_at FROM conversations WHERE user_id=? ORDER BY updated_at DESC",(user["id"],)).fetchall()
+        rows=c.execute("SELECT id,title,created_at,updated_at FROM conversations WHERE user_id=%s ORDER BY updated_at DESC,id DESC" if DATABASE_URL else "SELECT id,title,created_at,updated_at FROM conversations WHERE user_id=? ORDER BY updated_at DESC,id DESC",(user["id"],)).fetchall()
     return {"conversations":[dict(r) for r in rows]}
 
 @app.post("/conversations")
 def create_conversation(user=Depends(current_user)):
     stamp=now()
     with db() as c:
-        if DATABASE_URL: row=c.execute("INSERT INTO conversations(user_id,title,created_at,updated_at) VALUES(%s,'Nova conversa',%s,%s) RETURNING id,title,created_at,updated_at",(user["id"],stamp,stamp)).fetchone()
+        if DATABASE_URL: row=c.execute("INSERT INTO conversations(user_id,title,created_at,updated_at) VALUES(%s,'Novo Chat',%s,%s) RETURNING id,title,created_at,updated_at",(user["id"],stamp,stamp)).fetchone()
         else:
-            cid=c.execute("INSERT INTO conversations(user_id,title,created_at,updated_at) VALUES(?,'Nova conversa',?,?)",(user["id"],stamp,stamp)).lastrowid
+            cid=c.execute("INSERT INTO conversations(user_id,title,created_at,updated_at) VALUES(?,'Novo Chat',?,?)",(user["id"],stamp,stamp)).lastrowid
             row=c.execute("SELECT id,title,created_at,updated_at FROM conversations WHERE id=?",(cid,)).fetchone()
     return dict(row)
 
