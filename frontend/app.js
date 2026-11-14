@@ -15,7 +15,7 @@ function showApp(){ $("auth").classList.add("hidden");$("app").classList.remove(
 function setMode(mode){authMode=mode;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===mode));$("name-field").classList.toggle("hidden",mode!=="register");$("auth-submit").textContent=mode==="login"?"Entrar na sua reserva ↗":"Criar minha conta ↗";$("auth-error").textContent=""}
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setMode(b.dataset.tab));
 $("auth-form").onsubmit=async e=>{e.preventDefault();$("auth-error").textContent="";try{const path=authMode==="login"?"/auth/login":"/auth/register";const body=authMode==="login"?{email:$("email").value,password:$("password").value}:{name:$("name").value,email:$("email").value,password:$("password").value};const d=await api(path,{method:"POST",body:JSON.stringify(body)});token=d.token;localStorage.setItem("sra_token",token);me=d.user;showApp();await loadMessages();await refreshActivity();}catch(err){$("auth-error").textContent=err.message}};
-$("logout").onclick=()=>{token="";me=null;localStorage.removeItem("sra_token");showAuth()};
+$("logout").onclick=()=>{token="";me=null;localStorage.removeItem("sra_token");localStorage.removeItem("sra_user");localStorage.removeItem("sra_current_conversation");showAuth()};
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function addMessage(role,content){const box=document.createElement("div");box.className="message "+(role==="user"?"user":"");box.innerHTML=`<div class="msg-avatar">${role==="user"?"H":"✦"}</div><div class="bubble">${escapeHtml(content)}</div>`;$("messages").appendChild(box);$("messages").scrollTop=$("messages").scrollHeight}
 async function loadMessages(){const d=await api("/messages");$("messages").innerHTML="";if(!d.messages.length){$("messages").innerHTML=document.querySelector(".welcome").outerHTML;$("welcome-name").textContent=me.name;document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>sendMessage(b.dataset.prompt));return}d.messages.forEach(m=>addMessage(m.role,m.content))}
@@ -225,7 +225,7 @@ matrixRain("auth-matrix",42);
 matrixRain("hacker-rain",34);
 
 function finishLogin(d){
- token=d.token;localStorage.setItem("sra_token",token);me=d.user;currentConversationId=null;
+ token=d.token;localStorage.setItem("sra_token",token);me=d.user;localStorage.setItem("sra_user",JSON.stringify(me));currentConversationId=null;
  $("verify-panel")?.classList.add("hidden");showApp();
  loadConversations().then(loadMessages).catch(e=>toast(e.message));refreshActivity();
 }
@@ -326,10 +326,13 @@ $("new-chat").onclick=async()=>{
 };
 async function bootPro(){
  if(!token){showAuth();return}
- try{me=await api("/me");showApp();await loadConversations();await loadMessages();await refreshActivity();setInterval(refreshActivity,30000)}
+ try{me=JSON.parse(localStorage.getItem("sra_user")||"null")}catch{me=null}
+ if(me)showApp();
+ try{me=await api("/me");localStorage.setItem("sra_user",JSON.stringify(me));showApp();await loadConversations();await loadMessages();await refreshActivity();setInterval(refreshActivity,30000)}
  catch(e){
-  if(/401|Sessão inválida|expirada|Faça login/i.test(e.message)){token="";localStorage.removeItem("sra_token");showAuth()}
-  else{showApp();toast("Conexão instável. Atualize em instantes; sua sessão foi preservada.");}
+  if(/401|Sessão inválida|expirada|Faça login/i.test(e.message)){token="";me=null;localStorage.removeItem("sra_token");localStorage.removeItem("sra_user");showAuth()}
+  else if(me){showApp();toast("Sem conexão no momento. Sua sessão continua salva.");}
+  else{showAuth();toast("Não foi possível conectar. Tente novamente em instantes.");}
  }
 }
 bootPro();
@@ -480,10 +483,9 @@ navigate=function(view){
 
 function decorateGameCards(){
  document.querySelectorAll(".game-card").forEach(card=>{
-  if(card.querySelector(".game-avatar-stamp"))return;
-  const stamp=document.createElement("span");stamp.className="game-avatar-stamp";
+  let stamp=card.querySelector(".game-avatar-stamp");
+  if(!stamp){stamp=document.createElement("span");stamp.className="game-avatar-stamp";card.appendChild(stamp)}
   stamp.innerHTML=makeAvatarMarkup("tiny-avatar")+'<small>Seu personagem</small>';
-  card.appendChild(stamp);
  });
 }
 function decorateGameStage(){
