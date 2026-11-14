@@ -17,7 +17,7 @@ load_dotenv()
 APP_NAME = os.getenv("APP_NAME", "Soares Reserva AI")
 JWT_SECRET = os.getenv("JWT_SECRET", "dev-only-change-me")
 JWT_ALGORITHM = "HS256"
-JWT_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "10080"))
+JWT_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "43200"))
 DB_PATH = os.getenv("DATABASE_PATH", "./soares_reserva.db")
 DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 AI_API_KEY = os.getenv("AI_API_KEY", "")
@@ -243,7 +243,9 @@ async def google_login(data: GoogleLoginIn):
     with db() as c:
         user=c.execute("SELECT id,name,email,role,plan FROM users WHERE email=%s" if DATABASE_URL else "SELECT id,name,email,role,plan FROM users WHERE email=?",(email,)).fetchone()
         if user:
-            c.execute("UPDATE users SET email_verified=TRUE,google_sub=%s WHERE id=%s" if DATABASE_URL else "UPDATE users SET email_verified=1,google_sub=? WHERE id=?",(sub,user["id"]))
+            plan = "pro" if email.endswith("@soaresdev.com") else "free"
+            c.execute("UPDATE users SET email_verified=TRUE,google_sub=%s,plan=%s WHERE id=%s" if DATABASE_URL else "UPDATE users SET email_verified=1,google_sub=?,plan=? WHERE id=?",(sub,plan,user["id"]))
+            user = dict(user); user["plan"] = plan
         else:
             ph=pwd.hash(secrets.token_urlsafe(32))
             if DATABASE_URL:
