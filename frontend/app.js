@@ -524,7 +524,8 @@ decorateGameCards();
 (()=>{
  const menu=$("#profile-menu"),modal=$("#profile-action-modal"),content=$("#action-modal-content"),title=$("#action-modal-title"),profile=document.querySelector(".sidebar .profile");
  if(!menu||!modal||!profile)return;
- const setOpen=open=>{menu.classList.toggle("hidden",!open);profile.setAttribute("aria-expanded",String(open));};
+ let isProfileMenuOpen=false;
+ const setOpen=open=>{isProfileMenuOpen=Boolean(open);menu.classList.toggle("hidden",!isProfileMenuOpen);profile.setAttribute("aria-expanded",String(isProfileMenuOpen));};
  const close=()=>{modal.classList.add("hidden");setOpen(false);};
  profile.addEventListener("click",e=>{e.preventDefault();setOpen(menu.classList.contains("hidden"));});
  profile.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setOpen(menu.classList.contains("hidden"));}if(e.key==="Escape")setOpen(false);});
