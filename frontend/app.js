@@ -536,6 +536,8 @@ applyExpandedProfile=function(){priorExpandedProfileForBrand();const name=$("pro
 const baseProfileColorSet=localStorage.setItem.bind(localStorage);
 const previousNavigateFinal=navigate;
 navigate=function(view){
+ if(view==="activity"&&!isLolaAccount()){view="chat";toast("Esta área é privada.");}
+ document.querySelector('[data-view="activity"]')?.classList.toggle("hidden",!isLolaAccount());
  const views=["chat","memories","activity","games","profile","terms"];
  views.forEach(v=>$(v+"-view")?.classList.toggle("hidden",v!==view));
  document.querySelectorAll(".nav").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
