@@ -1003,3 +1003,70 @@ body{background-image:radial-gradient(ellipse at 12% 0%,rgba(180,76,255,.13),tra
     max-width: 1440px;
   }
 }
+
+
+/* === Correção final: largura fluida do chat e composer arredondado === */
+@media (min-width: 761px) {
+  .main,
+  .chat-view {
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+  }
+  .chat-view {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .chat-intro,
+  .messages {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+  }
+  .chat-intro {
+    align-self: stretch;
+  }
+  .messages {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .message {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+  .bubble {
+    max-width: min(1200px, 94%);
+    overflow-wrap: anywhere;
+  }
+  .composer {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    border-radius: 28px!important;
+    overflow: visible;
+  }
+  .composer textarea {
+    border-radius: 22px!important;
+  }
+  .composer .tool-btn {
+    border-radius: 14px!important;
+  }
+  .composer .send {
+    border-radius: 18px!important;
+  }
+}
+@media (max-width: 760px) {
+  .composer {
+    border-radius: 24px!important;
+  }
+  .composer .tool-btn,
+  .composer .send {
+    border-radius: 13px!important;
+  }
+}
