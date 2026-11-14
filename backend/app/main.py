@@ -176,7 +176,7 @@ def health():
     return {"ok": True, "app": APP_NAME, "ai_configured": bool(AI_API_KEY)}
 
 @app.post("/auth/register")
-def register(data: RegisterIn):
+async def register(data: RegisterIn):
     email = data.email.lower()
     with db() as c:
         count = c.execute("SELECT COUNT(*) AS n FROM users").fetchone()["n"]
