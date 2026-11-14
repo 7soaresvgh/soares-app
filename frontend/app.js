@@ -494,7 +494,7 @@ function renderAvatarPicker(){
 }
 function openProfileSettings(){navigate("profile");renderAvatarPicker();document.querySelector(".profile-page")?.scrollIntoView({behavior:"smooth",block:"start"})}
 const profileFooter=$(".profile");
-if(profileFooter){profileFooter.setAttribute("role","button");profileFooter.setAttribute("tabindex","0");profileFooter.setAttribute("aria-label","Abrir configurações do perfil");profileFooter.addEventListener("click",e=>{if(e.target.closest("#logout"))return;openProfileSettings()});profileFooter.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openProfileSettings()}})}
+if(profileFooter){profileFooter.setAttribute("role","button");profileFooter.setAttribute("tabindex","0");profileFooter.setAttribute("aria-label","Abrir menu do perfil");}
 const logoutButton=$("logout");if(logoutButton)logoutButton.addEventListener("click",e=>e.stopPropagation());
 updateAccountChrome();renderAvatarPicker();
 const baseShowApp=showApp;
@@ -512,6 +512,10 @@ function switchProfileStorage(){
 }
 const baseApplyExpandedProfile=applyExpandedProfile;
 applyExpandedProfile=function(){baseApplyExpandedProfile();["profile-avatar","profile-preview-avatar"].forEach(id=>{const el=$(id);if(el){el.innerHTML=makeAvatarMarkup("tiny-avatar");el.style.backgroundImage="none";el.style.backgroundColor="transparent"}})};
+const priorAccountChrome=updateAccountChrome;
+updateAccountChrome=function(){priorAccountChrome();const name=$("profile-name");if(name)name.textContent="Soares Dev";};
+const priorExpandedProfileForBrand=applyExpandedProfile;
+applyExpandedProfile=function(){priorExpandedProfileForBrand();const name=$("profile-name");if(name)name.textContent="Soares Dev";};
 const baseProfileColorSet=localStorage.setItem.bind(localStorage);
 const previousNavigateFinal=navigate;
 navigate=function(view){
